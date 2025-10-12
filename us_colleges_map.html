@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US Colleges Map – Prototype</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body{font-family: system-ui; margin:0;}
+    header{padding:12px 16px; border-bottom:1px solid #eee; display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    header h1{font-size:18px; margin:0 12px 0 0}
+    label{font-size:12px; color:#333}
+    input, select, button{padding:8px 10px; border-radius:10px; border:1px solid #ddd; font-size:14px}
+    button{cursor:pointer}
+    #map{height:calc(100vh - 76px);}
+    .pill{background:#f5f5f5; padding:6px 8px; border-radius:999px; font-size:12px}
+    .legend{position:absolute; bottom:14px; left:14px; background:#fff; padding:8px 10px; border-radius:12px; border:1px solid #eee; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>US Colleges Map</h1>
+    <div class="pill">
+      <label>Address</label>
+      <input id="address" size="28" placeholder="Enter your home address" />
+      <button id="geocodeBtn">Set</button>
+    </div>
+    <div class="pill">
+      <label>Radius</label>
+      <input id="radius" type="number" min="0" step="10" value="50" style="width:80px" />
+      <select id="units">
+        <option value="mi" selected>mi</option>
+        <option value="km">km</option>
+      </select>
+      <button id="clearRadius">Clear</button>
+    </div>
+    <div class="pill">
+      <label>State</label>
+      <select id="state">
+        <option value="">All</option>
+      </select>
+    </div>
+    <div class="pill">
+      <label>Tier</label>
+      <select id="tier">
+        <option value="">Any</option>
+        <option>R1 (Very High Research)</option>
+        <option>R2 (High Research)</option>
+        <option>Master's</option>
+        <option>Baccalaureate</option>
+        <option>Associate</option>
+        <option>Special Focus</option>
+      </select>
+    </div>
+    <div class="pill">
+      <button id="loadCsv">Load CSV…</button>
+      <input id="csvFile" type="file" accept=".csv" style="display:none"/>
+    </div>
+  </header>
+  <div id="map"></div>
+  <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
+  <script>
+    const map = L.map('map').setView([39.5, -98.35], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markersLayer = L.layerGroup().addTo(map);
+    const homeLayer = L.layerGroup().addTo(map);
+
+    function haversine(lat1, lon1, lat2, lon2){
+      const toRad = d=>d*Math.PI/180;
+      const R = 6371;
+      const dLat = toRad(lat2-lat1);
+      const dLon = toRad(lon2-lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+      return 2*R*Math.asin(Math.sqrt(a));
+    }
+
+    let colleges = [
+      { name: 'Harvard University', lat: 42.3770, lon: -71.1167, state: 'MA', tier: 'R1 (Very High Research)' },
+      { name: 'Stanford University', lat: 37.4275, lon: -122.1697, state: 'CA', tier: 'R1 (Very High Research)' },
+      { name: 'Arizona State University', lat: 33.4242, lon: -111.9281, state: 'AZ', tier: 'R1 (Very High Research)' },
+      { name: 'San Jose State University', lat: 37.3352, lon: -121.8811, state: 'CA', tier: "Master's" },
+      { name: 'Princeton University', lat: 40.3431, lon: -74.6514, state: 'NJ', tier: 'R1 (Very High Research)' },
+      { name: 'Nassau Community College', lat: 40.7291, lon: -73.5921, state: 'NY', tier: 'Associate' },
+      { name: 'Rutgers University–New Brunswick', lat: 40.5009, lon: -74.4474, state: 'NJ', tier: 'R1 (Very High Research)' },
+      { name: 'CUNY Baruch College', lat: 40.7403, lon: -73.9847, state: 'NY', tier: "Master's" },
+      { name: 'University of Pennsylvania', lat: 39.9522, lon: -75.1932, state: 'PA', tier: 'R1 (Very High Research)' },
+      { name: 'University of Arizona', lat: 32.2319, lon: -110.9501, state: 'AZ', tier: 'R1 (Very High Research)' }
+    ];
+
+    function refreshStates(){
+      const states = Array.from(new Set(colleges.map(c=>c.state))).sort();
+      const sel = document.getElementById('state');
+      sel.innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
+    }
+    refreshStates();
+
+    let home = null;
+    let radiusKm = null;
+    let homeMarker = null;
+    let radiusCircle = null;
+
+    function setHome(lat, lon){
+      home = {lat, lon};
+      homeLayer.clearLayers();
+      homeMarker = L.marker([lat, lon]).addTo(homeLayer).bindPopup('Home');
+      if(radiusKm){
+        radiusCircle = L.circle([lat, lon], { radius: radiusKm*1000, color:'#0a7', fillOpacity:0.05 }).addTo(homeLayer);
+      }
+      map.flyTo([lat, lon], 8);
+      render();
+    }
+
+    function setRadius(value, units){
+      if(!home){ radiusKm = null; return; }
+      const km = units === 'mi' ? value*1.60934 : value;
+      radiusKm = km;
+      homeLayer.clearLayers();
+      if(home){
+        homeMarker = L.marker([home.lat, home.lon]).addTo(homeLayer).bindPopup('Home');
+        radiusCircle = L.circle([home.lat, home.lon], { radius: km*1000, color:'#0a7', fillOpacity:0.05 }).addTo(homeLayer);
+      }
+      render();
+    }
+
+    async function geocode(address){
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.searchParams.set('q', address);
+      url.searchParams.set('format', 'json');
+      url.searchParams.set('countrycodes', 'us');
+      url.searchParams.set('limit', '1');
+      const res = await fetch(url.toString());
+      const data = await res.json();
+      if(data && data[0]){
+        return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+      }
+      return null;
+    }
+
+    function render(){
+      markersLayer.clearLayers();
+      const state = document.getElementById('state').value;
+      const tier = document.getElementById('tier').value;
+      let filtered = colleges.filter(c => (!state || c.state===state) && (!tier || c.tier===tier));
+      if(home && radiusKm){
+        filtered = filtered.filter(c => haversine(home.lat, home.lon, c.lat, c.lon) <= radiusKm);
+      }
+      for(const c of filtered){
+        const m = L.circleMarker([c.lat, c.lon], { radius: 6, color:'#2563eb', weight:1, fillOpacity:0.7 })
+          .bindPopup(`<b>${c.name}</b><br/>${c.state} · ${c.tier}`);
+        m.addTo(markersLayer);
+      }
+      document.getElementById('count').textContent = filtered.length;
+    }
+    render();
+
+    document.getElementById('geocodeBtn').addEventListener('click', async () => {
+      const addr = document.getElementById('address').value.trim();
+      if(!addr) return;
+      const result = await geocode(addr);
+      if(result){
+        setHome(result.lat, result.lon);
+        const value = parseFloat(document.getElementById('radius').value||'0');
+        const units = document.getElementById('units').value;
+        if(value>0){ setRadius(value, units); }
+      } else {
+        alert('Address not found');
+      }
+    });
+
+    document.getElementById('clearRadius').addEventListener('click', ()=>{
+      radiusKm = null;
+      homeLayer.clearLayers();
+      render();
+    });
+    document.getElementById('radius').addEventListener('change', (e)=>{
+      const value = parseFloat(e.target.value||'0');
+      const units = document.getElementById('units').value;
+      if(value>0) setRadius(value, units);
+    });
+    document.getElementById('units').addEventListener('change', ()=>{
+      const value = parseFloat(document.getElementById('radius').value||'0');
+      const units = document.getElementById('units').value;
+      if(value>0) setRadius(value, units);
+    });
+    document.getElementById('state').addEventListener('change', render);
+    document.getElementById('tier').addEventListener('change', render);
+
+    document.getElementById('loadCsv').addEventListener('click', ()=> document.getElementById('csvFile').click());
+    document.getElementById('csvFile').addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: (results)=>{
+          const rows = results.data.filter(r => r.name && r.lat && r.lon);
+          colleges = rows.map(r=>({ name: r.name, lat: parseFloat(r.lat), lon: parseFloat(r.lon), state: r.state, tier: r.tier || 'Unknown' }));
+          refreshStates();
+          render();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
