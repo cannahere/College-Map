@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>U.S. Colleges Map</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: #ffffff;
+      color: #0f172a;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    header.app-header {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 10;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.08);
+    }
+    .head-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+    }
+    .title-wrap h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+    }
+    .title-wrap p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px 16px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .row > .pill {
+      flex: 1;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    .pill label {
+      color: #475569;
+      font-weight: 600;
+      font-size: 12px;
+      min-width: 60px;
+    }
+    .pill input, .pill select, .pill button {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 14px;
+      flex: 1;
+    }
+    .pill button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 0;
+    }
+    #map {
+      height: calc(100vh - 200px);
+      background: #e5e7eb;
+      border-top: 1px solid #e2e8f0;
+    }
+    .legend {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      background: #ffffff;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      font-size: 12px;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.08);
+      color: #0f172a;
+    }
+    .leaflet-tooltip {
+      background: white;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    @media (max-width: 700px) {
+      .row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="container head-inner">
+      <div class="title-wrap">
+        <h1>U.S. Colleges Map</h1>
+        <p>Explore accredited U.S. colleges and universities. Filter by state or type, and enter your home address to find colleges within a distance radius. The map focuses on the United States for easier navigation.</p>
+      </div>
+    </div>
+    <div class="container controls">
+      <div class="row">
+        <div class="pill">
+          <label for="type">Type</label>
+          <select id="type"><option value="">Any</option></select>
+        </div>
+        <div class="pill">
+          <label for="state">State</label>
+          <select id="state"><option value="">All</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="pill">
+          <label for="address">Address</label>
+          <input id="address" size="26" placeholder="Enter your home address" />
+          <button id="geocodeBtn">Set</button>
+        </div>
+        <div class="pill">
+          <label for="radius">Radius</label>
+          <input id="radius" type="number" min="0" step="10" value="50" style="width:90px" />
+          <select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select>
+          <button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div id="map"></div>
+  <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
+
+  <script>
+    const DATA_URL = 'https://cannahere.github.io/College-Map/colleges_usa_2024.csv';
+    const TYPE_ORDER = ["Ivy League","Elite Private Universities","Public Flagship Universities","Private Liberal Arts Colleges","STEM / Technology Institutes","Business / Arts / Specialty Schools","Health & Medical Colleges","Faith-Based","Public Regional Universities","Community Colleges","Online / For-Profit"];
+
+    const americasBounds = L.latLngBounds([[-60, -180], [85, -30]]);
+    const map = L.map('map', {maxBounds: americasBounds, maxBoundsViscosity: 1.0}).setView([39.5, -98.35], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markersLayer = L.layerGroup().addTo(map);
+    const homeLayer = L.layerGroup().addTo(map);
+    let colleges = [], home = null, radiusKm = null;
+
+    function render() {
+      markersLayer.clearLayers();
+      const stateVal = document.getElementById('state').value;
+      const typeVal = document.getElementById('type').value;
+      let filtered = colleges.filter(c => (!stateVal || c.state===stateVal) && (!typeVal || (c.type||c.tier)===(typeVal)));
+      filtered.forEach(c => {
+        const m = L.circleMarker([c.lat, c.lon], {
+          radius: 6,
+          color: '#2563eb',
+          weight: 2,
+          fillOpacity: 0.7
+        })
+        .bindTooltip(c.name, {permanent: false, direction: 'top'})
+        .bindPopup(`<b>${c.name}</b><br/>${c.state} · ${(c.type||c.tier||'')}`);
+        m.addTo(markersLayer);
+      });
+      document.getElementById('count').textContent = filtered.length.toLocaleString();
+    }
+
+    function refreshStates() {
+      const states = Array.from(new Set(colleges.map(c=>c.state))).filter(Boolean).sort();
+      document.getElementById('state').innerHTML = '<option value="">All</option>' + states.map(s=>`<option>${s}</option>`).join('');
+    }
+    function refreshTypes() {
+      const setTypes = Array.from(new Set(colleges.map(c=>c.type||c.tier||'Unknown'))).filter(Boolean);
+      const ranked = [...TYPE_ORDER.filter(t=>setTypes.includes(t))];
+      const leftovers = setTypes.filter(t=>!TYPE_ORDER.includes(t)).sort();
+      const ordered = ranked.concat(leftovers);
+      document.getElementById('type').innerHTML = '<option value="">Any</option>' + ordered.map(t=>`<option>${t}</option>`).join('');
+    }
+
+    async function geocode(address){
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.searchParams.set('q', address);
+      url.searchParams.set('format', 'json');
+      url.searchParams.set('countrycodes', 'us');
+      url.searchParams.set('limit', '1');
+      const res = await fetch(url.toString(), {headers:{'Accept-Language':'en'}});
+      const data = await res.json();
+      if(data && data[0]) return {lat:parseFloat(data[0].lat), lon:parseFloat(data[0].lon)};
+      return null;
+    }
+
+    function setHome(lat, lon) {
+      home = {lat, lon};
+      homeLayer.clearLayers();
+      L.marker([lat, lon], {title:'Home'}).addTo(homeLayer).bindPopup('Home');
+      if(radiusKm){L.circle([lat, lon], {radius: radiusKm*1000, color:'#10b981', fillOpacity:0.06}).addTo(homeLayer);}
+      map.flyTo([lat, lon], 8);
+      render();
+    }
+    function setRadius(value, units) {
+      if(!home){ radiusKm = null; return; }
+      radiusKm = units === 'mi' ? value*1.60934 : value;
+      homeLayer.clearLayers();
+      L.marker([home.lat, home.lon], {title:'Home'}).addTo(homeLayer).bindPopup('Home');
+      L.circle([home.lat, home.lon], {radius: radiusKm*1000, color:'#10b981', fillOpacity:0.06}).addTo(homeLayer);
+      render();
+    }
+
+    function loadFromUrl(url){
+      Papa.parse(url, {header:true, dynamicTyping:true, download:true, complete:(results)=>{
+        const rows = results.data.filter(r => (r.name||r.INSTNM||r.instnm)&&(r.lat||r.LATITUDE||r.latitude)&&(r.lon||r.LONGITUDE||r.longitude));
+        if(rows.length===0) return;
+        colleges = rows.map(r=>({id:r.id||r.UNITID||Math.random().toString(36).slice(2), name:r.name||r.INSTNM||r.instnm, lat:parseFloat(r.lat||r.LATITUDE||r.latitude), lon:parseFloat(r.lon||r.LONGITUDE||r.longitude), state:(r.state||r.STABBR||'').toUpperCase(), type:r.type||r.tier||'Unknown'}));
+        refreshStates(); refreshTypes(); render();
+      }});
+    }
+
+    document.getElementById('geocodeBtn').addEventListener('click', async()=>{
+      const addr=document.getElementById('address').value.trim();
+      if(!addr) return;
+      const result=await geocode(addr);
+      if(result){setHome(result.lat,result.lon);const v=parseFloat(document.getElementById('radius').value||'0');const u=document.getElementById('units').value;if(v>0)setRadius(v,u);}else alert('Address not found');});
+    document.getElementById('clearRadius').addEventListener('click',()=>{radiusKm=null;homeLayer.clearLayers();render();});
+    document.getElementById('radius').addEventListener('change',e=>{const v=parseFloat(e.target.value||'0');const u=document.getElementById('units').value;if(v>0)setRadius(v,u);});
+    document.getElementById('units').addEventListener('change',()=>{const v=parseFloat(document.getElementById('radius').value||'0');const u=document.getElementById('units').value;if(v>0)setRadius(v,u);});
+    document.getElementById('state').addEventListener('change',render);
+    document.getElementById('type').addEventListener('change',render);
+
+    loadFromUrl(DATA_URL);
+  </script>
+</body>
+</html>
