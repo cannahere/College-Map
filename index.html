@@ -183,7 +183,15 @@ document.getElementById('search').oninput=render;
 loadFromUrl(DATA_URL);
 
 // Live visitor counter
-fetch('https://api.countapi.xyz/hit/college_map/visitors')
+fetch('https://raw.githubusercontent.com/cannahere/College-Map/main/data/visitors.json')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('visitorCount').textContent =
+      (d.visitors || 0).toLocaleString() + ' Visitors';
+  })
+  .catch(() => {
+    document.getElementById('visitorCount').textContent = '-- Visitors';
+  });
   .then(res=>res.json())
   .then(data=>{document.getElementById('visitorCount').textContent=(data && data.value?data.value:0).toLocaleString()+' Visitors';})
   .catch(()=>{document.getElementById('visitorCount').textContent='-- Visitors';});
