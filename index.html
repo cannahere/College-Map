@@ -7,119 +7,43 @@
 
   <title>U.S. College Map | Explore Colleges by Location, Type, and State</title>
 
-  <!-- Icons and Fonts -->
+  <!-- Branding & Icons -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
 
-  <!-- Leaflet and PapaParse -->
+  <!-- SEO -->
+  <meta name="description" content="Use the U.S. College Map to explore accredited universities and colleges across America by location, type, and state. Filter, search, and find the best match for you.">
+  <meta property="og:title" content="U.S. College Map | Explore Colleges by Location, Type, and State">
+  <meta property="og:description" content="Find and explore U.S. colleges on an interactive map — filter by state, type, and proximity to your home.">
+  <meta property="og:image" content="https://uscollegemap.org/USCollegeMap_Logo.png">
+  <meta property="og:url" content="https://uscollegemap.org/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="U.S. College Map">
+  <meta name="twitter:description" content="Explore accredited U.S. colleges and universities on an interactive map.">
+  <meta name="twitter:image" content="https://uscollegemap.org/USCollegeMap_Logo.png">
+
+  <!-- Libraries -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #fff;
-      color: #0f172a;
-    }
-    header.app-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      background: #fff;
-      border-bottom: 1px solid #e5e7eb;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      padding: 16px 40px;
-    }
-    .site-logo {
-      height: 70px;
-      transition: all 0.3s ease;
-    }
-    @media (max-width: 700px) {
-      header.app-header {
-        flex-direction: column;
-        text-align: center;
-        padding: 12px 20px;
-      }
-      .site-logo {
-        height: 56px;
-      }
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 14px 16px 16px;
-      border-top: 1px solid #e5e7eb;
-      background: #fff;
-    }
-    .row {
-      display: flex;
-      gap: 12px;
-      justify-content: space-between;
-    }
-    .row > .pill {
-      flex: 1;
-    }
-    .pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      padding: 6px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-    }
-    .pill label {
-      color: #475569;
-      font-weight: 600;
-      font-size: 12px;
-      min-width: 60px;
-    }
-    .pill input,
-    .pill select,
-    .pill button {
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 8px 10px;
-      background: #fff;
-      color: #0f172a;
-      font-size: 14px;
-      flex: 1;
-    }
-    .pill button {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      flex: 0;
-    }
-    #map {
-      height: calc(100vh - 210px);
-      background: #e5e7eb;
-      border-top: 1px solid #e2e8f0;
-    }
-    .legend {
-      position: absolute;
-      bottom: 14px;
-      left: 14px;
-      background: #fff;
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      font-size: 12px;
-      box-shadow: 0 10px 25px rgba(15,23,42,.08);
-      color: #0f172a;
-    }
+    body {margin:0;font-family:Inter,system-ui,sans-serif;background:#fff;color:#0f172a;}
+    header.app-header {display:flex;align-items:center;justify-content:center;gap:16px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05);padding:16px 40px;}
+    .site-logo {height:70px;transition:all 0.3s ease;}
+    @media (max-width:700px){header.app-header{flex-direction:column;text-align:center;padding:12px 20px;}.site-logo{height:56px;}}
+    .container{max-width:1100px;margin:0 auto;padding:16px;}
+    .controls{display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;border-top:1px solid #e5e7eb;background:#fff;}
+    .row{display:flex;gap:12px;justify-content:space-between;}
+    .row>.pill{flex:1;}
+    .pill{display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:12px;font-size:12px;}
+    .pill label{color:#475569;font-weight:600;font-size:12px;min-width:60px;}
+    .pill input,.pill select,.pill button{border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1;}
+    .pill button{background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0;}
+    #map{height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0;}
+    .legend{position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a;}
   </style>
 </head>
 
@@ -149,20 +73,17 @@
   <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
 
   <script>
-    const DATA_URL = "https://cannahere.github.io/College-Map/colleges_usa_2024.csv";
+    const DATA_URL = "https://uscollegemap.org/colleges_usa_2024.csv";
     const TYPE_ORDER = [
-      "Ivy League", "Elite Private Universities", "Public Flagship Universities",
-      "Private Liberal Arts Colleges", "STEM / Technology Institutes",
-      "Business / Arts / Specialty Schools", "Health & Medical Colleges",
-      "Faith-Based", "Public Regional Universities", "Community Colleges", "Online / For-Profit"
+      "Ivy League","Elite Private Universities","Public Flagship Universities",
+      "Private Liberal Arts Colleges","STEM / Technology Institutes",
+      "Business / Arts / Specialty Schools","Health & Medical Colleges",
+      "Faith-Based","Public Regional Universities","Community Colleges","Online / For-Profit"
     ];
 
     const americasBounds = L.latLngBounds([[-60,-180],[85,-30]]);
-    const map = L.map('map', {maxBounds: americasBounds, maxBoundsViscosity: 1}).setView([39.5,-98.35], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    const map = L.map('map',{maxBounds:americasBounds,maxBoundsViscosity:1}).setView([39.5,-98.35],4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
     let colleges = [];
@@ -180,7 +101,7 @@
       );
 
       filtered.forEach(c => {
-        let popup = `
+        const popup = `
           <div style="font-family:Inter,sans-serif;font-size:14px;line-height:1.6;">
             <strong style="font-size:16px;">${c.name}</strong><br/>
             ${c.city ? `${c.city}, ` : ''}${c.state}<br/>
@@ -191,49 +112,48 @@
             ${c.url ? `<a href="https://${c.url}" target="_blank" style="color:#2563eb;text-decoration:none;">🌐 ${c.url}</a>` : ''}
           </div>
         `;
-        L.circleMarker([c.lat, c.lon], {
-          radius: 6,
-          color: '#2563eb',
-          weight: 2,
-          fillOpacity: 0.7
-        })
-        .bindTooltip(c.name, { permanent: false, direction: 'top' })
-        .bindPopup(popup)
-        .addTo(markersLayer);
+        if (!isNaN(c.lat) && !isNaN(c.lon)) {
+          L.circleMarker([c.lat, c.lon], {
+            radius: 6, color: '#2563eb', weight: 2, fillOpacity: 0.7
+          })
+          .bindTooltip(c.name, {permanent:false,direction:'top'})
+          .bindPopup(popup)
+          .addTo(markersLayer);
+        }
       });
-
       document.getElementById('count').textContent = filtered.length.toLocaleString();
     }
 
     function refreshFilters() {
       const states = [...new Set(colleges.map(c => c.state))].filter(Boolean).sort();
       document.getElementById('state').innerHTML = '<option value="">All</option>' + states.map(s => `<option>${s}</option>`).join('');
-
       const types = [...new Set(colleges.map(c => c.type))].filter(Boolean);
       const ordered = TYPE_ORDER.filter(t => types.includes(t)).concat(types.filter(t => !TYPE_ORDER.includes(t)));
       document.getElementById('type').innerHTML = '<option value="">Any</option>' + ordered.map(t => `<option>${t}</option>`).join('');
     }
 
     function loadFromUrl(url) {
-      Papa.parse(url, {
-        header: true,
-        download: true,
-        dynamicTyping: true,
+      Papa.parse(url,{
+        header:true,download:true,dynamicTyping:true,
         complete: results => {
           const rows = results.data;
-          colleges = rows.map(r => ({
-            name: r.name || '',
-            city: r.city || '',
-            state: (r.state || '').toUpperCase(),
-            lat: +r.lat,
-            lon: +r.lon,
-            type: r.type || 'Unknown',
-            control: r.control || '',
-            acceptance: r.acceptance || '',
-            enrollment: r.enrollment || '',
-            tuition: r.tuition || '',
-            url: r.url ? r.url.replace(/^https?:\/\//, '').replace(/\/$/, '') : ''
-          }));
+          colleges = rows.map(r => {
+            const lat = parseFloat((r.lat || "").toString().trim());
+            const lon = parseFloat((r.lon || "").toString().trim());
+            if (isNaN(lat) || isNaN(lon)) return null;
+            return {
+              name:(r.name || "").trim(),
+              city:(r.city || "").trim(),
+              state:(r.state || "").trim().toUpperCase(),
+              lat,lon,
+              type:(r.type || "Unknown").trim(),
+              control:(r.control || "").trim(),
+              acceptance:(r.acceptance || "").trim(),
+              enrollment:(r.enrollment || "").trim(),
+              tuition:(r.tuition || "").trim(),
+              url:r.url ? r.url.toString().replace(/^https?:\/\//,'').replace(/\/$/,'') : ''
+            };
+          }).filter(Boolean);
           refreshFilters();
           render();
         }
