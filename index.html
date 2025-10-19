@@ -55,6 +55,27 @@
     #map {height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0}
     .legend {position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a}
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+
+    /* --- Autocomplete styling fix --- */
+.suggestion-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+.suggestion-item:hover {
+  background: #f1f5f9;
+}
+#suggestions {
+  position: absolute;
+  top: 100%;
+  left: 70px;
+  right: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 9999;
+}
   </style>
 </head>
 <body>
@@ -170,151 +191,129 @@ function loadCSV(url){
   }});
 }
 
-function geocodeAddress(address) {
-  if (!address) return;
+// ========================
+// ✅ Clean Geocode + Radius Filter (U.S.-only)
+// ========================
+function geocodeAddress(addressOrLat, maybeLon) {
+  // Support both string (address) and lat/lon input from autocomplete
+  if (!addressOrLat) return;
 
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(address)}&limit=5`)
+  // Case 1: called with lat/lon directly from autocomplete
+  if (typeof addressOrLat === 'number' && typeof maybeLon === 'number') {
+    renderRadiusFilter(addressOrLat, maybeLon);
+    return;
+  }
+
+  // Case 2: called with an address string (via "Set" button)
+  const address = addressOrLat;
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(address)}&limit=1`)
     .then(r => r.json())
     .then(data => {
       if (data && data[0]) {
         const lat = +data[0].lat, lon = +data[0].lon;
-        homeLayer.clearLayers();
-
-        // Mark home location
-        const homeMarker = L.marker([lat, lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
-        map.setView([lat, lon], 8);
-
-        // Draw radius circle
-        const radiusMi = parseFloat(document.getElementById('radius').value) || 50;
-        const units = document.getElementById('units').value;
-        const radiusMeters = units === 'mi' ? radiusMi * 1609.34 : radiusMi * 1000;
-        const circle = L.circle([lat, lon], {
-          radius: radiusMeters,
-          color: '#2563eb',
-          weight: 1.2,
-          fillColor: '#60a5fa',
-          fillOpacity: 0.1
-        }).addTo(homeLayer);
-
-        // Filter schools within radius
-        const filtered = colleges.filter(c => {
-          const dist = map.distance([lat, lon], [c.lat, c.lon]);
-          return dist <= radiusMeters;
-        });
-
-        // Render markers for filtered schools only
-        markersLayer.clearLayers();
-        filtered.forEach(c => {
-          L.circleMarker([c.lat, c.lon], {
-            radius: 6,
-            color: '#2563eb',
-            weight: 2,
-            fillOpacity: 0.7
-          })
-          .bindTooltip(c.name, { permanent: false, direction: 'top' })
-          .addTo(markersLayer);
-        });
-
-        document.getElementById('count').textContent = filtered.length.toLocaleString();
+        renderRadiusFilter(lat, lon);
+      } else {
+        alert("No U.S. address found. Try again.");
       }
     });
 }
-// ✅ Address autocomplete (up to 5 suggestions)
-let debounceTimer;
-const addrInput=document.getElementById('address');
-const suggestionsBox=document.getElementById('suggestions');
 
-addrInput.addEventListener('input',()=>{
+// ✅ Helper: Filter schools and render within radius
+function renderRadiusFilter(lat, lon) {
+  homeLayer.clearLayers();
+
+  // Mark home location
+  const homeMarker = L.marker([lat, lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
+  map.setView([lat, lon], 8);
+
+  // Draw radius circle
+  const radiusMi = parseFloat(document.getElementById('radius').value) || 50;
+  const units = document.getElementById('units').value;
+  const radiusMeters = units === 'mi' ? radiusMi * 1609.34 : radiusMi * 1000;
+  const circle = L.circle([lat, lon], {
+    radius: radiusMeters,
+    color: '#2563eb',
+    weight: 1.2,
+    fillColor: '#60a5fa',
+    fillOpacity: 0.1
+  }).addTo(homeLayer);
+
+  // Filter schools within radius
+  const filtered = colleges.filter(c => map.distance([lat, lon], [c.lat, c.lon]) <= radiusMeters);
+
+  // Render markers for filtered schools only
+  markersLayer.clearLayers();
+  filtered.forEach(c => {
+    L.circleMarker([c.lat, c.lon], {
+      radius: 6,
+      color: '#2563eb',
+      weight: 2,
+      fillOpacity: 0.7
+    })
+    .bindTooltip(c.name, { permanent: false, direction: 'top' })
+    .addTo(markersLayer);
+  });
+
+  document.getElementById('count').textContent = filtered.length.toLocaleString();
+}
+// ========================
+// ✅ Address Autocomplete (U.S.-only) + Integrated Filter
+// ========================
+let debounceTimer;
+const addrInput = document.getElementById('address');
+const suggestionsBox = document.getElementById('suggestions');
+
+addrInput.addEventListener('input', () => {
   clearTimeout(debounceTimer);
-  const query=addrInput.value.trim();
-  if(query.length<3){suggestionsBox.style.display='none';return;}
-  debounceTimer=setTimeout(()=>{
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`)
-      .then(r=>r.json()).then(data=>{
-        if(data.length){
-          suggestionsBox.innerHTML=data.map(d=>`<div data-lat="${d.lat}" data-lon="${d.lon}">${d.display_name}</div>`).join('');
-          suggestionsBox.style.display='block';
-        } else {suggestionsBox.style.display='none';}
+  const query = addrInput.value.trim();
+  if (query.length < 3) {
+    suggestionsBox.style.display = 'none';
+    return;
+  }
+
+  debounceTimer = setTimeout(() => {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(query)}&limit=5`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.length) {
+          suggestionsBox.innerHTML = data
+            .map(
+              d => `<div class="suggestion-item" data-lat="${d.lat}" data-lon="${d.lon}">
+                      ${d.display_name.replace(', United States', '')}
+                    </div>`
+            )
+            .join('');
+          suggestionsBox.style.display = 'block';
+        } else {
+          suggestionsBox.style.display = 'none';
+        }
       });
-  },400);
+  }, 400);
 });
 
-suggestionsBox.addEventListener('click',e=>{
-  if(e.target.dataset.lat){
-    const lat=+e.target.dataset.lat,lon=+e.target.dataset.lon;
-    addrInput.value=e.target.textContent;
-    suggestionsBox.style.display='none';
-    homeLayer.clearLayers();
-    L.marker([lat,lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
-    map.setView([lat,lon],8);
+// ✅ When user clicks on a suggestion
+suggestionsBox.addEventListener('click', e => {
+  if (e.target.dataset.lat) {
+    const lat = +e.target.dataset.lat, lon = +e.target.dataset.lon;
+    addrInput.value = e.target.textContent;
+    suggestionsBox.style.display = 'none';
+    geocodeAddress(lat, lon);
   }
 });
+
+// ✅ “Set” button fallback
+document.getElementById('geocodeBtn').onclick = () => geocodeAddress(document.getElementById('address').value);
+
+// ✅ Clear radius button stays same
+document.getElementById('clearRadius').onclick = () => {
+  document.getElementById('radius').value = '50';
+  map.setView([39.5, -98.35], 4);
+};
 document.getElementById('geocodeBtn').onclick=()=>geocodeAddress(document.getElementById('address').value);
 document.getElementById('clearRadius').onclick=()=>{document.getElementById('radius').value='50';map.setView([39.5,-98.35],4);};
 ['state','region','type'].forEach(id=>document.getElementById(id).onchange=render);
 document.getElementById('search').oninput=render;
-// ================================
-// ✅ Add Autocomplete Code Below
-// ================================
 
-const addressInput = document.getElementById('address');
-let suggestionBox = document.createElement('div');
-suggestionBox.classList.add('autocomplete-suggestions');
-addressInput.parentNode.appendChild(suggestionBox);
-
-addressInput.addEventListener('input', async () => {
-  const query = addressInput.value.trim();
-  if (query.length < 3) {
-    suggestionBox.innerHTML = '';
-    return;
-  }
-
-  // Fetch only U.S. addresses
-  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=en&countrycode=US`);
-  const data = await res.json();
-
-  suggestionBox.innerHTML = data.features
-    .map(f => {
-      const label = `${f.properties.name || ''}, ${f.properties.city || ''}, ${f.properties.state || ''}`;
-      return `<div class="suggestion-item" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}">${label}</div>`;
-    })
-    .join('');
-
-  suggestionBox.querySelectorAll('.suggestion-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const lat = +item.dataset.lat;
-      const lon = +item.dataset.lon;
-      addressInput.value = item.textContent;
-      suggestionBox.innerHTML = '';
-      geocodeAddress(item.textContent);
-    });
-  });
-});
-
-// Optional styling
-const style = document.createElement('style');
-style.innerHTML = `
-.autocomplete-suggestions {
-  position: absolute;
-  background: white;
-  border: 1px solid #e5e7eb;
-  max-height: 150px;
-  overflow-y: auto;
-  width: 100%;
-  z-index: 1000;
-  border-radius: 8px;
-}
-.suggestion-item {
-  padding: 6px 10px;
-  cursor: pointer;
-}
-.suggestion-item:hover {
-  background: #f1f5f9;
-}
-`;
-document.head.appendChild(style);
-  
-loadCSV(DATA_URL);
 </script>
 
 <!-- Google Analytics -->
