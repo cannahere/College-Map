@@ -270,18 +270,15 @@ addressInput.addEventListener('input', async () => {
   }
 
   // Fetch only U.S. addresses
-  const res = await fetch(
-  `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&accept-language=en&countrycodes=us&q=${encodeURIComponent(query)}&limit=5`
-);
-const data = await res.json();
+  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=en&countrycode=US`);
+  const data = await res.json();
 
-// Create the dropdown list
-suggestionBox.innerHTML = data
-  .map(d => {
-    const label = d.display_name; // Nominatim already returns full address
-    return `<div class="suggestion-item" data-lat="${d.lat}" data-lon="${d.lon}">${label}</div>`;
-  })
-  .join('');
+  suggestionBox.innerHTML = data.features
+    .map(f => {
+      const label = `${f.properties.name || ''}, ${f.properties.city || ''}, ${f.properties.state || ''}`;
+      return `<div class="suggestion-item" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}">${label}</div>`;
+    })
+    .join('');
 
   suggestionBox.querySelectorAll('.suggestion-item').forEach(item => {
     item.addEventListener('click', () => {
