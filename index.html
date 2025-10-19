@@ -211,9 +211,13 @@ document.getElementById('search').oninput=render;
     debounceTimer = setTimeout(() => {
       fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(usQuery(q))}`)
         .then(r => r.ok ? r.json() : Promise.reject())
-        .then(data => {
-          if (Array.isArray(data) && data.length) {
-            suggestionsBox.innerHTML = data.map(d => `
+    .then(data => {
+  const searchTerm = addrInput.value.trim().toLowerCase();
+  const filtered = data.filter(d =>
+    d.display_name.toLowerCase().startsWith(searchTerm)
+  );
+  if (filtered.length) {
+    suggestionsBox.innerHTML = filtered.map(d => 
               <div data-lat="${d.lat}" data-lon="${d.lon}"
                    style="padding:6px 10px;cursor:pointer;border-bottom:1px solid #eee;">
                 ${d.display_name.replace(', United States', '')}
