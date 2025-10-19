@@ -70,7 +70,15 @@
     <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
   </div>
   <div class="row">
-    <div class="pill"><label for="address">Address</label><input id="address" placeholder="Enter your home address" /><button id="geocodeBtn">Set</button></div>
+   <div class="pill" style="position:relative;">
+  <label for="address">Address</label>
+  <input id="address" placeholder="Enter your home address" autocomplete="off" />
+  <!-- 🔽 Autocomplete suggestion box -->
+  <div id="suggestions" style="position:absolute;top:42px;left:70px;right:10px;background:#fff;
+       border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.1);
+       z-index:9999;font-size:13px;max-height:180px;overflow-y:auto;display:none;"></div>
+  <button id="geocodeBtn">Set</button>
+</div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
   </div>
 </div>
@@ -146,10 +154,17 @@ function loadCSV(url){
       name:r.name,lat:+r.lat,lon:+r.lon,state:(r.state||'').toUpperCase(),type:r.type||'Unknown',
       control:r.control||'',acceptance:r.acceptance||'',enrollment:r.enrollment||'',tuition:r.tuition||'',url:r.url||''
     }));
+
     const states=[...new Set(colleges.map(c=>c.state))].sort();
-    const types=[...new Set(colleges.map(c=>c.type))].sort();
+    const types=[...new Set(colleges.map(c=>c.type))].filter(Boolean);
+
+    // ✅ Sort "Type" dropdown by prestige order
+    const ranked=[...TYPE_ORDER.filter(t=>types.includes(t))];
+    const leftovers=types.filter(t=>!TYPE_ORDER.includes(t)).sort();
+    const orderedTypes=ranked.concat(leftovers);
+
     refreshDropdown('state',states,'All');
-    refreshDropdown('type',types,'Any');
+    refreshDropdown('type',orderedTypes,'Any');
     refreshDropdown('region',['Northeast','Midwest','South','West','Territories'],'All');
     render();
   }});
@@ -167,7 +182,36 @@ function geocodeAddress(address){
       }
     });
 }
+// ✅ Address autocomplete (up to 5 suggestions)
+let debounceTimer;
+const addrInput=document.getElementById('address');
+const suggestionsBox=document.getElementById('suggestions');
 
+addrInput.addEventListener('input',()=>{
+  clearTimeout(debounceTimer);
+  const query=addrInput.value.trim();
+  if(query.length<3){suggestionsBox.style.display='none';return;}
+  debounceTimer=setTimeout(()=>{
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`)
+      .then(r=>r.json()).then(data=>{
+        if(data.length){
+          suggestionsBox.innerHTML=data.map(d=>`<div data-lat="${d.lat}" data-lon="${d.lon}">${d.display_name}</div>`).join('');
+          suggestionsBox.style.display='block';
+        } else {suggestionsBox.style.display='none';}
+      });
+  },400);
+});
+
+suggestionsBox.addEventListener('click',e=>{
+  if(e.target.dataset.lat){
+    const lat=+e.target.dataset.lat,lon=+e.target.dataset.lon;
+    addrInput.value=e.target.textContent;
+    suggestionsBox.style.display='none';
+    homeLayer.clearLayers();
+    L.marker([lat,lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
+    map.setView([lat,lon],8);
+  }
+});
 document.getElementById('geocodeBtn').onclick=()=>geocodeAddress(document.getElementById('address').value);
 document.getElementById('clearRadius').onclick=()=>{document.getElementById('radius').value='50';map.setView([39.5,-98.35],4);};
 ['state','region','type'].forEach(id=>document.getElementById(id).onchange=render);
