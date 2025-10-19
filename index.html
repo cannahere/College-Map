@@ -55,27 +55,6 @@
     #map {height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0}
     .legend {position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a}
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-
-    /* --- Autocomplete styling fix --- */
-.suggestion-item {
-  padding: 8px 10px;
-  border-bottom: 1px solid #e5e7eb;
-  cursor: pointer;
-}
-.suggestion-item:hover {
-  background: #f1f5f9;
-}
-#suggestions {
-  position: absolute;
-  top: 100%;
-  left: 70px;
-  right: 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  z-index: 9999;
-}
   </style>
 </head>
 <body>
@@ -91,15 +70,7 @@
     <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
   </div>
   <div class="row">
-   <div class="pill" style="position:relative;">
-  <label for="address">Address</label>
-  <input id="address" placeholder="Enter your home address" autocomplete="off" />
-  <!-- 🔽 Autocomplete suggestion box -->
-  <div id="suggestions" style="position:absolute;top:42px;left:70px;right:10px;background:#fff;
-       border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.1);
-       z-index:9999;font-size:13px;max-height:180px;overflow-y:auto;display:none;"></div>
-  <button id="geocodeBtn">Set</button>
-</div>
+    <div class="pill"><label for="address">Address</label><input id="address" placeholder="Enter your home address" /><button id="geocodeBtn">Set</button></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
   </div>
 </div>
@@ -175,145 +146,34 @@ function loadCSV(url){
       name:r.name,lat:+r.lat,lon:+r.lon,state:(r.state||'').toUpperCase(),type:r.type||'Unknown',
       control:r.control||'',acceptance:r.acceptance||'',enrollment:r.enrollment||'',tuition:r.tuition||'',url:r.url||''
     }));
-
     const states=[...new Set(colleges.map(c=>c.state))].sort();
-    const types=[...new Set(colleges.map(c=>c.type))].filter(Boolean);
-
-    // ✅ Sort "Type" dropdown by prestige order
-    const ranked=[...TYPE_ORDER.filter(t=>types.includes(t))];
-    const leftovers=types.filter(t=>!TYPE_ORDER.includes(t)).sort();
-    const orderedTypes=ranked.concat(leftovers);
-
+    const types=[...new Set(colleges.map(c=>c.type))].sort();
     refreshDropdown('state',states,'All');
-    refreshDropdown('type',orderedTypes,'Any');
+    refreshDropdown('type',types,'Any');
     refreshDropdown('region',['Northeast','Midwest','South','West','Territories'],'All');
     render();
   }});
 }
 
-// ========================
-// ✅ Clean Geocode + Radius Filter (U.S.-only)
-// ========================
-function geocodeAddress(addressOrLat, maybeLon) {
-  // Support both string (address) and lat/lon input from autocomplete
-  if (!addressOrLat) return;
-
-  // Case 1: called with lat/lon directly from autocomplete
-  if (typeof addressOrLat === 'number' && typeof maybeLon === 'number') {
-    renderRadiusFilter(addressOrLat, maybeLon);
-    return;
-  }
-
-  // Case 2: called with an address string (via "Set" button)
-  const address = addressOrLat;
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(address)}&limit=1`)
-    .then(r => r.json())
-    .then(data => {
-      if (data && data[0]) {
-        const lat = +data[0].lat, lon = +data[0].lon;
-        renderRadiusFilter(lat, lon);
-      } else {
-        alert("No U.S. address found. Try again.");
+function geocodeAddress(address){
+  if(!address)return;
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+    .then(r=>r.json()).then(data=>{
+      if(data&&data[0]){
+        const lat=+data[0].lat,lon=+data[0].lon;
+        homeLayer.clearLayers();
+        L.marker([lat,lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
+        map.setView([lat,lon],8);
       }
     });
 }
 
-// ✅ Helper: Filter schools and render within radius
-function renderRadiusFilter(lat, lon) {
-  homeLayer.clearLayers();
-
-  // Mark home location
-  const homeMarker = L.marker([lat, lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
-  map.setView([lat, lon], 8);
-
-  // Draw radius circle
-  const radiusMi = parseFloat(document.getElementById('radius').value) || 50;
-  const units = document.getElementById('units').value;
-  const radiusMeters = units === 'mi' ? radiusMi * 1609.34 : radiusMi * 1000;
-  const circle = L.circle([lat, lon], {
-    radius: radiusMeters,
-    color: '#2563eb',
-    weight: 1.2,
-    fillColor: '#60a5fa',
-    fillOpacity: 0.1
-  }).addTo(homeLayer);
-
-  // Filter schools within radius
-  const filtered = colleges.filter(c => map.distance([lat, lon], [c.lat, c.lon]) <= radiusMeters);
-
-  // Render markers for filtered schools only
-  markersLayer.clearLayers();
-  filtered.forEach(c => {
-    L.circleMarker([c.lat, c.lon], {
-      radius: 6,
-      color: '#2563eb',
-      weight: 2,
-      fillOpacity: 0.7
-    })
-    .bindTooltip(c.name, { permanent: false, direction: 'top' })
-    .addTo(markersLayer);
-  });
-
-  document.getElementById('count').textContent = filtered.length.toLocaleString();
-}
-// ========================
-// ✅ Address Autocomplete (U.S.-only) + Integrated Filter
-// ========================
-let debounceTimer;
-const addrInput = document.getElementById('address');
-const suggestionsBox = document.getElementById('suggestions');
-
-addrInput.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
-  const query = addrInput.value.trim();
-  if (query.length < 3) {
-    suggestionsBox.style.display = 'none';
-    return;
-  }
-
-  debounceTimer = setTimeout(() => {
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(query)}&limit=5`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.length) {
-          suggestionsBox.innerHTML = data
-            .map(
-              d => `<div class="suggestion-item" data-lat="${d.lat}" data-lon="${d.lon}">
-                      ${d.display_name.replace(', United States', '')}
-                    </div>`
-            )
-            .join('');
-          suggestionsBox.style.display = 'block';
-        } else {
-          suggestionsBox.style.display = 'none';
-        }
-      });
-  }, 400);
-});
-
-// ✅ When user clicks on a suggestion
-suggestionsBox.addEventListener('click', e => {
-  if (e.target.dataset.lat) {
-    const lat = +e.target.dataset.lat, lon = +e.target.dataset.lon;
-    addrInput.value = e.target.textContent;
-    suggestionsBox.style.display = 'none';
-    geocodeAddress(lat, lon);
-  }
-});
-
-// ✅ “Set” button fallback
-document.getElementById('geocodeBtn').onclick = () => geocodeAddress(document.getElementById('address').value);
-
-// ✅ Clear radius button stays same
-document.getElementById('clearRadius').onclick = () => {
-  document.getElementById('radius').value = '50';
-  map.setView([39.5, -98.35], 4);
-};
 document.getElementById('geocodeBtn').onclick=()=>geocodeAddress(document.getElementById('address').value);
 document.getElementById('clearRadius').onclick=()=>{document.getElementById('radius').value='50';map.setView([39.5,-98.35],4);};
 ['state','region','type'].forEach(id=>document.getElementById(id).onchange=render);
 document.getElementById('search').oninput=render;
 
+loadCSV(DATA_URL);
 </script>
 
 <!-- Google Analytics -->
