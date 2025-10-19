@@ -172,7 +172,7 @@ function loadCSV(url){
 
 function geocodeAddress(address){
   if(!address)return;
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(address)}&limit=5`)
     .then(r=>r.json()).then(data=>{
       if(data&&data[0]){
         const lat=+data[0].lat,lon=+data[0].lon;
