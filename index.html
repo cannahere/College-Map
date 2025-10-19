@@ -170,54 +170,60 @@ const markersLayer=L.layerGroup().addTo(map);
 const homeLayer=L.layerGroup().addTo(map);
 let colleges=[],home=null,radiusKm=null;
 
-function render(){
+function render() {
   markersLayer.clearLayers();
-  const stateVal=document.getElementById('state').value;
-  const typeVal=document.getElementById('type').value;
-  const searchVal=document.getElementById('search').value.toLowerCase();
-  const regionVal = document.getElementById('region').value;
-  let filtered = colleges.filter(c => {
-  const regionMatch = !regionVal || (
-    (regionVal === 'Northeast' && ['ME','NH','VT','MA','RI','CT','NY','NJ','PA'].includes(c.state)) ||
-    (regionVal === 'Midwest' && ['OH','MI','IN','IL','WI','MN','IA','MO','ND','SD','NE','KS'].includes(c.state)) ||
-    (regionVal === 'South' && ['DE','MD','DC','VA','WV','NC','SC','GA','FL','KY','TN','AL','MS','AR','LA','TX','OK'].includes(c.state)) ||
-    (regionVal === 'West' && ['MT','ID','WY','CO','NM','AZ','UT','NV','CA','OR','WA','HI','AK'].includes(c.state)) ||
-    (regionVal === 'Territories' && ['PR','GU','VI','AS','MP'].includes(c.state))
-  );
+  const regionVal = document.getElementById('region') ? document.getElementById('region').value : '';
+  const stateVal = document.getElementById('state').value;
+  const typeVal = document.getElementById('type').value;
+  const searchVal = document.getElementById('search').value.toLowerCase();
 
-  return regionMatch &&
-    (!stateVal || c.state === stateVal) &&
-    (!typeVal || (c.type || c.tier) === typeVal) &&
-    (!searchVal || c.name.toLowerCase().includes(searchVal));
-});
-  filtered.forEach(c=>{
-    L.circleMarker([c.lat,c.lon],{radius:6,color:'#2563eb',weight:2,fillOpacity:0.7})
-      .bindTooltip(c.name,{permanent:false,direction:'top'})
+  let filtered = colleges.filter(c => {
+    const regionMatch = !regionVal || (
+      (regionVal === 'Northeast' && ['ME','NH','VT','MA','RI','CT','NY','NJ','PA'].includes(c.state)) ||
+      (regionVal === 'Midwest' && ['OH','MI','IN','IL','WI','MN','IA','MO','ND','SD','NE','KS'].includes(c.state)) ||
+      (regionVal === 'South' && ['DE','MD','DC','VA','WV','NC','SC','GA','FL','KY','TN','AL','MS','AR','LA','TX','OK'].includes(c.state)) ||
+      (regionVal === 'West' && ['MT','ID','WY','CO','NM','AZ','UT','NV','CA','OR','WA','HI','AK'].includes(c.state)) ||
+      (regionVal === 'Territories' && ['PR','GU','VI','AS','MP'].includes(c.state))
+    );
+
+    return regionMatch &&
+      (!stateVal || c.state === stateVal) &&
+      (!typeVal || (c.type || c.tier) === typeVal) &&
+      (!searchVal || c.name.toLowerCase().includes(searchVal));
+  });
+
+  filtered.forEach(c => {
+    L.circleMarker([c.lat, c.lon], {
+      radius: 6,
+      color: '#2563eb',
+      weight: 2,
+      fillOpacity: 0.7
+    })
+      .bindTooltip(c.name, { permanent: false, direction: 'top' })
       .bindPopup(`
-  <div style="
-    font-family:Inter, sans-serif;
-    font-size:13px;
-    color:#0f172a;
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:6px;
-    padding:10px;
-    line-height:1.5;
-  ">
-    <b style="font-size:14px;">${c.name}</b><br/>
-    ${c.city ? `${c.city}, ` : ''}${c.state}<br/>
-    ${c.control || c.type || ''}<br/>
-    ${c.admRate ? `Acceptance Rate: ${c.admRate}<br/>` : ''}
-    ${c.undergrads ? `Undergraduate Enrollment: ${c.undergrads}<br/>` : ''}
-    ${c.tuition ? `Tuition: ${c.tuition}<br/>` : ''}
-    ${c.url
-      ? `🌐 <a href="https://${c.url}" target="_blank" style="color:#2563eb;text-decoration:none;">${c.url}</a>`
-      : ''}
-  </div>
-`)
+        <div style="
+          font-family: Inter, sans-serif;
+          font-size: 13px;
+          color: #0f172a;
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 6px;
+          padding: 10px;
+          line-height: 1.5;
+        ">
+          <b style="font-size: 14px;">${c.name}</b><br/>
+          ${c.city ? `${c.city}, ` : ''}${c.state}<br/>
+          ${c.control || c.type || ''}<br/>
+          ${c.admRate ? `Acceptance Rate: ${c.admRate}<br/>` : ''}
+          ${c.undergrads ? `Undergraduate Enrollment: ${c.undergrads}<br/>` : ''}
+          ${c.tuition ? `Tuition: ${c.tuition}<br/>` : ''}
+          ${c.url ? `🌐 <a href="https://${c.url}" target="_blank" style="color:#2563eb;text-decoration:none;">${c.url}</a>` : ''}
+        </div>
+      `)
       .addTo(markersLayer);
   });
-  document.getElementById('count').textContent=filtered.length.toLocaleString();
+
+  document.getElementById('count').textContent = filtered.length.toLocaleString();
 }
 
 function refreshStates(){
