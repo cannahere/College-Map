@@ -253,7 +253,67 @@ document.getElementById('geocodeBtn').onclick=()=>geocodeAddress(document.getEle
 document.getElementById('clearRadius').onclick=()=>{document.getElementById('radius').value='50';map.setView([39.5,-98.35],4);};
 ['state','region','type'].forEach(id=>document.getElementById(id).onchange=render);
 document.getElementById('search').oninput=render;
+// ================================
+// ✅ Add Autocomplete Code Below
+// ================================
 
+const addressInput = document.getElementById('address');
+let suggestionBox = document.createElement('div');
+suggestionBox.classList.add('autocomplete-suggestions');
+addressInput.parentNode.appendChild(suggestionBox);
+
+addressInput.addEventListener('input', async () => {
+  const query = addressInput.value.trim();
+  if (query.length < 3) {
+    suggestionBox.innerHTML = '';
+    return;
+  }
+
+  // Fetch only U.S. addresses
+  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=en&countrycode=US`);
+  const data = await res.json();
+
+  suggestionBox.innerHTML = data.features
+    .map(f => {
+      const label = `${f.properties.name || ''}, ${f.properties.city || ''}, ${f.properties.state || ''}`;
+      return `<div class="suggestion-item" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}">${label}</div>`;
+    })
+    .join('');
+
+  suggestionBox.querySelectorAll('.suggestion-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const lat = +item.dataset.lat;
+      const lon = +item.dataset.lon;
+      addressInput.value = item.textContent;
+      suggestionBox.innerHTML = '';
+      geocodeAddress(item.textContent);
+    });
+  });
+});
+
+// Optional styling
+const style = document.createElement('style');
+style.innerHTML = `
+.autocomplete-suggestions {
+  position: absolute;
+  background: white;
+  border: 1px solid #e5e7eb;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 100%;
+  z-index: 1000;
+  border-radius: 8px;
+}
+.suggestion-item {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.suggestion-item:hover {
+  background: #f1f5f9;
+}
+`;
+document.head.appendChild(style);
+  
 loadCSV(DATA_URL);
 </script>
 
