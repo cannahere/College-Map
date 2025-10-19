@@ -115,20 +115,31 @@
 </header>
 
   <div class="container controls">
-    <div class="row">
-      <div class="pill">
-        <label for="type">Type</label>
-        <select id="type"><option value="">Any</option></select>
-      </div>
-      <div class="pill">
-        <label for="state">State</label>
-        <select id="state"><option value="">All</option></select>
-      </div>
-      <div class="pill">
-        <label for="search">Search</label>
-        <input id="search" placeholder="Search by college name..." />
-      </div>
-    </div>
+  <div class="row">
+  <div class="pill">
+    <label for="type">Type</label>
+    <select id="type"><option value="">Any</option></select>
+  </div>
+  <div class="pill">
+    <label for="region">Region</label>
+    <select id="region">
+      <option value="">All</option>
+      <option value="Northeast">Northeast</option>
+      <option value="Midwest">Midwest</option>
+      <option value="South">South</option>
+      <option value="West">West</option>
+      <option value="Territories">Territories / Other</option>
+    </select>
+  </div>
+  <div class="pill">
+    <label for="state">State</label>
+    <select id="state"><option value="">All</option></select>
+  </div>
+  <div class="pill">
+    <label for="search">Search</label>
+    <input id="search" placeholder="Search by college name..." />
+  </div>
+</div>
     <div class="row">
       <div class="pill">
         <label for="address">Address</label>
@@ -164,11 +175,21 @@ function render(){
   const stateVal=document.getElementById('state').value;
   const typeVal=document.getElementById('type').value;
   const searchVal=document.getElementById('search').value.toLowerCase();
-  let filtered=colleges.filter(c=>
-    (!stateVal||c.state===stateVal)&&
-    (!typeVal||(c.type||c.tier)===typeVal)&&
-    (!searchVal||c.name.toLowerCase().includes(searchVal))
+  const regionVal = document.getElementById('region').value;
+  let filtered = colleges.filter(c => {
+  const regionMatch = !regionVal || (
+    (regionVal === 'Northeast' && ['ME','NH','VT','MA','RI','CT','NY','NJ','PA'].includes(c.state)) ||
+    (regionVal === 'Midwest' && ['OH','MI','IN','IL','WI','MN','IA','MO','ND','SD','NE','KS'].includes(c.state)) ||
+    (regionVal === 'South' && ['DE','MD','DC','VA','WV','NC','SC','GA','FL','KY','TN','AL','MS','AR','LA','TX','OK'].includes(c.state)) ||
+    (regionVal === 'West' && ['MT','ID','WY','CO','NM','AZ','UT','NV','CA','OR','WA','HI','AK'].includes(c.state)) ||
+    (regionVal === 'Territories' && ['PR','GU','VI','AS','MP'].includes(c.state))
   );
+
+  return regionMatch &&
+    (!stateVal || c.state === stateVal) &&
+    (!typeVal || (c.type || c.tier) === typeVal) &&
+    (!searchVal || c.name.toLowerCase().includes(searchVal));
+});
   filtered.forEach(c=>{
     L.circleMarker([c.lat,c.lon],{radius:6,color:'#2563eb',weight:2,fillOpacity:0.7})
       .bindTooltip(c.name,{permanent:false,direction:'top'})
@@ -203,6 +224,7 @@ function loadFromUrl(url){
     refreshStates();refreshTypes();render();
   }});
 }
+document.getElementById('region').onchange = render;
 document.getElementById('state').onchange=render;
 document.getElementById('type').onchange=render;
 document.getElementById('search').oninput=render;
