@@ -170,15 +170,52 @@ function loadCSV(url){
   }});
 }
 
-function geocodeAddress(address){
-  if(!address)return;
+function geocodeAddress(address) {
+  if (!address) return;
+
   fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=us&q=${encodeURIComponent(address)}&limit=5`)
-    .then(r=>r.json()).then(data=>{
-      if(data&&data[0]){
-        const lat=+data[0].lat,lon=+data[0].lon;
+    .then(r => r.json())
+    .then(data => {
+      if (data && data[0]) {
+        const lat = +data[0].lat, lon = +data[0].lon;
         homeLayer.clearLayers();
-        L.marker([lat,lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
-        map.setView([lat,lon],8);
+
+        // Mark home location
+        const homeMarker = L.marker([lat, lon]).bindPopup("Home location").addTo(homeLayer).openPopup();
+        map.setView([lat, lon], 8);
+
+        // Draw radius circle
+        const radiusMi = parseFloat(document.getElementById('radius').value) || 50;
+        const units = document.getElementById('units').value;
+        const radiusMeters = units === 'mi' ? radiusMi * 1609.34 : radiusMi * 1000;
+        const circle = L.circle([lat, lon], {
+          radius: radiusMeters,
+          color: '#2563eb',
+          weight: 1.2,
+          fillColor: '#60a5fa',
+          fillOpacity: 0.1
+        }).addTo(homeLayer);
+
+        // Filter schools within radius
+        const filtered = colleges.filter(c => {
+          const dist = map.distance([lat, lon], [c.lat, c.lon]);
+          return dist <= radiusMeters;
+        });
+
+        // Render markers for filtered schools only
+        markersLayer.clearLayers();
+        filtered.forEach(c => {
+          L.circleMarker([c.lat, c.lon], {
+            radius: 6,
+            color: '#2563eb',
+            weight: 2,
+            fillOpacity: 0.7
+          })
+          .bindTooltip(c.name, { permanent: false, direction: 'top' })
+          .addTo(markersLayer);
+        });
+
+        document.getElementById('count').textContent = filtered.length.toLocaleString();
       }
     });
 }
