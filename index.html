@@ -147,9 +147,12 @@ function loadCSV(url){
       control:r.control||'',acceptance:r.acceptance||'',enrollment:r.enrollment||'',tuition:r.tuition||'',url:r.url||''
     }));
     const states=[...new Set(colleges.map(c=>c.state))].sort();
-    const types=[...new Set(colleges.map(c=>c.type))].sort();
+    const types=[...new Set(colleges.map(c=>c.type))].filter(Boolean);
+    const ranked=[...TYPE_ORDER.filter(t=>types.includes(t))];
+    const leftovers=types.filter(t=>!TYPE_ORDER.includes(t)).sort();
+    const orderedTypes=ranked.concat(leftovers);
     refreshDropdown('state',states,'All');
-    refreshDropdown('type',types,'Any');
+    refreshDropdown('type',orderedTypes,'Any');
     refreshDropdown('region',['Northeast','Midwest','South','West','Territories'],'All');
     render();
   }});
