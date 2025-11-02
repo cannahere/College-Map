@@ -56,7 +56,8 @@
     .row>.pill {flex:1}
     .pill {display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:12px;font-size:12px}
     .pill label {color:#475569;font-weight:600;font-size:12px;min-width:60px}
-    .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1}
+    .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
+    .pill input:focus {outline:none;border-color:#4285f4;box-shadow:0 0 0 1px #4285f4}
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
     #map {height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0}
     .legend {position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a}
@@ -66,6 +67,32 @@
     .error {display:none;background:#fee;color:#c33;padding:12px;border-radius:8px;margin:12px;border:1px solid #fcc}
     .error.active {display:block}
     .radius-circle {stroke:#2563eb;stroke-width:2;stroke-dasharray:5,5;fill:none;opacity:0.5;pointer-events:none}
+    .address-autocomplete {position:relative}
+    .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1000;margin-top:0}
+    .autocomplete-suggestions.active {display:block;animation:fadeIn 0.15s ease-out}
+    @keyframes fadeIn {from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)}}
+    .autocomplete-item {padding:0;cursor:pointer;border-bottom:none;font-size:14px;transition:background-color 0.1s;min-height:48px;display:flex;flex-direction:row;align-items:center;position:relative;width:100%}
+    .autocomplete-item:not(:last-child)::after {content:'';position:absolute;bottom:0;left:56px;right:0;height:1px;background:#f1f5f9}
+    .autocomplete-item:hover,.autocomplete-item.highlighted {background-color:#f8f9fa}
+    .autocomplete-item:focus {outline:2px solid #4285f4;outline-offset:-2px;background-color:#f8f9fa}
+    .autocomplete-item-icon {width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:8px}
+    .autocomplete-item-icon svg {width:20px;height:20px;fill:#5f6368;display:block}
+    .autocomplete-item.highlighted .autocomplete-item-icon svg,.autocomplete-item:hover .autocomplete-item-icon svg {fill:#4285f4}
+    .autocomplete-item-content {flex:1;padding:12px 8px 12px 0;min-width:0;display:flex;flex-direction:column;justify-content:center}
+    .autocomplete-item .address-name {font-weight:400;color:#202124;margin-bottom:2px;font-size:15px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .autocomplete-item .address-name strong {font-weight:500;color:#202124}
+    .autocomplete-item.highlighted .address-name,.autocomplete-item:hover .address-name {color:#1a73e8}
+    .autocomplete-item.highlighted .address-name strong,.autocomplete-item:hover .address-name strong {color:#1a73e8;font-weight:500}
+    .autocomplete-item .address-details {font-size:13px;color:#5f6368;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .autocomplete-loading {padding:16px;text-align:center;color:#5f6368;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .autocomplete-loading::before {content:'';width:16px;height:16px;border:2px solid #e0e0e0;border-top-color:#4285f4;border-radius:50%;animation:spin 0.8s linear infinite}
+    @keyframes spin {to{transform:rotate(360deg)}}
+    .autocomplete-empty {padding:24px;text-align:center;color:#5f6368;font-size:14px}
+    @media (max-width: 700px) {
+      .autocomplete-item {min-height:52px}
+      .autocomplete-item-icon {width:44px;height:44px;margin-left:12px}
+      .autocomplete-item-content {padding:14px 12px 14px 0}
+    }
   </style>
 </head>
 <body>
@@ -81,7 +108,7 @@
     <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
   </div>
   <div class="row">
-    <div class="pill"><label for="address">Address</label><input id="address" placeholder="Enter your home address" /><button id="geocodeBtn">Set</button></div>
+    <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Set</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
   </div>
 </div>
@@ -108,7 +135,15 @@ const elements = {
   loading: document.getElementById('loading'),
   error: document.getElementById('error'),
   geocodeBtn: document.getElementById('geocodeBtn'),
-  clearRadius: document.getElementById('clearRadius')
+  clearRadius: document.getElementById('clearRadius'),
+  addressSuggestions: document.getElementById('addressSuggestions')
+};
+
+let addressAutocomplete = {
+  suggestions: [],
+  selectedIndex: -1,
+  isOpen: false,
+  abortController: null
 };
 
 const americasBounds = L.latLngBounds([[-60,-180],[85,-30]]);
@@ -365,10 +400,11 @@ function geocodeAddress(address){
     return;
   }
   
+  closeAutocomplete();
   elements.loading.classList.add('active');
   
   // Rate limiting: Nominatim requires a User-Agent and has strict rate limits
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`, {
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1`, {
     headers: {
       'User-Agent': 'USCollegeMap/1.0'
     }
@@ -408,6 +444,338 @@ function geocodeAddress(address){
     });
 }
 
+// Address autocomplete functions
+function searchAddresses(query) {
+  if (!query || query.length < 3) {
+    closeAutocomplete();
+    return;
+  }
+  
+  // Cancel previous request if any
+  if (addressAutocomplete.abortController) {
+    addressAutocomplete.abortController.abort();
+  }
+  
+  // Show loading state
+  addressAutocomplete.suggestions = [];
+  addressAutocomplete.selectedIndex = -1;
+  elements.addressSuggestions.innerHTML = '<div class="autocomplete-loading">Searching...</div>';
+  elements.addressSuggestions.classList.add('active');
+  addressAutocomplete.isOpen = true;
+  
+  // Create new abort controller
+  addressAutocomplete.abortController = new AbortController();
+  
+  // Rate limiting: Nominatim requires a User-Agent and has strict rate limits (1 request per second)
+  // URL encoding prevents XSS and handles special characters
+  const sanitizedQuery = query.trim().substring(0, 200); // Limit query length
+  
+  // Enhanced search - get more results to filter and rank better
+  // Request more results to ensure we have enough to show 5 unique ones
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(sanitizedQuery)}&limit=20&addressdetails=1&countrycodes=us&dedupe=0&extratags=1`, {
+    headers: {
+      'User-Agent': 'USCollegeMap/1.0'
+    },
+    signal: addressAutocomplete.abortController.signal
+  })
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(data => {
+      if (!data || data.length === 0) {
+        addressAutocomplete.suggestions = [];
+        renderSuggestions();
+        return;
+      }
+      
+      // Filter and rank results like Google Maps
+      const results = data.map(item => {
+        const displayName = item.display_name || '';
+        const queryLower = query.toLowerCase().trim();
+        const nameLower = displayName.toLowerCase();
+        
+        // Calculate relevance score
+        let score = 0;
+        
+        // Exact start match gets highest score
+        if (nameLower.startsWith(queryLower)) {
+          score += 100;
+        }
+        // Contains query
+        else if (nameLower.includes(queryLower)) {
+          score += 50;
+        }
+        // Word boundary matches
+        const queryWords = queryLower.split(/\s+/).filter(w => w.length > 0);
+        const nameWords = nameLower.split(/[,\s]+/).filter(w => w.length > 0);
+        const matchingWords = queryWords.filter(qw => nameWords.some(nw => nw.startsWith(qw) || nw.includes(qw)));
+        score += matchingWords.length * 10;
+        
+        // Prefer places with higher importance (if available)
+        if (item.importance) {
+          score += item.importance * 5;
+        }
+        
+        // Prefer more specific addresses (addresses with numbers)
+        if (/\d/.test(displayName)) {
+          score += 5;
+        }
+        
+        // Base score for any result (so all results are included)
+        score += 1;
+        
+        return {
+          ...item,
+          relevanceScore: score,
+          matchedQuery: query
+        };
+      });
+      
+      // Sort by relevance score (highest first)
+      results.sort((a, b) => b.relevanceScore - a.relevanceScore);
+      
+      // Remove duplicates and take top 5
+      const uniqueResults = [];
+      const seenNames = new Set();
+      
+      for (const result of results) {
+        // Use a more lenient duplicate check - just the first 50 chars
+        const nameKey = result.display_name.toLowerCase().substring(0, 50).trim();
+        if (seenNames.has(nameKey) || nameKey.length === 0) {
+          continue;
+        }
+        seenNames.add(nameKey);
+        uniqueResults.push(result);
+        
+        // Stop when we have 5 unique results
+        if (uniqueResults.length >= 5) {
+          break;
+        }
+      }
+      
+      // Always show up to 5 results (prioritize unique, but show all if we have fewer)
+      // If we don't have 5 unique, fill with remaining results
+      if (uniqueResults.length < 5 && results.length > uniqueResults.length) {
+        const remaining = results.filter(r => {
+          const key = r.display_name.toLowerCase().substring(0, 50).trim();
+          return !seenNames.has(key);
+        });
+        uniqueResults.push(...remaining.slice(0, 5 - uniqueResults.length));
+      }
+      
+      addressAutocomplete.suggestions = uniqueResults.slice(0, 5);
+      renderSuggestions();
+    })
+    .catch(error => {
+      if (error.name === 'AbortError') {
+        return; // Request was cancelled, ignore
+      }
+      console.error('Autocomplete error:', error);
+      elements.addressSuggestions.innerHTML = '<div class="autocomplete-empty" style="color:#d93025;">Unable to load suggestions. Please try again.</div>';
+    });
+}
+
+function formatAddressName(displayName, query = '') {
+  // Clean up the display name - remove awkward commas after street numbers
+  let cleanedName = displayName.replace(/(\d+),\s+/g, '$1 '); // "25, " becomes "25 "
+  
+  const parts = cleanedName.split(',').map(p => p.trim()).filter(p => p);
+  let primary, secondary;
+  
+  // Format like Google Maps: primary address on first line, location details on second
+  if (parts.length >= 3) {
+    // Full address: "Street Address, City, State, Country"
+    // Primary: Street Address (first part)
+    // Secondary: City, State, Country (remaining parts)
+    primary = parts[0];
+    secondary = parts.slice(1).join(', ');
+  } else if (parts.length === 2) {
+    // Two parts: check if first is just a number
+    if (/^\d+$/.test(parts[0])) {
+      // If "25, Location" -> combine to "25 Location"
+      primary = parts.join(' ');
+      secondary = '';
+    } else {
+      // "Street, City" -> Primary: Street, Secondary: City
+      primary = parts[0];
+      secondary = parts[1];
+    }
+  } else {
+    // Single part
+    primary = cleanedName;
+    secondary = '';
+  }
+  
+  // Escape HTML first, then apply highlighting
+  // This is simpler and safer - we'll find matches in escaped text
+  const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  
+  // Escape the text first
+  let escapedPrimary = escapeHtml(primary);
+  secondary = escapeHtml(secondary);
+  
+  // Now apply highlighting on the escaped text
+  if (query && query.length >= 2) {
+    const queryLower = query.toLowerCase().trim();
+    const escapedQueryLower = escapeHtml(query).toLowerCase();
+    const escapedPrimaryLower = escapedPrimary.toLowerCase();
+    const matchIndex = escapedPrimaryLower.indexOf(escapedQueryLower);
+    
+    if (matchIndex !== -1) {
+      const before = escapedPrimary.substring(0, matchIndex);
+      const match = escapedPrimary.substring(matchIndex, matchIndex + escapeHtml(query).length);
+      const after = escapedPrimary.substring(matchIndex + escapeHtml(query).length);
+      escapedPrimary = `${before}<strong>${match}</strong>${after}`;
+    }
+  }
+  
+  primary = escapedPrimary;
+  
+  return { primary, secondary };
+}
+
+function getAddressTypeIcon(type) {
+  // Determine icon based on address type
+  const icons = {
+    'place': '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>',
+    'house': '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>',
+    'default': '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>'
+  };
+  
+  const addressType = (type || '').toLowerCase();
+  if (addressType.includes('house') || addressType.includes('building') || addressType.includes('residential')) {
+    return icons.house;
+  }
+  if (addressType.includes('place') || addressType.includes('point')) {
+    return icons.place;
+  }
+  return icons.default;
+}
+
+function renderSuggestions() {
+  if (addressAutocomplete.suggestions.length === 0) {
+    elements.addressSuggestions.innerHTML = '<div class="autocomplete-empty" role="option">No suggestions found</div>';
+    return;
+  }
+  
+  const html = addressAutocomplete.suggestions.map((item, index) => {
+    const isSelected = index === addressAutocomplete.selectedIndex;
+    const query = item.matchedQuery || '';
+    const formatted = formatAddressName(item.display_name, query);
+    
+    // formatAddressName already escapes HTML and handles <strong> tags
+    const safePrimary = formatted.primary;
+    const safeSecondary = formatted.secondary;
+    const safeFullName = item.display_name.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;');
+    
+    // Get icon based on address type
+    const addressType = item.type || item.class || 'place';
+    const iconPath = getAddressTypeIcon(addressType);
+    
+    return `
+      <div class="autocomplete-item ${isSelected ? 'highlighted' : ''}" 
+           role="option"
+           id="suggestion-${index}"
+           aria-selected="${isSelected}"
+           tabindex="${isSelected ? '0' : '-1'}"
+           data-index="${index}"
+           data-lat="${item.lat}"
+           data-lon="${item.lon}"
+           data-name="${safeFullName}">
+        <div class="autocomplete-item-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            ${iconPath}
+          </svg>
+        </div>
+        <div class="autocomplete-item-content">
+          <div class="address-name">${safePrimary}</div>
+          ${safeSecondary ? `<div class="address-details">${safeSecondary}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  elements.addressSuggestions.innerHTML = html;
+  elements.address.setAttribute('aria-expanded', 'true');
+  
+  // Add click handlers
+  elements.addressSuggestions.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+    item.addEventListener('click', () => selectSuggestion(index));
+    item.addEventListener('mouseenter', () => {
+      addressAutocomplete.selectedIndex = index;
+      renderSuggestions();
+    });
+  });
+}
+
+function selectSuggestion(index) {
+  if (!addressAutocomplete.suggestions[index]) return;
+  
+  const suggestion = addressAutocomplete.suggestions[index];
+  elements.address.value = suggestion.display_name;
+  closeAutocomplete();
+  elements.address.focus(); // Return focus to input for accessibility
+  geocodeAddress(suggestion.display_name);
+}
+
+function closeAutocomplete() {
+  elements.addressSuggestions.classList.remove('active');
+  elements.address.setAttribute('aria-expanded', 'false');
+  addressAutocomplete.isOpen = false;
+  addressAutocomplete.selectedIndex = -1;
+}
+
+function handleAutocompleteKeydown(e) {
+  if (!addressAutocomplete.isOpen || addressAutocomplete.suggestions.length === 0) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      geocodeAddress(elements.address.value);
+    }
+    return;
+  }
+  
+  switch(e.key) {
+    case 'ArrowDown':
+      e.preventDefault();
+      addressAutocomplete.selectedIndex = Math.min(
+        addressAutocomplete.selectedIndex + 1,
+        addressAutocomplete.suggestions.length - 1
+      );
+      renderSuggestions();
+      scrollToSelected();
+      break;
+      
+    case 'ArrowUp':
+      e.preventDefault();
+      addressAutocomplete.selectedIndex = Math.max(addressAutocomplete.selectedIndex - 1, -1);
+      renderSuggestions();
+      scrollToSelected();
+      break;
+      
+    case 'Enter':
+      e.preventDefault();
+      if (addressAutocomplete.selectedIndex >= 0) {
+        selectSuggestion(addressAutocomplete.selectedIndex);
+      } else {
+        geocodeAddress(elements.address.value);
+      }
+      break;
+      
+    case 'Escape':
+      e.preventDefault();
+      closeAutocomplete();
+      break;
+  }
+}
+
+function scrollToSelected() {
+  const selected = elements.addressSuggestions.querySelector('.autocomplete-item.highlighted');
+  if (selected) {
+    selected.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
 // Initialize dropdowns immediately
 // Region dropdown (doesn't depend on CSV)
 refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All');
@@ -426,8 +794,19 @@ try {
 
 // Event listeners
 elements.geocodeBtn.onclick = () => geocodeAddress(elements.address.value);
-elements.address.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') geocodeAddress(elements.address.value);
+
+// Address autocomplete
+elements.address.addEventListener('input', debounce((e) => {
+  searchAddresses(e.target.value);
+}, 400));
+
+elements.address.addEventListener('keydown', handleAutocompleteKeydown);
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', (e) => {
+  if (!elements.address.contains(e.target) && !elements.addressSuggestions.contains(e.target)) {
+    closeAutocomplete();
+  }
 });
 
 elements.clearRadius.onclick = () => {
