@@ -48,8 +48,17 @@
     .app-header {display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
     .site-logo {height:70px;transition:all 0.3s ease;}
     @media (max-width:700px){
-      .app-header{flex-direction:column;align-items:center;text-align:center}
+      .app-header{flex-direction:column;align-items:center;text-align:center;padding:12px 16px;}
       .site-logo{height:56px;margin-bottom:6px;}
+      .container{padding:8px;}
+      .controls{padding:12px 8px;}
+      .row{flex-direction:column;gap:8px;}
+      .row>.pill{flex:1 1 auto;}
+      .pill{flex-direction:column;align-items:flex-start;padding:10px;}
+      .pill label{min-width:auto;margin-bottom:4px;width:100%;}
+      .pill input,.pill select,.pill button{width:100%;}
+      #map{height:calc(100vh - 300px);}
+      .legend{position:relative;bottom:auto;left:auto;margin:8px;width:calc(100% - 16px);text-align:center;}
     }
     .controls {display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;border-top:1px solid #e5e7eb;background:#fff}
     .row {display:flex;gap:12px;justify-content:space-between}
@@ -92,6 +101,27 @@
       .autocomplete-item {min-height:52px}
       .autocomplete-item-icon {width:44px;height:44px;margin-left:12px}
       .autocomplete-item-content {padding:14px 12px 14px 0}
+      .address-autocomplete .pill{flex-direction:row;align-items:center;flex-wrap:wrap;}
+      .address-autocomplete .pill label{min-width:70px;margin-bottom:0;width:auto;}
+      .address-autocomplete .pill input{flex:1;min-width:120px;}
+      .address-autocomplete .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px;}
+      /* Radius pill special handling - keep inline layout */
+      .row .pill:has(#radius){flex-direction:row;align-items:center;flex-wrap:wrap;}
+      .row .pill:has(#radius) label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px;}
+      #radius{width:80px;flex:0 0 auto;max-width:80px;}
+      #units{width:60px;flex:0 0 auto;max-width:60px;}
+      #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px;}
+    }
+    @media (max-width: 480px) {
+      .container{padding:4px;}
+      .controls{padding:8px 4px;}
+      .row{gap:6px;}
+      .pill{padding:8px;}
+      #map{height:calc(100vh - 280px);}
+    }
+    @media (min-width: 701px) and (max-width: 1024px) {
+      .row{flex-wrap:wrap;}
+      .row>.pill{flex:1 1 calc(50% - 6px);min-width:200px;}
     }
   </style>
 </head>
