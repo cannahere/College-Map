@@ -1,0 +1,20 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "U.S. College Map",
+  "url": "https://cannahere.github.io/College-Map/",
+  "description": "Explore accredited U.S. colleges and universities by location, type, and state — all in one interactive map.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "U.S. College Map",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://cannahere.github.io/College-Map/USCollegeMap_Logo.png"
+    }
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://cannahere.github.io/College-Map/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
