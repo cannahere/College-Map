@@ -45,24 +45,11 @@
     body {margin:0;font-family:Inter,system-ui,sans-serif;background:#fff;color:#0f172a}
     .container {max-width:1100px;margin:0 auto;padding:16px}
     header.app-header {position:sticky;top:0;background:#fff;z-index:10;border-bottom:1px solid #e2e8f0;box-shadow:0 10px 25px rgba(15,23,42,.08)}
-    .app-header {display:flex;align-items:flex-start;justify-content:flex-start;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
-    .header-logo-tagline {display:flex;flex-direction:column;align-items:flex-start;gap:0}
-    .site-logo {height:70px;transition:all 0.3s ease;margin-bottom:0}
-    .tagline {font-family:Inter,sans-serif;font-size:14px;color:#6b7280;line-height:1.5;text-align:left;margin:0;margin-top:4px;margin-bottom:3px;margin-left:10px;font-weight:400;max-width:calc(100% - 10px)}
+    .app-header {display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+    .site-logo {height:70px;transition:all 0.3s ease;}
     @media (max-width:700px){
-      .app-header{flex-direction:column;align-items:center;text-align:center;padding:12px 16px;}
-      .header-logo-tagline{align-items:center;text-align:center}
-      .tagline{text-align:center;margin-left:0;max-width:100%}
+      .app-header{flex-direction:column;align-items:center;text-align:center}
       .site-logo{height:56px;margin-bottom:6px;}
-      .container{padding:8px;}
-      .controls{padding:12px 8px;}
-      .row{flex-direction:column;gap:8px;}
-      .row>.pill{flex:1 1 auto;}
-      .pill{flex-direction:column;align-items:flex-start;padding:10px;}
-      .pill label{min-width:auto;margin-bottom:4px;width:100%;}
-      .pill input,.pill select,.pill button{width:100%;}
-      #map{height:calc(100vh - 300px);}
-      .legend{position:relative;bottom:auto;left:auto;margin:8px;width:calc(100% - 16px);text-align:center;}
     }
     .controls {display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;border-top:1px solid #e5e7eb;background:#fff}
     .row {display:flex;gap:12px;justify-content:space-between}
@@ -72,7 +59,7 @@
     .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
     .pill input:focus {outline:none;border-color:#4285f4;box-shadow:0 0 0 1px #4285f4}
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
-    #map {height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1}
+    #map {height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0}
     .legend {position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a}
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
     .loading {display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);z-index:1000}
@@ -80,11 +67,11 @@
     .error {display:none;background:#fee;color:#c33;padding:12px;border-radius:8px;margin:12px;border:1px solid #fcc}
     .error.active {display:block}
     .radius-circle {stroke:#2563eb;stroke-width:2;stroke-dasharray:5,5;fill:none;opacity:0.5;pointer-events:none}
-    .address-autocomplete {position:relative;z-index:1001;isolation:isolate}
-    .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1001;margin-top:0;pointer-events:auto;transform:translateZ(0);will-change:transform}
+    .address-autocomplete {position:relative}
+    .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1000;margin-top:0}
     .autocomplete-suggestions.active {display:block;animation:fadeIn 0.15s ease-out}
     @keyframes fadeIn {from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)}}
-    .autocomplete-item {padding:0;cursor:pointer;border-bottom:none;font-size:14px;transition:background-color 0.1s;min-height:48px;display:flex;flex-direction:row;align-items:center;position:relative;width:100%;pointer-events:auto;user-select:none;-webkit-user-select:none}
+    .autocomplete-item {padding:0;cursor:pointer;border-bottom:none;font-size:14px;transition:background-color 0.1s;min-height:48px;display:flex;flex-direction:row;align-items:center;position:relative;width:100%}
     .autocomplete-item:not(:last-child)::after {content:'';position:absolute;bottom:0;left:56px;right:0;height:1px;background:#f1f5f9}
     .autocomplete-item:hover,.autocomplete-item.highlighted {background-color:#f8f9fa}
     .autocomplete-item:focus {outline:2px solid #4285f4;outline-offset:-2px;background-color:#f8f9fa}
@@ -105,47 +92,23 @@
       .autocomplete-item {min-height:52px}
       .autocomplete-item-icon {width:44px;height:44px;margin-left:12px}
       .autocomplete-item-content {padding:14px 12px 14px 0}
-      .address-autocomplete .pill{flex-direction:row;align-items:center;flex-wrap:wrap;}
-      .address-autocomplete .pill label{min-width:70px;margin-bottom:0;width:auto;}
-      .address-autocomplete .pill input{flex:1;min-width:120px;}
-      .address-autocomplete .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px;}
-      /* Radius pill special handling - keep inline layout */
-      .row .pill:has(#radius){flex-direction:row;align-items:center;flex-wrap:wrap;}
-      .row .pill:has(#radius) label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px;}
-      #radius{width:80px;flex:0 0 auto;max-width:80px;}
-      #units{width:60px;flex:0 0 auto;max-width:60px;}
-      #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px;}
-    }
-    @media (max-width: 480px) {
-      .container{padding:4px;}
-      .controls{padding:8px 4px;}
-      .row{gap:6px;}
-      .pill{padding:8px;}
-      #map{height:calc(100vh - 280px);}
-    }
-    @media (min-width: 701px) and (max-width: 1024px) {
-      .row{flex-wrap:wrap;}
-      .row>.pill{flex:1 1 calc(50% - 6px);min-width:200px;}
     }
   </style>
 </head>
 <body>
 <header class="app-header">
-  <div class="header-logo-tagline">
-    <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
-    <p class="tagline">Planning college visits? Use the U.S. College Map to explore schools by type, state, or location — and find colleges to visit near home or along your next trip.</p>
-  </div>
+  <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
 </header>
 
 <div class="container controls">
   <div class="row">
-    <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
-    <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
-    <div class="pill"><label for="state">State</label><select id="state"><option value="">All states</option></select></div>
+    <div class="pill"><label for="type">Type</label><select id="type"><option value="">Any</option></select></div>
+    <div class="pill"><label for="region">Region</label><select id="region"><option value="">All</option></select></div>
+    <div class="pill"><label for="state">State</label><select id="state"><option value="">All</option></select></div>
     <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
   </div>
   <div class="row">
-    <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+    <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Set</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
   </div>
 </div>
@@ -180,8 +143,7 @@ let addressAutocomplete = {
   suggestions: [],
   selectedIndex: -1,
   isOpen: false,
-  abortController: null,
-  isSelecting: false
+  abortController: null
 };
 
 const americasBounds = L.latLngBounds([[-60,-180],[85,-30]]);
@@ -425,9 +387,9 @@ function processCollegesData(data) {
   const leftovers = types.filter(t => !TYPE_ORDER.includes(t)).sort();
   const orderedTypes = ranked.concat(leftovers);
   
-  refreshDropdown('state', states, 'All states');
-  refreshDropdown('type', orderedTypes, 'All college types');
-  refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All regions');
+  refreshDropdown('state', states, 'All');
+  refreshDropdown('type', orderedTypes, 'Any');
+  refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All');
   
   render();
 }
@@ -504,11 +466,16 @@ function searchAddresses(query) {
   // Create new abort controller
   addressAutocomplete.abortController = new AbortController();
   
+  // Rate limiting: Nominatim requires a User-Agent and has strict rate limits (1 request per second)
   // URL encoding prevents XSS and handles special characters
   const sanitizedQuery = query.trim().substring(0, 200); // Limit query length
   
-  // Use Cloudflare proxy for Google Places Autocomplete API
-  fetch(`https://cold-bread-f865.cannahere2007.workers.dev/?input=${encodeURIComponent(sanitizedQuery)}`, {
+  // Enhanced search - get more results to filter and rank better
+  // Request more results to ensure we have enough to show 5 unique ones
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(sanitizedQuery)}&limit=20&addressdetails=1&countrycodes=us&dedupe=0&extratags=1`, {
+    headers: {
+      'User-Agent': 'USCollegeMap/1.0'
+    },
     signal: addressAutocomplete.abortController.signal
   })
     .then(r => {
@@ -516,22 +483,88 @@ function searchAddresses(query) {
       return r.json();
     })
     .then(data => {
-      // Handle empty array or invalid response
-      if (!Array.isArray(data) || data.length === 0) {
+      if (!data || data.length === 0) {
         addressAutocomplete.suggestions = [];
         renderSuggestions();
         return;
       }
       
-      // Google Places API already returns well-ranked results
-      // Map the response to our format, keeping up to 5 results
-      const results = data.slice(0, 5).map(item => ({
-        description: item.description || '',
-        place_id: item.place_id || '',
-        matchedQuery: query
-      }));
+      // Filter and rank results like Google Maps
+      const results = data.map(item => {
+        const displayName = item.display_name || '';
+        const queryLower = query.toLowerCase().trim();
+        const nameLower = displayName.toLowerCase();
+        
+        // Calculate relevance score
+        let score = 0;
+        
+        // Exact start match gets highest score
+        if (nameLower.startsWith(queryLower)) {
+          score += 100;
+        }
+        // Contains query
+        else if (nameLower.includes(queryLower)) {
+          score += 50;
+        }
+        // Word boundary matches
+        const queryWords = queryLower.split(/\s+/).filter(w => w.length > 0);
+        const nameWords = nameLower.split(/[,\s]+/).filter(w => w.length > 0);
+        const matchingWords = queryWords.filter(qw => nameWords.some(nw => nw.startsWith(qw) || nw.includes(qw)));
+        score += matchingWords.length * 10;
+        
+        // Prefer places with higher importance (if available)
+        if (item.importance) {
+          score += item.importance * 5;
+        }
+        
+        // Prefer more specific addresses (addresses with numbers)
+        if (/\d/.test(displayName)) {
+          score += 5;
+        }
+        
+        // Base score for any result (so all results are included)
+        score += 1;
+        
+        return {
+          ...item,
+          relevanceScore: score,
+          matchedQuery: query
+        };
+      });
       
-      addressAutocomplete.suggestions = results;
+      // Sort by relevance score (highest first)
+      results.sort((a, b) => b.relevanceScore - a.relevanceScore);
+      
+      // Remove duplicates and take top 5
+      const uniqueResults = [];
+      const seenNames = new Set();
+      
+      for (const result of results) {
+        // Use a more lenient duplicate check - just the first 50 chars
+        const nameKey = result.display_name.toLowerCase().substring(0, 50).trim();
+        if (seenNames.has(nameKey) || nameKey.length === 0) {
+          continue;
+        }
+        seenNames.add(nameKey);
+        uniqueResults.push(result);
+        
+        // Stop when we have 5 unique results
+        if (uniqueResults.length >= 5) {
+          break;
+        }
+      }
+      
+      // Always show up to 5 results (prioritize unique, but show all if we have fewer)
+      // If we don't have 5 unique, fill with remaining results
+      if (uniqueResults.length < 5 && results.length > uniqueResults.length) {
+        const remaining = results.filter(r => {
+          const key = r.display_name.toLowerCase().substring(0, 50).trim();
+          return !seenNames.has(key);
+        });
+        uniqueResults.push(...remaining.slice(0, 5 - uniqueResults.length));
+      }
+      
+      addressAutocomplete.suggestions = uniqueResults.slice(0, 5);
       renderSuggestions();
     })
     .catch(error => {
@@ -629,15 +662,16 @@ function renderSuggestions() {
   const html = addressAutocomplete.suggestions.map((item, index) => {
     const isSelected = index === addressAutocomplete.selectedIndex;
     const query = item.matchedQuery || '';
-    const formatted = formatAddressName(item.description, query);
+    const formatted = formatAddressName(item.display_name, query);
     
     // formatAddressName already escapes HTML and handles <strong> tags
     const safePrimary = formatted.primary;
     const safeSecondary = formatted.secondary;
-    const safeFullName = item.description.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;');
+    const safeFullName = item.display_name.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;');
     
-    // Get icon - Google Places API doesn't provide type in autocomplete, use default
-    const iconPath = getAddressTypeIcon('place');
+    // Get icon based on address type
+    const addressType = item.type || item.class || 'place';
+    const iconPath = getAddressTypeIcon(addressType);
     
     return `
       <div class="autocomplete-item ${isSelected ? 'highlighted' : ''}" 
@@ -645,7 +679,10 @@ function renderSuggestions() {
            id="suggestion-${index}"
            aria-selected="${isSelected}"
            tabindex="${isSelected ? '0' : '-1'}"
-           data-index="${index}">
+           data-index="${index}"
+           data-lat="${item.lat}"
+           data-lon="${item.lon}"
+           data-name="${safeFullName}">
         <div class="autocomplete-item-icon">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             ${iconPath}
@@ -662,67 +699,24 @@ function renderSuggestions() {
   elements.addressSuggestions.innerHTML = html;
   elements.address.setAttribute('aria-expanded', 'true');
   
-  // Add mouseenter handlers for highlighting
+  // Add click handlers
   elements.addressSuggestions.querySelectorAll('.autocomplete-item').forEach((item, index) => {
-    // Ensure item is properly clickable
-    item.style.pointerEvents = 'auto';
-    item.style.cursor = 'pointer';
-    
-    // Add direct click handler - this is the primary method
-    const handleClick = (e) => {
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      e.stopPropagation();
-      selectSuggestion(index);
-      return false;
-    };
-    
-    item.addEventListener('click', handleClick, true);
-    item.addEventListener('mousedown', (e) => {
-      e.preventDefault(); // Prevent input blur
-    });
-    
-    // Update highlight without re-rendering - just update classes
+    item.addEventListener('click', () => selectSuggestion(index));
     item.addEventListener('mouseenter', () => {
       addressAutocomplete.selectedIndex = index;
-      updateHighlight();
+      renderSuggestions();
     });
-    
-    // Also handle touch events for mobile
-    item.addEventListener('touchend', handleClick, { passive: false, capture: true });
   });
 }
 
 function selectSuggestion(index) {
-  if (!addressAutocomplete.suggestions || !addressAutocomplete.suggestions[index]) {
-    console.warn('No suggestion at index:', index, 'Available:', addressAutocomplete.suggestions.length);
-    return;
-  }
+  if (!addressAutocomplete.suggestions[index]) return;
   
   const suggestion = addressAutocomplete.suggestions[index];
-  const description = suggestion.description || '';
-  
-  if (!description) {
-    console.warn('No description found for suggestion at index:', index);
-    return;
-  }
-  
-  // Mark that we're programmatically setting the value (prevents triggering new search)
-  addressAutocomplete.isSelecting = true;
-  
-  // Close dropdown FIRST - instant visual feedback
+  elements.address.value = suggestion.display_name;
   closeAutocomplete();
-  
-  // Set the input value immediately - user sees it instantly
-  elements.address.value = description;
-  
-  // Clear the flag after a brief delay to allow the value to be set
-  setTimeout(() => {
-    addressAutocomplete.isSelecting = false;
-  }, 100);
-  
-  // Geocode the address to update the map (this happens asynchronously)
-  geocodeAddress(description);
+  elements.address.focus(); // Return focus to input for accessibility
+  geocodeAddress(suggestion.display_name);
 }
 
 function closeAutocomplete() {
@@ -730,21 +724,6 @@ function closeAutocomplete() {
   elements.address.setAttribute('aria-expanded', 'false');
   addressAutocomplete.isOpen = false;
   addressAutocomplete.selectedIndex = -1;
-}
-
-function updateHighlight() {
-  // Update highlight without re-rendering - just update classes
-  elements.addressSuggestions.querySelectorAll('.autocomplete-item').forEach((item, index) => {
-    if (index === addressAutocomplete.selectedIndex) {
-      item.classList.add('highlighted');
-      item.setAttribute('aria-selected', 'true');
-      item.setAttribute('tabindex', '0');
-    } else {
-      item.classList.remove('highlighted');
-      item.setAttribute('aria-selected', 'false');
-      item.setAttribute('tabindex', '-1');
-    }
-  });
 }
 
 function handleAutocompleteKeydown(e) {
@@ -763,14 +742,14 @@ function handleAutocompleteKeydown(e) {
         addressAutocomplete.selectedIndex + 1,
         addressAutocomplete.suggestions.length - 1
       );
-      updateHighlight();
+      renderSuggestions();
       scrollToSelected();
       break;
       
     case 'ArrowUp':
       e.preventDefault();
       addressAutocomplete.selectedIndex = Math.max(addressAutocomplete.selectedIndex - 1, -1);
-      updateHighlight();
+      renderSuggestions();
       scrollToSelected();
       break;
       
@@ -799,17 +778,17 @@ function scrollToSelected() {
 
 // Initialize dropdowns immediately
 // Region dropdown (doesn't depend on CSV)
-refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All regions');
+refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All');
 
 // Type dropdown (initialize with common types, will be updated when CSV loads)
 try {
-  refreshDropdown('type', TYPE_ORDER.filter(Boolean), 'Any college type');
+  refreshDropdown('type', TYPE_ORDER.filter(Boolean), 'Any');
 } catch (e) {
   console.error('Error initializing type dropdown:', e);
   // Fallback: ensure dropdown at least exists
   const typeSelect = document.getElementById('type');
   if (typeSelect) {
-    typeSelect.innerHTML = '<option value="">All college types</option>';
+    typeSelect.innerHTML = '<option value="">Any</option>';
   }
 }
 
@@ -818,37 +797,17 @@ elements.geocodeBtn.onclick = () => geocodeAddress(elements.address.value);
 
 // Address autocomplete
 elements.address.addEventListener('input', debounce((e) => {
-  // Don't trigger search if we're programmatically setting the value
-  if (addressAutocomplete.isSelecting) {
-    return;
-  }
   searchAddresses(e.target.value);
 }, 400));
 
 elements.address.addEventListener('keydown', handleAutocompleteKeydown);
 
-// Event delegation as backup (items have direct handlers, but this catches edge cases)
-elements.addressSuggestions.addEventListener('click', (e) => {
-  const item = e.target.closest('.autocomplete-item');
-  if (item) {
-    const index = parseInt(item.dataset.index, 10);
-    if (!isNaN(index) && index >= 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      selectSuggestion(index);
-    }
-  }
-}, true);
-
 // Close autocomplete when clicking outside
 document.addEventListener('click', (e) => {
-  // Only close if click is truly outside
-  if (!elements.address.contains(e.target) && 
-      !elements.addressSuggestions.contains(e.target) &&
-      !e.target.closest('.autocomplete-item')) {
+  if (!elements.address.contains(e.target) && !elements.addressSuggestions.contains(e.target)) {
     closeAutocomplete();
   }
-}, true);
+});
 
 elements.clearRadius.onclick = () => {
   elements.radius.value = '50';
