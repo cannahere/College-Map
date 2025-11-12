@@ -110,6 +110,8 @@
       .row-filters .pill{flex:1 1 calc(33.333% - 4px);min-width:0;}
       .row-filters .pill label{display:none}
       .row-filters .pill select{width:100%;font-size:12px;padding:6px 8px;}
+      .row-filters .pill-search{display:none !important}
+      .row-search{display:flex !important}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
       .row-search .pill input{flex:1;width:auto;}
@@ -127,9 +129,27 @@
       .pill input,.pill select,.pill button{width:auto;flex:1;}
       .legend{position:relative;bottom:auto;left:auto;margin:8px;width:calc(100% - 16px);text-align:center;}
     }
-    .controls {display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;border-top:1px solid #e5e7eb;background:#fff}
+    .controls {display:flex;flex-direction:column;gap:3px;padding:14px 16px 8px;border-top:1px solid #e5e7eb;background:#fff}
     .row {display:flex;gap:12px;justify-content:space-between}
     .row>.pill {flex:1}
+    .row-filters{display:flex;gap:12px;justify-content:space-between}
+    .row-filters .pill{flex:1}
+    .row-search{display:none}
+    .row-filters .pill-search{display:none}
+    @media (min-width:1025px) {
+      .row-filters .pill-search{display:flex}
+      .row-search{display:none}
+      .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
+      .row-filters{flex:1 1 100%;margin-bottom:3px}
+      .row-address{display:flex;flex-direction:row;gap:12px;flex-wrap:nowrap;flex:1 1 auto;min-width:400px;margin-right:12px;margin-bottom:0}
+      .row-address .pill{flex:1 1 auto;min-width:0}
+      .row-radius{display:flex;flex-direction:row;gap:12px;flex-wrap:nowrap;flex:0 1 auto;margin-top:0;margin-bottom:0}
+      .row-radius .pill{flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
+      .row-radius .pill label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px}
+      .row-radius #radius{width:90px;flex:0 0 auto}
+      .row-radius #units{width:60px;flex:0 0 auto}
+      .row-radius #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px}
+    }
     .pill {display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:12px;font-size:12px}
     .pill label {color:#475569;font-weight:600;font-size:12px;min-width:60px}
     .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
@@ -208,18 +228,25 @@
       .row-filters .pill{flex:1 1 calc(33.333% - 4px);min-width:0;}
       .row-filters .pill label{display:none}
       .row-filters .pill select{width:100%;font-size:12px;padding:6px 8px;}
+      .row-filters .pill-search{display:none}
+      .row-search{display:flex}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
       .row-search .pill input{flex:1;width:auto;}
-      .row-address .pill{flex:1 1 100%;}
-      .row-address .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-address .pill input{flex:1;min-width:120px;}
-      .row-address .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px;}
-      .row-radius .pill{flex:1 1 100%;flex-direction:row;align-items:center;flex-wrap:wrap;}
-      .row-radius .pill label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px;}
-      .row-radius #radius{width:80px;flex:0 0 auto;max-width:80px;}
-      .row-radius #units{width:60px;flex:0 0 auto;max-width:60px;}
-      .row-radius #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px;}
+      .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
+      .row-filters{flex:1 1 100%;margin-bottom:3px}
+      .row-search{flex:1 1 100%;margin-bottom:3px}
+      .row-address{display:flex;flex-direction:row;gap:6px;flex-wrap:nowrap;flex:1 1 auto;min-width:300px;margin-right:6px;margin-bottom:0}
+      .row-address .pill{flex:1 1 auto;min-width:0}
+      .row-address .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569}
+      .row-address .pill input{flex:1;min-width:120px}
+      .row-address .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px}
+      .row-radius{display:flex;flex-direction:row;gap:6px;flex-wrap:nowrap;flex:0 1 auto;margin-top:0;margin-bottom:0}
+      .row-radius .pill{flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
+      .row-radius .pill label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px;font-size:12px;font-weight:600;color:#475569}
+      .row-radius #radius{width:80px;flex:0 0 auto;max-width:80px}
+      .row-radius #units{width:60px;flex:0 0 auto;max-width:60px}
+      .row-radius #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px}
     }
     .about-map {max-width:1100px;margin:16px auto 24px;font-size:13px;color:#475569;background:#f8fafc;border-radius:12px;padding:10px 16px 14px;border:1px solid #e2e8f0}
     .about-map-title {font-weight:600;color:#0f172a;font-size:15px;margin:0 0 12px 0;text-align:center;padding-bottom:12px;border-bottom:2px solid #fff}
@@ -247,12 +274,13 @@
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state"><option value="">All states</option></select></div>
+      <div class="pill pill-search"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
     </div>
     <div class="row row-search">
-      <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
+      <div class="pill"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
     </div>
     <div class="row row-address">
-      <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+      <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     </div>
     <div class="row row-radius">
       <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
