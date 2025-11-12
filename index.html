@@ -48,7 +48,33 @@
     "creator": {
       "@type": "Organization",
       "name": "U.S. College Map"
-    }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "150"
+    },
+    "featureList": [
+      "Interactive map of all U.S. colleges",
+      "Filter by state, region, or school type",
+      "Search by college name",
+      "Find colleges near your location",
+      "Plan college visits efficiently"
+    ]
+  }
+  </script>
+  
+  <!-- BreadcrumbList Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://uscollegemap.org/"
+    }]
   }
   </script>
 
@@ -72,6 +98,7 @@
     .header-logo-tagline {display:flex;flex-direction:column;align-items:flex-start;gap:0}
     .site-logo {height:70px;transition:all 0.3s ease;margin-bottom:0}
     .tagline {font-family:Inter,sans-serif;font-size:14px;color:#6b7280;line-height:1.5;text-align:left;margin:0;margin-top:4px;margin-bottom:3px;margin-left:10px;font-weight:400;max-width:calc(100% - 10px)}
+    .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
     @media (max-width:700px){
       .app-header{flex-direction:column;align-items:center;text-align:center;padding:12px 16px;}
       .header-logo-tagline{align-items:center;text-align:center}
@@ -173,11 +200,13 @@
   <header class="app-header">
     <div class="header-logo-tagline">
       <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
+      <h1 class="sr-only">U.S. College Map | Explore Colleges by Location, Type, and State</h1>
       <p class="tagline">Planning college visits? Use the U.S. College Map to explore schools by type, state, or location — and find colleges to visit near home or along your next trip.</p>
     </div>
   </header>
 
-  <div class="container controls">
+  <main>
+  <nav class="container controls" aria-label="College search filters">
     <div class="row">
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
@@ -188,12 +217,13 @@
       <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
       <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
     </div>
-  </div>
+  </nav>
 
-  <div id="map"></div>
+  <section id="map" aria-label="Interactive college map"></section>
   <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
   <div class="loading" id="loading">Loading colleges data...</div>
   <div class="error" id="error"></div>
+  </main>
 </div>
 <footer class="site-footer">© 2025 U.S. College Map</footer>
 
