@@ -1012,9 +1012,11 @@ document.addEventListener('click', (e) => {
 
 elements.clearRadius.onclick = () => {
   elements.radius.value = '50';
+  elements.address.value = '';
   home = null;
   homeLayer.clearLayers();
   radiusLayer.clearLayers();
+  closeAutocomplete();
   map.setView([39.5, -98.35], 4);
   render();
 };
