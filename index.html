@@ -43,6 +43,7 @@
 
   <style>
     body {margin:0;font-family:Inter,system-ui,sans-serif;background:#fff;color:#0f172a}
+    .main-container {display:flex;flex-direction:column;min-height:100vh}
     .container {max-width:1100px;margin:0 auto;padding:16px}
     header.app-header {position:sticky;top:0;background:#fff;z-index:10;border-bottom:1px solid #e2e8f0;box-shadow:0 10px 25px rgba(15,23,42,.08)}
     .app-header {display:flex;align-items:flex-start;justify-content:flex-start;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
@@ -61,7 +62,6 @@
       .pill{flex-direction:column;align-items:flex-start;padding:10px;}
       .pill label{min-width:auto;margin-bottom:4px;width:100%;}
       .pill input,.pill select,.pill button{width:100%;}
-      #map{height:calc(100vh - 300px);}
       .legend{position:relative;bottom:auto;left:auto;margin:8px;width:calc(100% - 16px);text-align:center;}
     }
     .controls {display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;border-top:1px solid #e5e7eb;background:#fff}
@@ -72,13 +72,14 @@
     .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
     .pill input:focus {outline:none;border-color:#4285f4;box-shadow:0 0 0 1px #4285f4}
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
-    #map {height:calc(100vh - 210px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1}
+    #map {flex:1 1 auto;background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1;min-height:400px}
     .legend {position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a}
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
     .loading {display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);z-index:1000}
     .loading.active {display:block}
     .error {display:none;background:#fee;color:#c33;padding:12px;border-radius:8px;margin:12px;border:1px solid #fcc}
     .error.active {display:block}
+    .site-footer {background:#fff;border-top:1px solid #e2e8f0;padding:10px 16px;font-size:12px;color:#94A3B8;text-align:center}
     .radius-circle {stroke:#2563eb;stroke-width:2;stroke-dasharray:5,5;fill:none;opacity:0.5;pointer-events:none}
     .address-autocomplete {position:relative;z-index:1001;isolation:isolate}
     .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1001;margin-top:0;pointer-events:auto;transform:translateZ(0);will-change:transform}
@@ -121,7 +122,6 @@
       .controls{padding:8px 4px;}
       .row{gap:6px;}
       .pill{padding:8px;}
-      #map{height:calc(100vh - 280px);}
     }
     @media (min-width: 701px) and (max-width: 1024px) {
       .row{flex-wrap:wrap;}
@@ -130,30 +130,33 @@
   </style>
 </head>
 <body>
-<header class="app-header">
-  <div class="header-logo-tagline">
-    <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
-    <p class="tagline">Planning college visits? Use the U.S. College Map to explore schools by type, state, or location — and find colleges to visit near home or along your next trip.</p>
-  </div>
-</header>
+<div class="main-container">
+  <header class="app-header">
+    <div class="header-logo-tagline">
+      <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
+      <p class="tagline">Planning college visits? Use the U.S. College Map to explore schools by type, state, or location — and find colleges to visit near home or along your next trip.</p>
+    </div>
+  </header>
 
-<div class="container controls">
-  <div class="row">
-    <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
-    <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
-    <div class="pill"><label for="state">State</label><select id="state"><option value="">All states</option></select></div>
-    <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
+  <div class="container controls">
+    <div class="row">
+      <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
+      <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
+      <div class="pill"><label for="state">State</label><select id="state"><option value="">All states</option></select></div>
+      <div class="pill"><label for="search">Search</label><input id="search" placeholder="Search by college name..." /></div>
+    </div>
+    <div class="row">
+      <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+      <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
+    </div>
   </div>
-  <div class="row">
-    <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter your home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
-    <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
-  </div>
+
+  <div id="map"></div>
+  <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
+  <div class="loading" id="loading">Loading colleges data...</div>
+  <div class="error" id="error"></div>
 </div>
-
-<div id="map"></div>
-<div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
-<div class="loading" id="loading">Loading colleges data...</div>
-<div class="error" id="error"></div>
+<footer class="site-footer">© 2025 U.S. College Map</footer>
 
 <script>
 const localMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
