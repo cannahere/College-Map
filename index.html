@@ -601,6 +601,7 @@ function geocodeAddress(address){
   closeAutocomplete();
   elements.loading.classList.add('active');
   
+  // Note: Address geocoding is independent of state filter - it does not modify state/region/type filters
   // Rate limiting: Nominatim requires a User-Agent and has strict rate limits
   fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1`, {
     headers: {
@@ -630,6 +631,7 @@ function geocodeAddress(address){
           .addTo(homeLayer)
           .openPopup();
         map.setView([lat, lon], 8);
+        // Note: render() uses current filter values but does not modify them
         render(); // Re-render to apply radius filter
       } else {
         showError('Address not found. Please try a different address.');
