@@ -80,6 +80,23 @@
     .error {display:none;background:#fee;color:#c33;padding:12px;border-radius:8px;margin:12px;border:1px solid #fcc}
     .error.active {display:block}
     .site-footer {background:#fff;border-top:1px solid #e2e8f0;padding:10px 16px;font-size:12px;color:#94A3B8;text-align:center}
+    .feedback-button {position:fixed;bottom:18px;right:18px;background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:Inter,sans-serif;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,0.3);z-index:1000;transition:all 0.2s ease}
+    .feedback-button:hover {background:#1d4ed8;box-shadow:0 6px 16px rgba(37,99,235,0.4);transform:translateY(-2px)}
+    .feedback-button.hidden {display:none}
+    .feedback-popup {position:fixed;bottom:70px;right:18px;width:280px;background:#fff;border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);border:1px solid #e2e8f0;z-index:1001;padding:20px;display:none;animation:fadeIn 0.2s ease-out}
+    .feedback-popup.active {display:block}
+    .feedback-popup-header {display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;margin-top:-2px}
+    .feedback-popup-close {background:none;border:none;font-size:24px;color:#94a3b8;cursor:pointer;line-height:1;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;transition:color 0.2s}
+    .feedback-popup-close:hover {color:#64748b}
+    .feedback-popup-message {font-size:14px;color:#0f172a;line-height:1.5;margin-bottom:16px}
+    .feedback-popup-button {display:inline-block;background:#2563eb;color:#fff;border:none;padding:10px 28px;border-radius:8px;font-family:Inter,sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background 0.2s}
+    .feedback-popup-button-wrapper {text-align:center;margin-bottom:12px}
+    .feedback-popup-button:hover {background:#1d4ed8}
+    .feedback-popup-dismiss {display:block;text-align:center;font-size:12px;color:#94a3b8;text-decoration:none;cursor:pointer;transition:color 0.2s}
+    .feedback-popup-dismiss:hover {color:#64748b}
+    @media (max-width:700px){
+      .feedback-popup {width:calc(100% - 36px);max-width:280px;right:18px;left:auto}
+    }
     .radius-circle {stroke:#2563eb;stroke-width:2;stroke-dasharray:5,5;fill:none;opacity:0.5;pointer-events:none}
     .address-autocomplete {position:relative;z-index:1001;isolation:isolate}
     .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1001;margin-top:0;pointer-events:auto;transform:translateZ(0);will-change:transform}
@@ -878,6 +895,20 @@ if (window.location.protocol === 'file:') {
 }
 </script>
 
+<!-- Feedback Widget -->
+<div class="feedback-button" id="feedbackButton">Feedback</div>
+<div class="feedback-popup" id="feedbackPopup">
+  <div class="feedback-popup-header">
+    <div></div>
+    <button class="feedback-popup-close" id="feedbackClose" aria-label="Close">×</button>
+  </div>
+  <div class="feedback-popup-message">We're improving U.S. College Map. Got 30 seconds to tell us what to fix next?</div>
+  <div class="feedback-popup-button-wrapper">
+    <a href="https://forms.gle/tGNzJr9THUYKfUPZ8" target="_blank" rel="noopener noreferrer" class="feedback-popup-button" style="text-decoration:none">Open feedback form</a>
+  </div>
+  <a href="#" class="feedback-popup-dismiss" id="feedbackDismiss">Don't show again</a>
+</div>
+
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-E2KP0JHTMC"></script>
 <script>
@@ -885,6 +916,54 @@ window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-E2KP0JHTMC');
+</script>
+
+<script>
+// Feedback Widget
+(function() {
+  'use strict';
+  
+  const feedbackButton = document.getElementById('feedbackButton');
+  const feedbackPopup = document.getElementById('feedbackPopup');
+  
+  // Check if user has dismissed the feedback widget
+  if (localStorage.getItem('uscm_feedback_dismissed') === 'true') {
+    if (feedbackButton) feedbackButton.style.display = 'none';
+    if (feedbackPopup) feedbackPopup.style.display = 'none';
+    return; // Don't set up event listeners
+  }
+  
+  const feedbackClose = document.getElementById('feedbackClose');
+  const feedbackDismiss = document.getElementById('feedbackDismiss');
+  
+  // Open popup
+  feedbackButton.addEventListener('click', function(e) {
+    e.stopPropagation();
+    feedbackPopup.classList.add('active');
+  });
+  
+  // Close popup
+  feedbackClose.addEventListener('click', function() {
+    feedbackPopup.classList.remove('active');
+  });
+  
+  // Dismiss permanently
+  feedbackDismiss.addEventListener('click', function(e) {
+    e.preventDefault();
+    localStorage.setItem('uscm_feedback_dismissed', 'true');
+    feedbackButton.classList.add('hidden');
+    feedbackPopup.classList.remove('active');
+  });
+  
+  // Close popup when clicking outside
+  document.addEventListener('click', function(e) {
+    if (feedbackPopup.classList.contains('active') && 
+        !feedbackPopup.contains(e.target) && 
+        !feedbackButton.contains(e.target)) {
+      feedbackPopup.classList.remove('active');
+    }
+  });
+})();
 </script>
 
 </body>
