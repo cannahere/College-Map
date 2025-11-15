@@ -279,7 +279,7 @@
       <div class="pill pill-search"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
     </div>
     <div class="row row-search">
-      <div class="pill"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
+      <div class="pill"><label for="search-mobile">Search</label><input id="search-mobile" placeholder="Enter college name" /></div>
     </div>
     <div class="row row-address">
       <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
@@ -410,7 +410,10 @@ function render(){
   const stateVal = elements.state.value;
   const regionVal = elements.region.value;
   const typeVal = elements.type.value;
-  const searchVal = elements.search.value.toLowerCase().trim();
+  // Get search value from either desktop or mobile search field (prefer the one with a value, or desktop first)
+  const desktopSearch = elements.search;
+  const mobileSearch = document.getElementById('search-mobile');
+  const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
   const radiusVal = parseFloat(elements.radius.value) || 0;
   const unitsVal = elements.units.value;
 
@@ -1015,6 +1018,10 @@ document.addEventListener('click', (e) => {
 elements.clearRadius.onclick = () => {
   elements.radius.value = '50';
   elements.address.value = '';
+  // Clear both desktop and mobile search fields
+  if (elements.search) elements.search.value = '';
+  const mobileSearch = document.getElementById('search-mobile');
+  if (mobileSearch) mobileSearch.value = '';
   home = null;
   homeLayer.clearLayers();
   radiusLayer.clearLayers();
@@ -1027,8 +1034,20 @@ elements.clearRadius.onclick = () => {
   document.getElementById(id).addEventListener('change', render);
 });
 
-// Debounced search input
-elements.search.addEventListener('input', debounce(render, 300));
+// Debounced search input - use event delegation to handle both desktop and mobile search fields
+document.querySelector('.controls').addEventListener('input', debounce((e) => {
+  if (e.target.id === 'search' || e.target.id === 'search-mobile') {
+    // Sync values between both search fields if they exist
+    const desktopSearch = document.getElementById('search');
+    const mobileSearch = document.getElementById('search-mobile');
+    if (e.target.id === 'search' && mobileSearch) {
+      mobileSearch.value = e.target.value;
+    } else if (e.target.id === 'search-mobile' && desktopSearch) {
+      desktopSearch.value = e.target.value;
+    }
+    render();
+  }
+}, 300));
 
 // Check if running from file:// protocol (won't work due to CORS)
 if (window.location.protocol === 'file:') {
