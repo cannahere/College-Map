@@ -96,14 +96,14 @@
     header.app-header {position:sticky;top:0;background:#fff;z-index:10;border-bottom:1px solid #e2e8f0;box-shadow:0 10px 25px rgba(15,23,42,.08)}
     .app-header {display:flex;align-items:flex-start;justify-content:flex-start;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
     .header-logo-tagline {display:flex;flex-direction:column;align-items:flex-start;gap:0}
-    .site-logo {height:70px;transition:all 0.3s ease;margin-bottom:0}
+    .site-logo {height:70px;width:auto;object-fit:contain;transition:all 0.3s ease;margin-bottom:0}
     .tagline {font-family:Inter,sans-serif;font-size:14px;color:#6b7280;line-height:1.5;text-align:left;margin:0;margin-top:4px;margin-bottom:3px;margin-left:10px;font-weight:400;max-width:calc(100% - 10px)}
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
     @media (max-width:700px){
       .app-header{flex-direction:row;align-items:flex-start;text-align:left;padding:12px 16px;}
       .header-logo-tagline{align-items:flex-start;text-align:left}
       .tagline{text-align:left;margin-left:0;max-width:100%;font-size:12px;color:#94A3B8;line-height:1.4;margin-top:6px;margin-bottom:8px}
-      .site-logo{height:56px;margin-bottom:0;}
+      .site-logo{height:56px;width:auto;object-fit:contain;margin-bottom:0;}
       .container{padding:8px;}
       .controls{padding:12px 8px;}
       .row-filters{flex-direction:row;gap:6px;flex-wrap:nowrap;}
@@ -173,6 +173,17 @@
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
     #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1;min-height:500px}
     .legend {position:absolute;bottom:14px;left:14px;background:#fff;padding:8px 10px;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;box-shadow:0 10px 25px rgba(15,23,42,.08);color:#0f172a}
+    .map-hint-bubble {position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.98);padding:12px 14px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.875rem;max-width:260px;display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
+    .map-hint-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
+    .map-hint-bubble-header {display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .map-hint-bubble-icon {font-size:16px;line-height:1;flex-shrink:0}
+    .map-hint-bubble-close {background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;line-height:1;padding:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.2s;margin-left:auto;margin-top:-2px;margin-right:-4px}
+    .map-hint-bubble-close:hover {color:#64748b}
+    .map-hint-bubble-title {font-weight:600;font-size:0.875rem;line-height:1.4;color:#0f172a;flex:1}
+    .map-hint-bubble-body {font-size:0.8125rem;line-height:1.5;color:#64748b}
+    @media (max-width:700px) {
+      .map-hint-bubble {top:12px;right:12px;left:12px;max-width:none}
+    }
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
     .loading {display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);z-index:1000}
     .loading.active {display:block}
@@ -339,7 +350,7 @@
         <div class="row row-nearby">
           <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="street-address" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
-  </div>
+</div>
 </div>
     </details>
     
@@ -355,7 +366,25 @@
     </details>
   </nav>
 
-  <section id="map" aria-label="Interactive college map"></section>
+  <section id="map" aria-label="Interactive college map">
+    <!-- Smart map hint popups -->
+    <div class="map-hint-bubble" id="hint-too-many-colleges" role="alert">
+      <div class="map-hint-bubble-header">
+        <span class="map-hint-bubble-icon">🎯</span>
+        <div class="map-hint-bubble-title">Too many colleges shown?</div>
+        <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('tooMany')">×</button>
+      </div>
+      <div class="map-hint-bubble-body">Try using the "Type" filter above to narrow down your school options.</div>
+    </div>
+    <div class="map-hint-bubble" id="hint-no-colleges" role="alert">
+      <div class="map-hint-bubble-header">
+        <span class="map-hint-bubble-icon">🔍</span>
+        <div class="map-hint-bubble-title">No colleges found?</div>
+        <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noResults')">×</button>
+      </div>
+      <div class="map-hint-bubble-body">Your filters may be too narrow — Check your Type, Region or State selections above.</div>
+    </div>
+  </section>
 <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
   <div class="loading" id="loading">Loading colleges data...</div>
   <div class="error" id="error"></div>
@@ -449,6 +478,9 @@ let colleges = [], home = null;
 // Active mode state: 'nearby' or 'route'
 let activeMode = 'nearby';
 
+// Track if user has actively used search controls (Locate or Find Route buttons)
+let hasUsedSearchControls = false;
+
 // Route state
 let route = {
   start: null, // { description, lat, lon }
@@ -532,7 +564,7 @@ function render(){
       // If in route mode but no route search, show colleges based on filters only
       // Clear route visualization
       routeLayer.clearLayers();
-      markersLayer.clearLayers();
+  markersLayer.clearLayers();
       
       // Apply filters from dropdowns
       const stateVal = elements.state ? elements.state.value : '';
@@ -566,29 +598,32 @@ function render(){
             return;
           }
           
-          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
-          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+    const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+    const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
           
-          const popupContent = `
-            <div style="font-size:12px;line-height:1.4">
-              <b>${c.name}</b><br>
-              ${c.state} · ${(c.type||'Unknown')}<br>
-              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
-              Enrollment: ${c.enrollment || 'N/A'}<br>
-              Tuition: ${tuition}<br>
-              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
-            </div>`;
-          
+    const popupContent = `
+      <div style="font-size:12px;line-height:1.4">
+        <b>${c.name}</b><br>
+        ${c.state} · ${(c.type||'Unknown')}<br>
+        ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+        Enrollment: ${c.enrollment || 'N/A'}<br>
+        Tuition: ${tuition}<br>
+        ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+      </div>`;
+
           L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
             .bindTooltip(c.name, {permanent: false, direction: 'top'})
-            .bindPopup(popupContent)
-            .addTo(markersLayer);
+      .bindPopup(popupContent)
+      .addTo(markersLayer);
         } catch (e) {
           console.error(`Error creating marker for ${c.name}:`, e);
         }
       });
       
       if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
+      
+      // Update map hints for route mode (no route search yet)
+      updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
     }
     return;
   }
@@ -694,6 +729,9 @@ function render(){
   if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
   console.log(`Added ${filtered.length} markers to map`);
   
+  // Update map hints based on filtered results
+  updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
+  
   // Set map view for nearby mode: home+radius if home is set, otherwise default USA view
   if (home) {
     // Zoom to home location with appropriate zoom level
@@ -708,6 +746,73 @@ function refreshDropdown(id, values, placeholder) {
   const select = document.getElementById(id);
   select.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option>${v}</option>`).join('');
 }
+
+/**
+ * Update map hint popups based on filtered results and filter state
+ * Only shows hints when user has actively used search controls
+ * Priority: No Results > Too Many Colleges (never show both)
+ */
+function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
+  const hintTooMany = document.getElementById('hint-too-many-colleges');
+  const hintNoResults = document.getElementById('hint-no-colleges');
+  
+  if (!hintTooMany || !hintNoResults) return;
+  
+  // Don't show any hints if user hasn't actively used search controls
+  if (!hasUsedSearchControls) {
+    hintTooMany.classList.remove('active');
+    hintNoResults.classList.remove('active');
+    return;
+  }
+  
+  // Only show hints when in nearby or route mode
+  if (activeMode !== 'nearby' && activeMode !== 'route') {
+    hintTooMany.classList.remove('active');
+    hintNoResults.classList.remove('active');
+    return;
+  }
+  
+  // Check if hints have been dismissed this session
+  const seenTooMany = sessionStorage.getItem('ucm_seenTooManyColleges') === '1';
+  const seenNoResults = sessionStorage.getItem('ucm_seenNoResults') === '1';
+  
+  // Check if any filter is non-default
+  const hasNonDefaultFilter = regionVal || stateVal || searchVal;
+  const hasAnyFilter = typeVal || hasNonDefaultFilter;
+  
+  // Priority 1: No Results hint
+  if (visibleCount === 0 && hasAnyFilter && !seenNoResults) {
+    hintNoResults.classList.add('active');
+    hintTooMany.classList.remove('active');
+    return;
+  } else {
+    hintNoResults.classList.remove('active');
+  }
+  
+  // Priority 2: Too Many Colleges hint (only if No Results is not showing)
+  if (visibleCount > 30 && !typeVal && !seenTooMany) {
+    hintTooMany.classList.add('active');
+  } else {
+    hintTooMany.classList.remove('active');
+  }
+}
+
+/**
+ * Dismiss a map hint and store in sessionStorage
+ */
+function dismissMapHint(type) {
+  if (type === 'tooMany') {
+    sessionStorage.setItem('ucm_seenTooManyColleges', '1');
+    const hint = document.getElementById('hint-too-many-colleges');
+    if (hint) hint.classList.remove('active');
+  } else if (type === 'noResults') {
+    sessionStorage.setItem('ucm_seenNoResults', '1');
+    const hint = document.getElementById('hint-no-colleges');
+    if (hint) hint.classList.remove('active');
+  }
+}
+
+
 
 function loadCSV(url){
   if (elements.loading) elements.loading.classList.add('active');
@@ -823,7 +928,7 @@ function processCollegesData(data) {
   activeMode = 'nearby';
   
   // Render colleges on initial load
-  render();
+    render();
 }
 
 function geocodeAddress(address, mode = 'nearby'){
@@ -874,7 +979,7 @@ function geocodeAddress(address, mode = 'nearby'){
           
           // Only update map if nearby mode is active
           if (activeMode === 'nearby') {
-            homeLayer.clearLayers();
+        homeLayer.clearLayers();
             radiusLayer.clearLayers();
             
             // Add "Your Location" pin marker (red)
@@ -1612,8 +1717,9 @@ function findCollegesAlongRoute() {
       const typeVal = elements.type ? elements.type.value.trim() : '';
       const regionVal = elements.region ? elements.region.value.trim() : '';
       const stateVal = elements.state ? elements.state.value.trim() : '';
-      const searchVal = (elements.search ? elements.search.value.trim().toLowerCase() : '') || 
-                        (document.getElementById('search-mobile') ? document.getElementById('search-mobile').value.trim().toLowerCase() : '');
+      const desktopSearch = elements.search;
+      const mobileSearch = document.getElementById('search-mobile');
+      const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
       
       const finalFiltered = filtered.filter(c => {
         // Type filter - check both type and tier fields
@@ -1685,6 +1791,9 @@ function findCollegesAlongRoute() {
       
       if (elements.count) elements.count.textContent = finalFiltered.length;
       if (elements.loading) elements.loading.classList.remove('active');
+      
+      // Update map hints for route mode
+      updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
       
       // Store route coordinates for restoration
       route.routeCoords = routeCoords;
@@ -1784,6 +1893,9 @@ function findCollegesAlongRoute() {
       if (elements.count) elements.count.textContent = finalFiltered.length;
       if (elements.loading) elements.loading.classList.remove('active');
       
+      // Update map hints for route mode (fallback)
+      updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
+      
       showError('Could not calculate driving route. Showing approximate results.');
       
       isProcessingRoute = false;
@@ -1810,6 +1922,7 @@ try {
 if (elements.geocodeBtn) {
   elements.geocodeBtn.onclick = () => {
     if (activeMode === 'nearby' && elements.address) {
+      hasUsedSearchControls = true; // User actively clicked Locate button
       geocodeAddress(elements.address.value, 'nearby');
     }
   };
@@ -1906,6 +2019,7 @@ if (elements.findRouteBtn) {
       }
     }
     
+    hasUsedSearchControls = true; // User actively clicked Find Route button
     // Now call the route search function
     findCollegesAlongRoute();
   };
@@ -1990,6 +2104,10 @@ if (elements.clearRoute) {
       });
       
       if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
+      
+      // Update map hints after clearing route
+      updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
+      
       map.setView([39.5, -98.35], 4);
     }
   };
