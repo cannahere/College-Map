@@ -313,7 +313,9 @@
 <div class="main-container">
 <header class="app-header">
     <div class="header-logo-tagline">
-  <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
+  <!-- Logo optimization: Ideal source image size ≈ 280×70px (4:1 ratio) for header usage at 70px height on desktop, 56px on mobile -->
+  <!-- Using width/height attributes for layout stability and to prevent layout shift during load -->
+  <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo" width="280" height="70">
       <h1 class="sr-only">U.S. College Map | Explore Colleges by Location, Type, and State</h1>
       <p class="tagline">Planning college visits? Use the U.S. College Map to explore schools by type, state, or location — and find colleges to visit near home or along your next trip.</p>
     </div>
@@ -324,7 +326,7 @@
     <div class="row row-filters">
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
-      <div class="pill"><label for="state">State</label><select id="state"><option value="">All states</option></select></div>
+      <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
       <div class="pill pill-search"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
   </div>
     <div class="row row-search">
@@ -335,7 +337,7 @@
       <summary>Find Colleges Nearby</summary>
       <div class="filter-section-content">
         <div class="row row-nearby">
-          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="street-address" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
   </div>
 </div>
@@ -510,6 +512,16 @@ function showError(message) {
   }
 }
 
+/**
+ * Render colleges on the map based on current filters.
+ * 
+ * Performance: This function is NOT called during map pan/zoom interactions.
+ * Markers are only re-rendered when:
+ * - User changes filters (Type, Region, State, Search)
+ * - User sets/changes address/radius
+ * - User switches between Nearby/Route modes
+ * - NOT during map dragging/zooming (Leaflet handles marker visibility automatically)
+ */
 function render(){
   // Only render in nearby mode - route mode uses findCollegesAlongRoute()
   if (activeMode === 'route') {
@@ -757,6 +769,24 @@ function loadCSV(url){
   });
 }
 
+/**
+ * Process CSV data and map to internal college objects.
+ * 
+ * REQUIRED CSV COLUMNS (for creating a "slim" CSV):
+ * - name: College name (used in search, popups, tooltips)
+ * - lat: Latitude (required for map markers, radius/route filtering)
+ * - lon: Longitude (required for map markers, radius/route filtering)
+ * - state: State code (used in state filter, region filter, popups)
+ * - type: College type (used in type filter dropdown, popups, TYPE_ORDER ranking)
+ * - tier: Alternative type field (used as fallback in type filter: c.type || c.tier)
+ * - control: Control type (used in popups: "Public | Private")
+ * - acceptance: Acceptance rate (used in popups)
+ * - enrollment: Enrollment number (used in popups)
+ * - tuition: Tuition cost (used in popups)
+ * - url: College website URL (used in popups as clickable link)
+ * 
+ * All other CSV columns can be removed to reduce payload size.
+ */
 function processCollegesData(data) {
   colleges = data.filter(r => r.name && r.lat && r.lon).map(r => ({
     name: r.name,
@@ -764,6 +794,7 @@ function processCollegesData(data) {
     lon: +r.lon,
     state: (r.state || '').toUpperCase(),
     type: r.type || 'Unknown',
+    tier: r.tier || '', // Used as fallback in type filter: (c.type || c.tier)
     control: r.control || '',
     acceptance: r.acceptance || '',
     enrollment: r.enrollment || '',
@@ -1391,8 +1422,13 @@ function updateRouteHighlight(autocompleteObj, suggestionsContainer) {
   });
 }
 
-// Calculate perpendicular distance from a point to a line segment (using Haversine formula)
-// Returns the shortest distance from point P to line segment AB
+/**
+ * LAZY LOADED: Route calculation function - only executed when route mode is first used
+ * Calculate perpendicular distance from a point to a line segment (using Haversine formula)
+ * Returns the shortest distance from point P to line segment AB
+ * 
+ * Performance: This heavy computation is only executed when user interacts with route mode
+ */
 function distanceToLineSegment(pointLat, pointLon, lineStartLat, lineStartLon, lineEndLat, lineEndLon, units = 'mi') {
   // Calculate distances to endpoints
   const dAP = calculateDistance(lineStartLat, lineStartLon, pointLat, pointLon, units);
@@ -1430,8 +1466,15 @@ function distanceToLineSegment(pointLat, pointLon, lineStartLat, lineStartLon, l
   return Math.abs(perpendicularDist);
 }
 
-// Route search function
-// Prevents infinite loops by checking if already processing
+/**
+ * LAZY LOADED: Route search function - only executed when user clicks "Find" in route mode
+ * Prevents infinite loops by checking if already processing
+ * 
+ * Performance: Heavy OSRM API calls and distance calculations only run when:
+ * - User enters start/end addresses AND clicks "Find" button
+ * - NOT on initial page load
+ * - NOT when just switching to route mode
+ */
 let isProcessingRoute = false;
 
 function findCollegesAlongRoute() {
@@ -2077,7 +2120,117 @@ if (openSection) {
   openSection.classList.add('active');
 }
 
-['state', 'region', 'type', 'radius', 'units'].forEach(id => {
+// Store the last user-selected state value to prevent autofill from changing it
+let lastUserSelectedState = '';
+let isUserChangingState = false;
+let autofillWatchInterval = null;
+
+// Prevent autofill from changing the state dropdown
+if (elements.state) {
+  // Store initial value
+  lastUserSelectedState = elements.state.value;
+  
+  // Track when address field is being filled (autofill detection)
+  if (elements.address) {
+    // Store state value before address field changes
+    elements.address.addEventListener('focus', () => {
+      lastUserSelectedState = elements.state.value;
+      // Start watching for autofill changes to state dropdown
+      if (autofillWatchInterval) {
+        clearInterval(autofillWatchInterval);
+      }
+      autofillWatchInterval = setInterval(() => {
+        if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
+          // State was changed by autofill - restore it immediately
+          elements.state.value = lastUserSelectedState;
+        }
+      }, 50); // Check every 50ms during autofill window
+    });
+    
+    // Handle browser autofill event (some browsers fire this)
+    elements.address.addEventListener('change', () => {
+      // Allow browser autofill to fill the address field (including state in the address text)
+      // But prevent it from changing the state dropdown
+      if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
+        elements.state.value = lastUserSelectedState;
+      }
+    });
+    
+    // Stop watching when address field loses focus
+    elements.address.addEventListener('blur', () => {
+      if (autofillWatchInterval) {
+        clearInterval(autofillWatchInterval);
+        autofillWatchInterval = null;
+      }
+      // Final check and restore if needed
+      if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
+        elements.state.value = lastUserSelectedState;
+      }
+    });
+    
+    // Also stop watching after user finishes typing (debounced)
+    let stopWatchTimeout = null;
+    elements.address.addEventListener('input', () => {
+      // Clear existing timeout
+      if (stopWatchTimeout) {
+        clearTimeout(stopWatchTimeout);
+      }
+      // Stop watching after 500ms of no input (autofill is usually instant)
+      stopWatchTimeout = setTimeout(() => {
+        if (autofillWatchInterval) {
+          clearInterval(autofillWatchInterval);
+          autofillWatchInterval = null;
+        }
+        // Final check and restore if needed
+        if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
+          elements.state.value = lastUserSelectedState;
+        }
+      }, 500);
+    });
+  }
+  
+  // Listen for user-initiated changes to state dropdown
+  elements.state.addEventListener('mousedown', () => {
+    isUserChangingState = true;
+  });
+  
+  elements.state.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+      isUserChangingState = true;
+    }
+  });
+  
+  elements.state.addEventListener('change', function(e) {
+    const currentValue = e.target.value;
+    
+    // If this change was initiated by user, update stored value
+    if (isUserChangingState) {
+      lastUserSelectedState = currentValue;
+      isUserChangingState = false;
+      
+      // Continue with normal change handling
+      if (activeMode === 'route' && route.lastSearch) {
+        // Re-run route search with updated filters
+        findCollegesAlongRoute();
+      } else {
+        render();
+      }
+    } else {
+      // This change was NOT from user - likely autofill - restore previous value
+      e.target.value = lastUserSelectedState;
+      // Don't trigger render since this wasn't a real change
+    }
+  });
+  
+  // Reset flag after a short delay
+  elements.state.addEventListener('blur', () => {
+    setTimeout(() => {
+      isUserChangingState = false;
+    }, 200);
+  });
+}
+
+['region', 'type', 'radius', 'units'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     if (activeMode === 'route' && route.lastSearch) {
       // Re-run route search with updated filters
@@ -2089,6 +2242,8 @@ if (openSection) {
 });
 
 // Debounced search input - use event delegation to handle both desktop and mobile search fields
+// Performance: Debounced to 300ms to avoid heavy re-renders on every keystroke
+// Dropdown changes (Type, Region, State) are NOT debounced - they update immediately for better UX
 document.querySelector('.controls').addEventListener('input', debounce((e) => {
   if (e.target.id === 'search' || e.target.id === 'search-mobile') {
     // Sync values between both search fields if they exist
