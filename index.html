@@ -182,7 +182,7 @@
     .map-hint-bubble-title {font-weight:600;font-size:0.875rem;line-height:1.4;color:#0f172a;flex:1}
     .map-hint-bubble-body {font-size:0.8125rem;line-height:1.5;color:#64748b}
     @media (max-width:700px) {
-      .map-hint-bubble {top:12px;right:12px;left:12px;max-width:none}
+      .map-hint-bubble {top:12px;right:12px;left:12px;max-width:calc(100vw - 24px);width:calc(100vw - 24px);box-sizing:border-box}
     }
     .map-tip-bubble {position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.8125rem;max-width:240px;display:none;z-index:2001;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     /* Adjust tip position when hint bubbles are visible to avoid overlap */
