@@ -83,7 +83,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://unpkg.com">
   <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org">
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -114,25 +114,25 @@
       .row-search{display:flex !important}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-search .pill input{flex:1;width:auto;}
-      .row-address .pill{flex:1 1 100%;}
-      .row-address .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-address .pill input{flex:1;min-width:120px;}
-      .row-address .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px;}
-      .row-radius .pill{flex:1 1 100%;flex-direction:row;align-items:center;flex-wrap:wrap;padding:8px;}
-      .row-radius .pill label{min-width:70px !important;margin-bottom:0;width:auto;margin-right:8px;font-size:12px !important;font-weight:600;color:#475569;}
-      .row-radius #radius{width:80px;flex:0 0 auto;max-width:80px;}
-      .row-radius #units{width:60px;flex:0 0 auto;max-width:60px;}
-      .row-radius #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px;}
+      .row-search .pill input{flex:1;width:auto;font-size:12px;}
+      .row-nearby .pill.address-autocomplete{flex:1 1 100%;}
+      .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
+      .row-nearby .pill.address-autocomplete input{flex:1;min-width:120px;}
+      .row-nearby .pill.address-autocomplete button{flex:0 0 auto;padding:8px 16px;margin-left:4px;}
+      .row-nearby .pill:not(.address-autocomplete){flex:1 1 100%;flex-direction:row;align-items:center;flex-wrap:wrap;padding:8px;}
+      .row-nearby .pill:not(.address-autocomplete) label{min-width:70px !important;margin-bottom:0;width:auto;margin-right:8px;font-size:12px !important;font-weight:600;color:#475569;}
+      .row-nearby #radius{width:80px;flex:0 0 auto;max-width:80px;}
+      .row-nearby #units{width:60px;flex:0 0 auto;max-width:60px;}
+      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px;}
       .pill{flex-direction:row;align-items:center;padding:8px;}
       .pill label{min-width:60px;margin-bottom:0;width:auto;font-size:11px;}
       .pill input,.pill select,.pill button{width:auto;flex:1;}
       .legend{position:relative;bottom:auto;left:auto;margin:8px;width:calc(100% - 16px);text-align:center;}
     }
-    .controls {display:flex;flex-direction:column;gap:3px;padding:14px 16px 8px;border-top:1px solid #e5e7eb;background:#fff}
-    .row {display:flex;gap:12px;justify-content:space-between}
+    .controls {display:flex;flex-direction:column;gap:3px;padding:10px 12px 6px;border-top:1px solid #e5e7eb;background:#fff}
+    .row {display:flex;gap:8px;justify-content:space-between}
     .row>.pill {flex:1}
-    .row-filters{display:flex;gap:12px;justify-content:space-between}
+    .row-filters{display:flex;gap:8px;justify-content:space-between}
     .row-filters .pill{flex:1}
     .row-search{display:none}
     .row-filters .pill-search{display:none}
@@ -143,18 +143,32 @@
       .row-filters{flex:1 1 100%;margin-bottom:3px}
       .row-filters .pill:not(.pill-search){flex:0 1 180px}
       .row-filters .pill-search{flex:1 1 auto;min-width:200px}
-      .row-address{display:flex;flex-direction:row;gap:12px;flex-wrap:nowrap;flex:1 1 auto;min-width:400px;margin-right:12px;margin-bottom:0}
-      .row-address .pill{flex:1 1 auto;min-width:0}
-      .row-radius{display:flex;flex-direction:row;gap:12px;flex-wrap:nowrap;flex:0 1 auto;margin-top:0;margin-bottom:0}
-      .row-radius .pill{flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
-      .row-radius .pill label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px}
-      .row-radius #radius{width:90px;flex:0 0 auto}
-      .row-radius #units{width:60px;flex:0 0 auto}
-      .row-radius #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px}
+      .row-filters .pill-search input{font-size:14px}
+      .row-nearby{display:flex;flex-direction:row;gap:8px;flex-wrap:nowrap;margin-bottom:0;align-items:center}
+      .row-nearby .pill.address-autocomplete{flex:1 1 auto;min-width:0}
+      .row-nearby .pill.address-autocomplete label{min-width:60px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
+      .row-nearby .pill.address-autocomplete input{font-size:14px}
+      .row-nearby .pill.address-autocomplete button{font-size:14px}
+      .row-nearby .pill:not(.address-autocomplete){flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
+      .row-nearby .pill:not(.address-autocomplete) label{min-width:60px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
+      .row-nearby #radius{width:70px;flex:0 0 auto;font-size:14px}
+      .row-nearby #units{width:55px;flex:0 0 auto;font-size:14px}
+      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:6px 12px;margin-left:6px;font-size:14px}
+      .row-route{display:flex;flex-direction:row;gap:8px;flex-wrap:nowrap;margin-bottom:0;align-items:center}
+      .row-route .pill{flex:1 1 auto;min-width:0}
+      .row-route .pill:has(#routeStart),.row-route .pill:has(#routeEnd){flex:1 1 auto;min-width:0}
+      .row-route .pill:has(#routeStart) label,.row-route .pill:has(#routeEnd) label{min-width:45px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
+      .row-route .pill:has(#routeStart) input,.row-route .pill:has(#routeEnd) input{font-size:14px}
+      .row-route .pill:has(#routeMaxDistance){flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
+      .row-route .pill:has(#routeMaxDistance) label{min-width:75px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
+      .row-route #routeMaxDistance{width:70px;flex:0 0 auto;font-size:14px}
+      .row-route #routeUnits{width:55px;flex:0 0 auto;font-size:14px}
+      .row-route #findRouteBtn{width:auto;flex:0 0 auto;padding:6px 12px;margin-left:6px;font-size:14px}
+      .row-route #clearRoute{width:auto;flex:0 0 auto;padding:6px 12px;margin-left:6px;font-size:14px}
     }
-    .pill {display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:12px;font-size:12px}
+    .pill {display:flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 8px;border-radius:12px;font-size:12px}
     .pill label {color:#475569;font-weight:600;font-size:12px;min-width:60px}
-    .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
+    .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
     .pill input:focus {outline:none;border-color:#4285f4;box-shadow:0 0 0 1px #4285f4}
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
     #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1;min-height:500px}
@@ -208,16 +222,26 @@
       .autocomplete-item {min-height:52px}
       .autocomplete-item-icon {width:44px;height:44px;margin-left:12px}
       .autocomplete-item-content {padding:14px 12px 14px 0}
-      .address-autocomplete .pill{flex-direction:row;align-items:center;flex-wrap:wrap;}
-      .address-autocomplete .pill label{min-width:70px;margin-bottom:0;width:auto;}
-      .address-autocomplete .pill input{flex:1;min-width:120px;}
-      .address-autocomplete .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px;}
-      /* Radius pill special handling - keep inline layout */
-      .row .pill:has(#radius){flex-direction:row;align-items:center;flex-wrap:wrap;}
-      .row .pill:has(#radius) label{min-width:auto;margin-bottom:0;width:auto;margin-right:8px;}
-      #radius{width:80px;flex:0 0 auto;max-width:80px;}
-      #units{width:60px;flex:0 0 auto;max-width:60px;}
-      #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px;}
+      .row-nearby{flex-direction:column;gap:6px}
+      .row-nearby .pill.address-autocomplete{flex-direction:row;align-items:center;flex-wrap:wrap}
+      .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:11px !important;font-weight:600;color:#475569}
+      .row-nearby .pill.address-autocomplete input{flex:1;min-width:120px;font-size:12px !important}
+      .row-nearby .pill.address-autocomplete button{flex:0 0 auto;padding:5px 8px;margin-left:4px;font-size:12px !important}
+      .row-nearby .pill:not(.address-autocomplete){flex-direction:row;align-items:center;flex-wrap:wrap}
+      .row-nearby .pill:not(.address-autocomplete) label{min-width:70px !important;margin-bottom:0;width:auto;margin-right:8px;font-size:11px !important;font-weight:600;color:#475569}
+      .row-nearby #radius{width:50px !important;flex:0 0 auto;max-width:50px;font-size:12px !important}
+      .row-nearby #units{width:48px !important;flex:0 0 auto;max-width:48px;font-size:12px !important}
+      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:5px 8px;margin-left:4px;font-size:12px !important}
+      .row-route{flex-direction:column;gap:6px}
+      .row-route .pill:has(#routeStart),.row-route .pill:has(#routeEnd){flex-direction:row;align-items:center}
+      .row-route .pill:has(#routeStart) label,.row-route .pill:has(#routeEnd) label{min-width:40px !important;margin-bottom:0;width:auto;margin-right:5px;font-size:11px !important;font-weight:600;color:#475569}
+      .row-route .pill:has(#routeStart) input,.row-route .pill:has(#routeEnd) input{font-size:12px !important}
+      .row-route .pill:has(#routeMaxDistance){flex-direction:row;align-items:center;flex-wrap:nowrap}
+      .row-route .pill:has(#routeMaxDistance) label{min-width:60px !important;margin-bottom:0;width:auto;margin-right:4px;font-size:11px !important;font-weight:600;color:#475569}
+      .row-route #routeMaxDistance{width:50px !important;flex:0 0 auto;max-width:50px;padding:4px 5px !important;font-size:12px !important}
+      .row-route #routeUnits{width:48px !important;flex:0 0 auto;max-width:48px;font-size:12px !important;padding:4px 3px !important}
+      .row-route #findRouteBtn{width:auto;flex:0 0 auto;margin-top:0;padding:5px 8px;margin-left:4px;font-size:12px !important}
+      .row-route #clearRoute{width:auto;flex:0 0 auto;margin-top:0;padding:5px 8px;margin-left:4px;font-size:12px !important}
     }
     @media (max-width: 480px) {
       .container{padding:4px;}
@@ -234,22 +258,44 @@
       .row-search{display:flex}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-search .pill input{flex:1;width:auto;}
+      .row-search .pill input{flex:1;width:auto;font-size:12px;}
       .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
       .row-filters{flex:1 1 100%;margin-bottom:3px}
       .row-search{flex:1 1 100%;margin-bottom:3px}
-      .row-address{display:flex;flex-direction:row;gap:6px;flex-wrap:nowrap;flex:1 1 auto;min-width:300px;margin-right:6px;margin-bottom:0}
-      .row-address .pill{flex:1 1 auto;min-width:0}
-      .row-address .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569}
-      .row-address .pill input{flex:1;min-width:120px}
-      .row-address .pill button{flex:0 0 auto;padding:8px 16px;margin-left:4px}
-      .row-radius{display:flex;flex-direction:row;gap:6px;flex-wrap:nowrap;flex:0 1 auto;margin-top:0;margin-bottom:0}
-      .row-radius .pill{flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
-      .row-radius .pill label{min-width:70px;margin-bottom:0;width:auto;margin-right:8px;font-size:12px;font-weight:600;color:#475569}
-      .row-radius #radius{width:80px;flex:0 0 auto;max-width:80px}
-      .row-radius #units{width:60px;flex:0 0 auto;max-width:60px}
-      .row-radius #clearRadius{width:auto;flex:0 0 auto;padding:8px 12px;margin-left:8px}
+      .row-nearby{display:flex;flex-direction:row;gap:6px;flex-wrap:nowrap;margin-bottom:0}
+      .row-nearby .pill.address-autocomplete{flex:1 1 auto;min-width:0}
+      .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569}
+      .row-nearby .pill.address-autocomplete input{flex:1;min-width:120px;font-size:12px}
+      .row-nearby .pill.address-autocomplete button{flex:0 0 auto;padding:6px 10px;margin-left:4px;font-size:12px}
+      .row-nearby .pill:not(.address-autocomplete){flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
+      .row-nearby .pill:not(.address-autocomplete) label{min-width:70px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
+      .row-nearby #radius{width:65px;flex:0 0 auto;max-width:65px;font-size:12px}
+      .row-nearby #units{width:50px;flex:0 0 auto;max-width:50px;font-size:12px}
+      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:6px 10px;margin-left:6px;font-size:12px}
+      .row-route{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:0}
+      .row-route .pill:first-child,.row-route .pill:nth-child(2){width:100%;box-sizing:border-box;padding:4px 6px}
+      .row-route .pill:first-child label,.row-route .pill:nth-child(2) label{min-width:40px;max-width:40px;margin-bottom:0;width:40px;margin-right:5px;font-size:12px;font-weight:600;color:#475569;flex-shrink:0}
+      .row-route .pill:first-child input,.row-route .pill:nth-child(2) input{min-width:0;flex:1 1 0;padding:5px 6px;font-size:12px;box-sizing:border-box}
+      .row-route .pill:last-child{grid-column:1 / -1;flex-direction:row;align-items:center;margin-top:0;padding:4px 6px}
+      .row-route .pill:last-child label{min-width:70px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
+      .row-route #routeMaxDistance{width:65px;flex:0 0 auto;max-width:65px;padding:5px 6px;font-size:12px}
+      .row-route #routeUnits{width:50px;flex:0 0 auto;max-width:50px;padding:5px 4px;font-size:12px}
+      .row-route #findRouteBtn{width:auto;flex:0 0 auto;padding:6px 10px;margin-left:6px;font-size:12px}
+      .row-route #clearRoute{width:auto;flex:0 0 auto;padding:6px 10px;margin-left:6px;font-size:12px}
+      .filter-section {margin-top:3px}
+      .filter-section summary {padding:8px 10px;font-size:13px}
+      .filter-section-content {padding:0 10px 8px}
     }
+    .filter-section {background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;margin-top:4px;overflow:visible;width:100%;flex:1 1 100%;position:relative;transition:box-shadow 0.2s ease}
+    .filter-section-content {overflow:visible}
+    .filter-section summary {font-weight:600;color:#0f172a;font-size:14px;padding:8px 12px;cursor:pointer;list-style:none;user-select:none;display:flex;align-items:center;gap:8px}
+    .filter-section summary::-webkit-details-marker {display:none}
+    .filter-section summary::before {content:'▼';font-size:10px;transition:transform 0.2s;display:inline-block}
+    .filter-section[open] summary::before {transform:rotate(-90deg)}
+    .filter-section summary:hover {background:#f1f5f9}
+    .filter-section-content {padding:0 12px 8px;display:flex;flex-direction:column;gap:3px}
+    .filter-section.active {box-shadow:0 4px 12px rgba(37,99,235,0.15),0 2px 4px rgba(0,0,0,0.1);border-left:4px solid #2563eb}
+    .filter-section.active summary {background:#f0f7ff}
     .about-map {max-width:1100px;margin:16px auto 24px;font-size:13px;color:#475569;background:#f8fafc;border-radius:12px;padding:10px 16px 14px;border:1px solid #e2e8f0}
     .about-map-title {font-weight:600;color:#0f172a;font-size:15px;margin:0 0 12px 0;text-align:center;padding-bottom:12px;border-bottom:2px solid #fff}
     .info-snippets {display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:14px;padding-top:8px}
@@ -257,18 +303,21 @@
     .snippet p {font-size:13px;color:#64748b;line-height:1.5}
     @media (max-width:700px) {
       .info-snippets {grid-template-columns:1fr}
+      .filter-section {margin-top:3px}
+      .filter-section summary {padding:10px 12px;font-size:13px}
+      .filter-section-content {padding:0 12px 10px}
     }
   </style>
 </head>
 <body>
 <div class="main-container">
-  <header class="app-header">
+<header class="app-header">
     <div class="header-logo-tagline">
-      <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
+  <img src="USCollegeMap_Logo.png" alt="U.S. College Map logo" class="site-logo">
       <h1 class="sr-only">U.S. College Map | Explore Colleges by Location, Type, and State</h1>
       <p class="tagline">Planning college visits? Use the U.S. College Map to explore schools by type, state, or location — and find colleges to visit near home or along your next trip.</p>
     </div>
-  </header>
+</header>
 
   <main>
   <nav class="container controls" aria-label="College search filters">
@@ -277,20 +326,35 @@
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state"><option value="">All states</option></select></div>
       <div class="pill pill-search"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
-    </div>
+  </div>
     <div class="row row-search">
       <div class="pill"><label for="search-mobile">Search</label><input id="search-mobile" placeholder="Enter college name" /></div>
-    </div>
-    <div class="row row-address">
-      <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
-    </div>
-    <div class="row row-radius">
-      <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="50" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
-    </div>
+  </div>
+    
+    <details class="filter-section" open>
+      <summary>Find Colleges Nearby</summary>
+      <div class="filter-section-content">
+        <div class="row row-nearby">
+          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+    <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
+  </div>
+</div>
+    </details>
+    
+    <details class="filter-section">
+      <summary>Find Colleges Along a Route</summary>
+      <div class="filter-section-content">
+        <div class="row row-route">
+          <div class="pill address-autocomplete"><label for="routeStart">From</label><input id="routeStart" placeholder="Enter starting address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="routeStartSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeStartSuggestions" role="listbox" aria-label="From address suggestions"></div></div>
+          <div class="pill address-autocomplete"><label for="routeEnd">To</label><input id="routeEnd" placeholder="Enter destination address" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="routeEndSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeEndSuggestions" role="listbox" aria-label="To address suggestions"></div></div>
+          <div class="pill"><label for="routeMaxDistance">Max Distance</label><input id="routeMaxDistance" type="number" min="0" step="10" value="30" style="width:90px"><select id="routeUnits"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="findRouteBtn">Find</button><button id="clearRoute" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
+        </div>
+      </div>
+    </details>
   </nav>
 
   <section id="map" aria-label="Interactive college map"></section>
-  <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
+<div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
   <div class="loading" id="loading">Loading colleges data...</div>
   <div class="error" id="error"></div>
   
@@ -333,10 +397,35 @@ const elements = {
   error: document.getElementById('error'),
   geocodeBtn: document.getElementById('geocodeBtn'),
   clearRadius: document.getElementById('clearRadius'),
-  addressSuggestions: document.getElementById('addressSuggestions')
+  addressSuggestions: document.getElementById('addressSuggestions'),
+  routeStart: document.getElementById('routeStart'),
+  routeEnd: document.getElementById('routeEnd'),
+  routeMaxDistance: document.getElementById('routeMaxDistance'),
+  routeUnits: document.getElementById('routeUnits'),
+  findRouteBtn: document.getElementById('findRouteBtn'),
+  clearRoute: document.getElementById('clearRoute'),
+  routeStartSuggestions: document.getElementById('routeStartSuggestions'),
+  routeEndSuggestions: document.getElementById('routeEndSuggestions')
 };
 
 let addressAutocomplete = {
+  suggestions: [],
+  selectedIndex: -1,
+  isOpen: false,
+  abortController: null,
+  isSelecting: false
+};
+
+// Route autocomplete objects
+let routeStartAutocomplete = {
+  suggestions: [],
+  selectedIndex: -1,
+  isOpen: false,
+  abortController: null,
+  isSelecting: false
+};
+
+let routeEndAutocomplete = {
   suggestions: [],
   selectedIndex: -1,
   isOpen: false,
@@ -352,7 +441,26 @@ const markersLayer = L.layerGroup().addTo(map);
 
 const homeLayer = L.layerGroup().addTo(map);
 const radiusLayer = L.layerGroup().addTo(map);
+const routeLayer = L.layerGroup().addTo(map);
 let colleges = [], home = null;
+
+// Active mode state: 'nearby' or 'route'
+let activeMode = 'nearby';
+
+// Route state
+let route = {
+  start: null, // { description, lat, lon }
+  end: null,
+  lastSearch: null // { start, end, maxDistance, units }
+};
+
+// Nearby state (for restoration)
+let nearbyState = {
+  address: null,
+  home: null,
+  radius: null,
+  units: null
+};
 
 const TYPE_ORDER = ["Ivy League","Elite Private Universities","Public Flagship Universities","Private Liberal Arts Colleges","STEM / Technology Institutes","Business / Arts / Specialty Schools","Health & Medical Colleges","Faith-Based","Public Regional Universities","Community Colleges","Online / For-Profit"];
 
@@ -391,31 +499,110 @@ function debounce(func, wait) {
 }
 
 function showError(message) {
-  elements.error.textContent = message;
-  elements.error.classList.add('active');
-  setTimeout(() => elements.error.classList.remove('active'), 5000);
+  if (elements.error) {
+    elements.error.textContent = message;
+    elements.error.classList.add('active');
+    setTimeout(() => {
+      if (elements.error) {
+        elements.error.classList.remove('active');
+      }
+    }, 5000);
+  }
 }
 
 function render(){
+  // Only render in nearby mode - route mode uses findCollegesAlongRoute()
+  if (activeMode === 'route') {
+    // If route search has been performed, re-run it with updated filters
+    if (route.lastSearch) {
+      findCollegesAlongRoute();
+    } else {
+      // If in route mode but no route search, show colleges based on filters only
+      // Clear route visualization
+      routeLayer.clearLayers();
+      markersLayer.clearLayers();
+      
+      // Apply filters from dropdowns
+      const stateVal = elements.state ? elements.state.value : '';
+      const regionVal = elements.region ? elements.region.value : '';
+      const typeVal = elements.type ? elements.type.value : '';
+      const desktopSearch = elements.search;
+      const mobileSearch = document.getElementById('search-mobile');
+      const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+      
+      let filtered = colleges.filter(c => {
+        // Region filter
+        const regionMatch = !regionVal || (REGION_MAP[regionVal] || []).includes(c.state);
+        if (!regionMatch) return false;
+        
+        // State filter
+        if (stateVal && c.state !== stateVal) return false;
+        
+        // Type filter
+        if (typeVal && (c.type || c.tier) !== typeVal) return false;
+        
+        // Search filter
+        if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+        
+        return true;
+      });
+      
+      // Render filtered colleges
+      filtered.forEach(c => {
+        try {
+          if (isNaN(c.lat) || isNaN(c.lon) || c.lat === 0 || c.lon === 0) {
+            return;
+          }
+          
+          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+          
+          const popupContent = `
+            <div style="font-size:12px;line-height:1.4">
+              <b>${c.name}</b><br>
+              ${c.state} · ${(c.type||'Unknown')}<br>
+              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+              Enrollment: ${c.enrollment || 'N/A'}<br>
+              Tuition: ${tuition}<br>
+              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+            </div>`;
+          
+          L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
+            .bindTooltip(c.name, {permanent: false, direction: 'top'})
+            .bindPopup(popupContent)
+            .addTo(markersLayer);
+        } catch (e) {
+          console.error(`Error creating marker for ${c.name}:`, e);
+        }
+      });
+      
+      if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
+    }
+    return;
+  }
+  
+  // Clear route visualization when in nearby mode
+  routeLayer.clearLayers();
+  
   // Check if colleges data is loaded
   if (!colleges || colleges.length === 0) {
     console.log('No colleges data available yet');
-    elements.count.textContent = '0';
+    if (elements.count) elements.count.textContent = '0';
     return;
   }
   
   markersLayer.clearLayers();
   radiusLayer.clearLayers();
   
-  const stateVal = elements.state.value;
-  const regionVal = elements.region.value;
-  const typeVal = elements.type.value;
+  const stateVal = elements.state ? elements.state.value : '';
+  const regionVal = elements.region ? elements.region.value : '';
+  const typeVal = elements.type ? elements.type.value : '';
   // Get search value from either desktop or mobile search field (prefer the one with a value, or desktop first)
   const desktopSearch = elements.search;
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
-  const radiusVal = parseFloat(elements.radius.value) || 0;
-  const unitsVal = elements.units.value;
+  const radiusVal = parseFloat(elements.radius?.value || '0') || 0;
+  const unitsVal = elements.units ? elements.units.value : 'mi';
 
   let filtered = colleges.filter(c => {
     // Region filter
@@ -453,7 +640,7 @@ function render(){
     }).addTo(radiusLayer);
   }
 
-  console.log(`Rendering ${filtered.length} colleges`);
+  console.log(`Rendering ${filtered.length} colleges (activeMode: ${activeMode}, home: ${home ? 'set' : 'null'})`);
   
   filtered.forEach(c => {
     try {
@@ -463,8 +650,8 @@ function render(){
         return;
       }
       
-      const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
-      const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+    const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+    const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
       
       // Calculate distance if home is set
       let distanceText = '';
@@ -473,15 +660,15 @@ function render(){
         distanceText = `<br>Distance: ${distance.toFixed(1)} ${unitsVal}`;
       }
       
-      const popupContent = `
-        <div style="font-size:12px;line-height:1.4">
-          <b>${c.name}</b><br>
+    const popupContent = `
+      <div style="font-size:12px;line-height:1.4">
+        <b>${c.name}</b><br>
           ${c.state} · ${(c.type||'Unknown')}${distanceText}<br>
-          ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
-          Enrollment: ${c.enrollment || 'N/A'}<br>
-          Tuition: ${tuition}<br>
-          ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
-        </div>`;
+        ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+        Enrollment: ${c.enrollment || 'N/A'}<br>
+        Tuition: ${tuition}<br>
+        ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+      </div>`;
 
     L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
       .bindTooltip(c.name, {permanent: false, direction: 'top'})
@@ -492,8 +679,17 @@ function render(){
     }
   });
 
-  elements.count.textContent = filtered.length.toLocaleString();
+  if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
   console.log(`Added ${filtered.length} markers to map`);
+  
+  // Set map view for nearby mode: home+radius if home is set, otherwise default USA view
+  if (home) {
+    // Zoom to home location with appropriate zoom level
+    map.setView([home.lat, home.lon], 8);
+  } else {
+    // Default USA view when no home is set
+    map.setView([39.5, -98.35], 4);
+  }
 }
 
 function refreshDropdown(id, values, placeholder) {
@@ -502,7 +698,7 @@ function refreshDropdown(id, values, placeholder) {
 }
 
 function loadCSV(url){
-  elements.loading.classList.add('active');
+  if (elements.loading) elements.loading.classList.add('active');
   
   // Try to load from cache first
   const cacheKey = 'colleges_data_cache';
@@ -516,7 +712,7 @@ function loadCSV(url){
     if (cachedData && cachedTime && Date.now() - parseInt(cachedTime) < cacheExpiry) {
       const data = JSON.parse(cachedData);
       processCollegesData(data);
-      elements.loading.classList.remove('active');
+      if (elements.loading) elements.loading.classList.remove('active');
       return;
     }
   } catch (e) {
@@ -528,7 +724,7 @@ function loadCSV(url){
     dynamicTyping: true,
     download: true,
     complete: (results) => {
-      elements.loading.classList.remove('active');
+      if (elements.loading) elements.loading.classList.remove('active');
       
       console.log('CSV parsing complete. Rows:', results.data?.length);
       
@@ -554,7 +750,7 @@ function loadCSV(url){
       processCollegesData(results.data);
     },
     error: (error) => {
-      elements.loading.classList.remove('active');
+      if (elements.loading) elements.loading.classList.remove('active');
       showError('Error loading colleges data: ' + (error.message || 'Unknown error'));
       console.error('CSV load error:', error);
     }
@@ -592,21 +788,34 @@ function processCollegesData(data) {
   refreshDropdown('type', orderedTypes, 'All college types');
   refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All regions');
   
+  // Ensure we're in nearby mode on initial load (default section is open)
+  activeMode = 'nearby';
+  
+  // Render colleges on initial load
   render();
 }
 
-function geocodeAddress(address){
+function geocodeAddress(address, mode = 'nearby'){
   if(!address) {
-    showError('Please enter an address');
-    return;
+    if (mode === 'nearby') {
+      showError('Please enter an address');
+    }
+    return Promise.resolve(null);
   }
   
-  closeAutocomplete();
-  elements.loading.classList.add('active');
+  // Only update map if in the correct active mode
+  const shouldUpdateMap = (mode === 'nearby' && activeMode === 'nearby') || (mode === 'route' && activeMode === 'route');
+  
+  if (mode === 'nearby') {
+    closeAutocomplete();
+  }
+  if (shouldUpdateMap && elements.loading) {
+    elements.loading.classList.add('active');
+  }
   
   // Note: Address geocoding is independent of state filter - it does not modify state/region/type filters
   // Rate limiting: Nominatim requires a User-Agent and has strict rate limits
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1`, {
+  return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1`, {
     headers: {
       'User-Agent': 'USCollegeMap/1.0'
     }
@@ -616,34 +825,60 @@ function geocodeAddress(address){
       return r.json();
     })
     .then(data => {
-      elements.loading.classList.remove('active');
+      if (shouldUpdateMap && elements.loading) {
+        elements.loading.classList.remove('active');
+      }
       
       if (data && data[0]) {
         const lat = +data[0].lat;
         const lon = +data[0].lon;
-        home = { lat, lon };
-        homeLayer.clearLayers();
-        radiusLayer.clearLayers();
-        L.marker([lat, lon], { icon: L.icon({
-          iconUrl: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="25" height="35" viewBox="0 0 12 18"><path fill="#dc2626" d="M6 0C2.69 0 0 2.69 0 6c0 5 6 12 6 12s6-7 6-12c0-3.31-2.69-6-6-6zm0 8.5c-1.38 0-2.5-1.12-2.5-2.5S4.62 3.5 6 3.5 8.5 4.62 8.5 6 7.38 8.5 6 8.5z"/></svg>'),
-          iconSize: [25, 35],
-          iconAnchor: [12, 35],
-          popupAnchor: [0, -35]
-        })})
-          .bindPopup("Home location")
-          .addTo(homeLayer)
-          .openPopup();
-        map.setView([lat, lon], 8);
-        // Note: render() uses current filter values but does not modify them
-        render(); // Re-render to apply radius filter
+        
+        if (mode === 'nearby') {
+          // Store in nearby state
+          home = { lat, lon };
+          nearbyState.home = { lat, lon };
+          nearbyState.address = address;
+          nearbyState.radius = elements.radius ? elements.radius.value : '30';
+          nearbyState.units = elements.units ? elements.units.value : 'mi';
+          
+          // Only update map if nearby mode is active
+          if (activeMode === 'nearby') {
+            homeLayer.clearLayers();
+            radiusLayer.clearLayers();
+            
+            // Add "Your Location" pin marker (red)
+            const locationPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+            L.marker([lat, lon], {
+              icon: L.icon({
+                iconUrl: 'data:image/svg+xml;base64,' + btoa(locationPinSvg),
+                iconSize: [24, 30],
+                iconAnchor: [12, 30],
+                popupAnchor: [0, -30]
+              })
+            }).addTo(homeLayer).bindPopup('Your Location');
+            
+            map.setView([lat, lon], 8);
+            render(); // Re-render to apply radius filter
+          }
+          return { lat, lon };
+        } else if (mode === 'route') {
+          // Return for route mode (caller will store it)
+          return { lat, lon, description: address };
+        }
       } else {
-        showError('Address not found. Please try a different address.');
+        if (shouldUpdateMap) {
+          showError('Address not found. Please try a different address.');
+        }
+        return null;
       }
     })
     .catch(error => {
-      elements.loading.classList.remove('active');
-      showError('Error geocoding address: ' + (error.message || 'Please try again later'));
-      console.error('Geocoding error:', error);
+      if (shouldUpdateMap && elements.loading) {
+        elements.loading.classList.remove('active');
+        showError('Error geocoding address: ' + (error.message || 'Please try again later'));
+        console.error('Geocoding error:', error);
+      }
+      return null;
     });
 }
 
@@ -887,7 +1122,21 @@ function selectSuggestion(index) {
   }, 100);
   
   // Geocode the address to update the map (this happens asynchronously)
-  geocodeAddress(description);
+  // Always geocode and show pin if we're in nearby mode
+  // Also check if the nearby section is open (even if activeMode hasn't been set yet)
+  const nearbySection = document.querySelector('details.filter-section[open] summary');
+  const isNearbySectionOpen = nearbySection && nearbySection.textContent.trim().includes('Find Colleges Nearby');
+  
+  if (activeMode === 'nearby' || isNearbySectionOpen) {
+    // Ensure activeMode is set to nearby if section is open
+    if (isNearbySectionOpen && activeMode !== 'nearby') {
+      activeMode = 'nearby';
+    }
+    geocodeAddress(description, 'nearby');
+  } else {
+    // Store the address value but don't update map if in route mode
+    nearbyState.address = description;
+  }
 }
 
 function closeAutocomplete() {
@@ -962,6 +1211,542 @@ function scrollToSelected() {
   }
 }
 
+// Route autocomplete functions (similar to address autocomplete but for route fields)
+function searchRouteAddresses(query, autocompleteObj, inputElement, suggestionsContainer) {
+  if (!query || query.length < 3) {
+    closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
+    return;
+  }
+  
+  if (autocompleteObj.abortController) {
+    autocompleteObj.abortController.abort();
+  }
+  
+  autocompleteObj.suggestions = [];
+  autocompleteObj.selectedIndex = -1;
+  suggestionsContainer.innerHTML = '<div class="autocomplete-loading">Searching...</div>';
+  suggestionsContainer.classList.add('active');
+  autocompleteObj.isOpen = true;
+  
+  autocompleteObj.abortController = new AbortController();
+  const sanitizedQuery = query.trim().substring(0, 200);
+  
+  fetch(`https://cold-bread-f865.cannahere2007.workers.dev/?input=${encodeURIComponent(sanitizedQuery)}`, {
+    signal: autocompleteObj.abortController.signal
+  })
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(data => {
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        autocompleteObj.suggestions = [];
+        renderRouteSuggestions(autocompleteObj, suggestionsContainer);
+        return;
+      }
+      
+      const results = data.slice(0, 5).map(item => ({
+        description: item.description || '',
+        place_id: item.place_id || ''
+      }));
+      
+      autocompleteObj.suggestions = results;
+      renderRouteSuggestions(autocompleteObj, suggestionsContainer, inputElement);
+    })
+    .catch(error => {
+      if (error.name !== 'AbortError') {
+        console.error('Route autocomplete error:', error);
+        autocompleteObj.suggestions = [];
+        if (suggestionsContainer) {
+          suggestionsContainer.innerHTML = '<div class="autocomplete-empty" style="color:#d93025;">Unable to load suggestions. Please try again.</div>';
+        }
+      }
+    });
+}
+
+function renderRouteSuggestions(autocompleteObj, suggestionsContainer, inputElement) {
+  if (autocompleteObj.suggestions.length === 0) {
+    suggestionsContainer.innerHTML = '<div class="autocomplete-empty" role="option">No suggestions found</div>';
+    return;
+  }
+  
+  // Get icon function (same as nearby autocomplete)
+  const getAddressTypeIcon = (type) => {
+    const icons = {
+      place: '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>',
+      default: '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>'
+    };
+    return icons[type] || icons.default;
+  };
+  
+  const html = autocompleteObj.suggestions.map((item, index) => {
+    const isSelected = index === autocompleteObj.selectedIndex;
+    const formatted = formatAddressName(item.description, '');
+    const iconPath = getAddressTypeIcon('place');
+    
+    return `
+      <div class="autocomplete-item ${isSelected ? 'highlighted' : ''}" 
+           role="option" 
+           aria-selected="${isSelected}" 
+           tabindex="${isSelected ? '0' : '-1'}"
+           data-index="${index}">
+        <div class="autocomplete-item-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            ${iconPath}
+          </svg>
+        </div>
+        <div class="autocomplete-item-content">
+          <div class="address-name">${formatted.primary}</div>
+          ${formatted.secondary ? `<div class="address-details">${formatted.secondary}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  suggestionsContainer.innerHTML = html;
+  inputElement.setAttribute('aria-expanded', 'true');
+  
+  suggestionsContainer.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+    item.style.pointerEvents = 'auto';
+    item.style.cursor = 'pointer';
+    
+    const handleClick = (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      e.stopPropagation();
+      selectRouteSuggestion(index, autocompleteObj, inputElement, suggestionsContainer);
+      return false;
+    };
+    
+    item.addEventListener('click', handleClick, true);
+    item.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+    
+    item.addEventListener('mouseenter', () => {
+      autocompleteObj.selectedIndex = index;
+      updateRouteHighlight(autocompleteObj, suggestionsContainer);
+    });
+    
+    item.addEventListener('touchend', handleClick, { passive: false, capture: true });
+  });
+}
+
+function selectRouteSuggestion(index, autocompleteObj, inputElement, suggestionsContainer) {
+  if (!autocompleteObj.suggestions || !autocompleteObj.suggestions[index]) {
+    return;
+  }
+  
+  const suggestion = autocompleteObj.suggestions[index];
+  const description = suggestion.description || '';
+  
+  if (!description) {
+    return;
+  }
+  
+  autocompleteObj.isSelecting = true;
+  closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
+  inputElement.value = description;
+  
+  setTimeout(() => {
+    autocompleteObj.isSelecting = false;
+  }, 100);
+  
+  // Geocode and store in route state (but don't update map yet)
+  geocodeAddress(description, 'route').then(result => {
+    if (result) {
+      if (inputElement.id === 'routeStart') {
+        route.start = { description, lat: result.lat, lon: result.lon };
+        console.log('Route start set:', route.start);
+      } else if (inputElement.id === 'routeEnd') {
+        route.end = { description, lat: result.lat, lon: result.lon };
+        console.log('Route end set:', route.end);
+      }
+    } else {
+      console.warn('Geocoding failed for route address:', description);
+    }
+  }).catch(error => {
+    console.error('Error geocoding route address:', error);
+  });
+}
+
+function closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement) {
+  suggestionsContainer.classList.remove('active');
+  inputElement.setAttribute('aria-expanded', 'false');
+  autocompleteObj.isOpen = false;
+  autocompleteObj.selectedIndex = -1;
+}
+
+function updateRouteHighlight(autocompleteObj, suggestionsContainer) {
+  suggestionsContainer.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+    if (index === autocompleteObj.selectedIndex) {
+      item.classList.add('highlighted');
+      item.setAttribute('aria-selected', 'true');
+      item.setAttribute('tabindex', '0');
+    } else {
+      item.classList.remove('highlighted');
+      item.setAttribute('aria-selected', 'false');
+      item.setAttribute('tabindex', '-1');
+    }
+  });
+}
+
+// Calculate perpendicular distance from a point to a line segment (using Haversine formula)
+// Returns the shortest distance from point P to line segment AB
+function distanceToLineSegment(pointLat, pointLon, lineStartLat, lineStartLon, lineEndLat, lineEndLon, units = 'mi') {
+  // Calculate distances to endpoints
+  const dAP = calculateDistance(lineStartLat, lineStartLon, pointLat, pointLon, units);
+  const dBP = calculateDistance(lineEndLat, lineEndLon, pointLat, pointLon, units);
+  const dAB = calculateDistance(lineStartLat, lineStartLon, lineEndLat, lineEndLon, units);
+  
+  // If the line segment is very short, return distance to nearest endpoint
+  if (dAB < 0.01) {
+    return Math.min(dAP, dBP);
+  }
+  
+  // Use the law of cosines to find the angle at point A
+  // cos(angle) = (a² + c² - b²) / (2ac)
+  // where a = dAP, b = dBP, c = dAB
+  const cosAngle = (dAP * dAP + dAB * dAB - dBP * dBP) / (2 * dAP * dAB);
+  
+  // Clamp cosAngle to [-1, 1] to avoid NaN from acos
+  const clampedCos = Math.max(-1, Math.min(1, cosAngle));
+  const angle = Math.acos(clampedCos);
+  
+  // Calculate perpendicular distance using sine
+  // distance = dAP * sin(angle)
+  const perpendicularDist = dAP * Math.sin(angle);
+  
+  // Check if the perpendicular point is within the segment
+  // If angle > 90 degrees, the perpendicular is beyond point A
+  // If the distance along AB from A is > dAB, it's beyond point B
+  const distAlongAB = dAP * Math.cos(angle);
+  
+  if (distAlongAB < 0 || distAlongAB > dAB) {
+    // Perpendicular point is outside the segment, return distance to nearest endpoint
+    return Math.min(dAP, dBP);
+  }
+  
+  return Math.abs(perpendicularDist);
+}
+
+// Route search function
+// Prevents infinite loops by checking if already processing
+let isProcessingRoute = false;
+
+function findCollegesAlongRoute() {
+  // Guard against infinite loops
+  if (isProcessingRoute) {
+    console.log('Route already processing, skipping...');
+    return;
+  }
+  
+  if (activeMode !== 'route') {
+    console.log('Not in route mode, current mode:', activeMode);
+    return;
+  }
+  
+  if (!route.start || !route.end) {
+    showError('Please enter both starting and destination addresses.');
+    console.log('Route start or end missing:', { start: route.start, end: route.end });
+    return;
+  }
+  
+  console.log('Starting route search...', { start: route.start, end: route.end });
+  isProcessingRoute = true;
+  
+  const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
+  const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
+  
+  // Store route search state
+  route.lastSearch = {
+    start: route.start,
+    end: route.end,
+    maxDistance,
+    units
+  };
+  
+  if (elements.loading) elements.loading.classList.add('active');
+  
+  // Clear previous route visualization
+  routeLayer.clearLayers();
+  homeLayer.clearLayers();
+  radiusLayer.clearLayers();
+  
+  // Get actual driving route using OSRM (Open Source Routing Machine)
+  // Format: lon,lat (OSRM uses lon,lat order)
+  const startCoords = `${route.start.lon},${route.start.lat}`;
+  const endCoords = `${route.end.lon},${route.end.lat}`;
+  const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startCoords};${endCoords}?overview=full&geometries=geojson`;
+  
+  fetch(osrmUrl)
+    .then(r => {
+      if (!r.ok) throw new Error(`Routing failed: ${r.status}`);
+      return r.json();
+    })
+    .then(data => {
+      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+        throw new Error('No route found');
+      }
+      
+      const routeGeometry = data.routes[0].geometry.coordinates;
+      // Convert from [lon, lat] to [lat, lon] for Leaflet
+      const routeCoords = routeGeometry.map(coord => [coord[1], coord[0]]);
+      
+      // Draw the actual driving route
+      const routeLine = L.polyline(routeCoords, {
+        color: '#2563eb',
+        weight: 4,
+        opacity: 0.8
+      }).addTo(routeLayer);
+      
+      // Draw start and destination markers (map pins - smaller size)
+      // Start pin (green)
+      const startPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#10b981" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+      L.marker([route.start.lat, route.start.lon], {
+        icon: L.icon({
+          iconUrl: 'data:image/svg+xml;base64,' + btoa(startPinSvg),
+          iconSize: [24, 30],
+          iconAnchor: [12, 30],
+          popupAnchor: [0, -30]
+        })
+      }).addTo(routeLayer).bindPopup('From');
+      
+      // Destination pin (red)
+      const destinationPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+      L.marker([route.end.lat, route.end.lon], {
+        icon: L.icon({
+          iconUrl: 'data:image/svg+xml;base64,' + btoa(destinationPinSvg),
+          iconSize: [24, 30],
+          iconAnchor: [12, 30],
+          popupAnchor: [0, -30]
+        })
+      }).addTo(routeLayer).bindPopup('To');
+      
+      // Calculate route bounds and fit map
+      const routeBounds = L.latLngBounds(routeCoords);
+      map.fitBounds(routeBounds, { padding: [50, 50] });
+      
+      // Filter colleges along the route using perpendicular distance
+      // Sample route points to improve performance (check every 10th point for long routes)
+      const sampleRate = routeCoords.length > 100 ? 10 : 1;
+      const sampledRoute = [];
+      for (let i = 0; i < routeCoords.length; i += sampleRate) {
+        sampledRoute.push(routeCoords[i]);
+      }
+      // Always include the last point
+      if (sampledRoute[sampledRoute.length - 1] !== routeCoords[routeCoords.length - 1]) {
+        sampledRoute.push(routeCoords[routeCoords.length - 1]);
+      }
+      
+      const filtered = colleges.filter(c => {
+        // Check distance to each segment of the sampled route
+        let minDistance = Infinity;
+        
+        for (let i = 0; i < sampledRoute.length - 1; i++) {
+          const segmentStart = sampledRoute[i];
+          const segmentEnd = sampledRoute[i + 1];
+          
+          const dist = distanceToLineSegment(
+            c.lat, c.lon,
+            segmentStart[0], segmentStart[1],
+            segmentEnd[0], segmentEnd[1],
+            units
+          );
+          
+          minDistance = Math.min(minDistance, dist);
+          
+          // Early exit if we're already within range
+          if (minDistance <= maxDistance) {
+            break;
+          }
+        }
+        
+        return minDistance <= maxDistance;
+      });
+      
+      // Apply other filters (type, region, state, search)
+      const typeVal = elements.type ? elements.type.value.trim() : '';
+      const regionVal = elements.region ? elements.region.value.trim() : '';
+      const stateVal = elements.state ? elements.state.value.trim() : '';
+      const searchVal = (elements.search ? elements.search.value.trim().toLowerCase() : '') || 
+                        (document.getElementById('search-mobile') ? document.getElementById('search-mobile').value.trim().toLowerCase() : '');
+      
+      const finalFiltered = filtered.filter(c => {
+        // Type filter - check both type and tier fields
+        if (typeVal && (c.type || c.tier) !== typeVal) return false;
+        // Region filter - use REGION_MAP to check if state is in region
+        if (regionVal) {
+          const regionStates = REGION_MAP[regionVal] || [];
+          if (!regionStates.includes(c.state)) return false;
+        }
+        // State filter
+        if (stateVal && c.state !== stateVal) return false;
+        // Search filter
+        if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+        return true;
+      });
+      
+      // Clear and render markers (using same style as nearby mode - blue circle dots)
+      markersLayer.clearLayers();
+      finalFiltered.forEach(c => {
+        try {
+          // Validate coordinates
+          if (isNaN(c.lat) || isNaN(c.lon) || c.lat === 0 || c.lon === 0) {
+            console.warn(`Invalid coordinates for ${c.name}:`, c.lat, c.lon);
+            return;
+          }
+          
+          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+          
+          // Calculate distance from route (exact distance to nearest point on route)
+          let distanceText = '';
+          let minRouteDist = Infinity;
+          for (let i = 0; i < sampledRoute.length - 1; i++) {
+            const dist = distanceToLineSegment(
+              c.lat, c.lon,
+              sampledRoute[i][0], sampledRoute[i][1],
+              sampledRoute[i + 1][0], sampledRoute[i + 1][1],
+              units
+            );
+            minRouteDist = Math.min(minRouteDist, dist);
+          }
+          if (minRouteDist < Infinity) {
+            distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
+          }
+          
+          const popupContent = `
+            <div style="font-size:12px;line-height:1.4">
+              <b>${c.name}</b><br>
+              ${c.state} · ${(c.type||'Unknown')}${distanceText}<br>
+              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+              Enrollment: ${c.enrollment || 'N/A'}<br>
+              Tuition: ${tuition}<br>
+              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+            </div>`;
+
+          L.circleMarker([c.lat, c.lon], {
+            radius: 5,
+            color: '#2563eb',
+            weight: 2,
+            fillOpacity: 0.7
+          })
+            .bindTooltip(c.name, {permanent: false, direction: 'top'})
+            .bindPopup(popupContent)
+            .addTo(markersLayer);
+        } catch (e) {
+          console.error(`Error creating marker for ${c.name}:`, e);
+        }
+      });
+      
+      if (elements.count) elements.count.textContent = finalFiltered.length;
+      if (elements.loading) elements.loading.classList.remove('active');
+      
+      // Store route coordinates for restoration
+      route.routeCoords = routeCoords;
+      
+      isProcessingRoute = false;
+    })
+    .catch(error => {
+      console.error('Route calculation error:', error);
+      // Fallback to straight line if routing fails
+      const routeLine = L.polyline(
+        [[route.start.lat, route.start.lon], [route.end.lat, route.end.lon]],
+        { color: '#2563eb', weight: 3, opacity: 0.7 }
+      ).addTo(routeLayer);
+      
+      // Use simple distance calculation as fallback
+      const filtered = colleges.filter(c => {
+        const distToStart = calculateDistance(route.start.lat, route.start.lon, c.lat, c.lon, units);
+        const distToEnd = calculateDistance(route.end.lat, route.end.lon, c.lat, c.lon, units);
+        const routeLength = calculateDistance(route.start.lat, route.start.lon, route.end.lat, route.end.lon, units);
+        
+        // Simple approximation: if within maxDistance of the straight line
+        const minDist = Math.min(distToStart, distToEnd);
+        if (minDist <= maxDistance) return true;
+        
+        // Check if point is within corridor (rough approximation)
+        const midLat = (route.start.lat + route.end.lat) / 2;
+        const midLon = (route.start.lon + route.end.lon) / 2;
+        const distToMid = calculateDistance(midLat, midLon, c.lat, c.lon, units);
+        return distToMid <= maxDistance * 1.5; // Slightly more lenient for fallback
+      });
+      
+      // Apply other filters
+      const typeVal = elements.type ? elements.type.value.trim() : '';
+      const regionVal = elements.region ? elements.region.value.trim() : '';
+      const stateVal = elements.state ? elements.state.value.trim() : '';
+      const searchVal = (elements.search ? elements.search.value.trim().toLowerCase() : '') || 
+                        (document.getElementById('search-mobile') ? document.getElementById('search-mobile').value.trim().toLowerCase() : '');
+      
+      const finalFiltered = filtered.filter(c => {
+        // Type filter - check both type and tier fields
+        if (typeVal && (c.type || c.tier) !== typeVal) return false;
+        // Region filter - use REGION_MAP to check if state is in region
+        if (regionVal) {
+          const regionStates = REGION_MAP[regionVal] || [];
+          if (!regionStates.includes(c.state)) return false;
+        }
+        // State filter
+        if (stateVal && c.state !== stateVal) return false;
+        // Search filter
+        if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+        return true;
+      });
+      
+      // Clear and render markers (using same style as nearby mode)
+      markersLayer.clearLayers();
+      finalFiltered.forEach(c => {
+        try {
+          // Validate coordinates
+          if (isNaN(c.lat) || isNaN(c.lon) || c.lat === 0 || c.lon === 0) {
+            console.warn(`Invalid coordinates for ${c.name}:`, c.lat, c.lon);
+            return;
+          }
+          
+          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+          
+          // Calculate approximate distance from route
+          const distToStart = calculateDistance(route.start.lat, route.start.lon, c.lat, c.lon, units);
+          const distToEnd = calculateDistance(route.end.lat, route.end.lon, c.lat, c.lon, units);
+          const minDist = Math.min(distToStart, distToEnd);
+          const distanceText = `<br>Approx. distance from route: ${minDist.toFixed(1)} ${units}`;
+          
+          const popupContent = `
+            <div style="font-size:12px;line-height:1.4">
+              <b>${c.name}</b><br>
+              ${c.state} · ${(c.type||'Unknown')}${distanceText}<br>
+              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+              Enrollment: ${c.enrollment || 'N/A'}<br>
+              Tuition: ${tuition}<br>
+              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+            </div>`;
+
+          L.circleMarker([c.lat, c.lon], {
+            radius: 5,
+            color: '#2563eb',
+            weight: 2,
+            fillOpacity: 0.7
+          })
+            .bindTooltip(c.name, {permanent: false, direction: 'top'})
+            .bindPopup(popupContent)
+            .addTo(markersLayer);
+        } catch (e) {
+          console.error(`Error creating marker for ${c.name}:`, e);
+        }
+      });
+      
+      if (elements.count) elements.count.textContent = finalFiltered.length;
+      if (elements.loading) elements.loading.classList.remove('active');
+      
+      showError('Could not calculate driving route. Showing approximate results.');
+      
+      isProcessingRoute = false;
+    });
+}
+
 // Initialize dropdowns immediately
 // Region dropdown (doesn't depend on CSV)
 refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All regions');
@@ -979,65 +1764,339 @@ try {
 }
 
 // Event listeners
-elements.geocodeBtn.onclick = () => geocodeAddress(elements.address.value);
+if (elements.geocodeBtn) {
+  elements.geocodeBtn.onclick = () => {
+    if (activeMode === 'nearby' && elements.address) {
+      geocodeAddress(elements.address.value, 'nearby');
+    }
+  };
+}
 
 // Address autocomplete
-elements.address.addEventListener('input', debounce((e) => {
-  // Don't trigger search if we're programmatically setting the value
-  if (addressAutocomplete.isSelecting) {
-    return;
-  }
-  searchAddresses(e.target.value);
-}, 400));
+if (elements.address) {
+  elements.address.addEventListener('input', debounce((e) => {
+    // Don't trigger search if we're programmatically setting the value
+    if (addressAutocomplete.isSelecting) {
+      return;
+    }
+    searchAddresses(e.target.value);
+  }, 400));
 
-elements.address.addEventListener('keydown', handleAutocompleteKeydown);
+  elements.address.addEventListener('keydown', handleAutocompleteKeydown);
+}
 
 // Event delegation as backup (items have direct handlers, but this catches edge cases)
-elements.addressSuggestions.addEventListener('click', (e) => {
-  const item = e.target.closest('.autocomplete-item');
-  if (item) {
-    const index = parseInt(item.dataset.index, 10);
-    if (!isNaN(index) && index >= 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      selectSuggestion(index);
+if (elements.addressSuggestions) {
+  elements.addressSuggestions.addEventListener('click', (e) => {
+    const item = e.target.closest('.autocomplete-item');
+    if (item) {
+      const index = parseInt(item.dataset.index, 10);
+      if (!isNaN(index) && index >= 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        selectSuggestion(index);
+      }
     }
-  }
-}, true);
+  }, true);
+}
 
 // Close autocomplete when clicking outside
 document.addEventListener('click', (e) => {
   // Only close if click is truly outside
-  if (!elements.address.contains(e.target) && 
+  if (elements.address && elements.addressSuggestions && 
+      !elements.address.contains(e.target) && 
       !elements.addressSuggestions.contains(e.target) &&
       !e.target.closest('.autocomplete-item')) {
     closeAutocomplete();
   }
+  // Close route autocompletes
+  if (elements.routeStart && elements.routeStartSuggestions && 
+      !elements.routeStart.contains(e.target) && 
+      !elements.routeStartSuggestions.contains(e.target) &&
+      !e.target.closest('.autocomplete-item')) {
+    closeRouteAutocomplete(routeStartAutocomplete, elements.routeStartSuggestions, elements.routeStart);
+  }
+  if (elements.routeEnd && elements.routeEndSuggestions && 
+      !elements.routeEnd.contains(e.target) && 
+      !elements.routeEndSuggestions.contains(e.target) &&
+      !e.target.closest('.autocomplete-item')) {
+    closeRouteAutocomplete(routeEndAutocomplete, elements.routeEndSuggestions, elements.routeEnd);
+  }
 }, true);
 
-elements.clearRadius.onclick = () => {
-  elements.radius.value = '50';
-  elements.address.value = '';
-  // Clear both desktop and mobile search fields
-  if (elements.search) elements.search.value = '';
-  const mobileSearch = document.getElementById('search-mobile');
-  if (mobileSearch) mobileSearch.value = '';
-  home = null;
-  homeLayer.clearLayers();
-  radiusLayer.clearLayers();
-  closeAutocomplete();
-  map.setView([39.5, -98.35], 4);
-  render();
-};
+// Route autocomplete event listeners
+if (elements.routeStart) {
+  elements.routeStart.addEventListener('input', debounce((e) => {
+    if (routeStartAutocomplete.isSelecting) {
+      return;
+    }
+    searchRouteAddresses(e.target.value, routeStartAutocomplete, elements.routeStart, elements.routeStartSuggestions);
+  }, 400));
+}
+
+if (elements.routeEnd) {
+  elements.routeEnd.addEventListener('input', debounce((e) => {
+    if (routeEndAutocomplete.isSelecting) {
+      return;
+    }
+    searchRouteAddresses(e.target.value, routeEndAutocomplete, elements.routeEnd, elements.routeEndSuggestions);
+  }, 400));
+}
+
+// Route search button
+if (elements.findRouteBtn) {
+  elements.findRouteBtn.onclick = async () => {
+    // If addresses are entered but not geocoded yet, geocode them first
+    if (elements.routeStart && elements.routeStart.value && !route.start) {
+      const startAddress = elements.routeStart.value;
+      const startResult = await geocodeAddress(startAddress, 'route');
+      if (startResult) {
+        route.start = { description: startAddress, lat: startResult.lat, lon: startResult.lon };
+      }
+    }
+    
+    if (elements.routeEnd && elements.routeEnd.value && !route.end) {
+      const endAddress = elements.routeEnd.value;
+      const endResult = await geocodeAddress(endAddress, 'route');
+      if (endResult) {
+        route.end = { description: endAddress, lat: endResult.lat, lon: endResult.lon };
+      }
+    }
+    
+    // Now call the route search function
+    findCollegesAlongRoute();
+  };
+}
+
+// Route clear button
+if (elements.clearRoute) {
+  elements.clearRoute.onclick = () => {
+    if (elements.routeStart) elements.routeStart.value = '';
+    if (elements.routeEnd) elements.routeEnd.value = '';
+    if (elements.routeMaxDistance) elements.routeMaxDistance.value = '30';
+    if (elements.routeUnits) elements.routeUnits.value = 'mi';
+    route.start = null;
+    route.end = null;
+    route.lastSearch = null;
+    routeLayer.clearLayers();
+    if (elements.routeStartSuggestions && elements.routeStart) {
+      closeRouteAutocomplete(routeStartAutocomplete, elements.routeStartSuggestions, elements.routeStart);
+    }
+    if (elements.routeEndSuggestions && elements.routeEnd) {
+      closeRouteAutocomplete(routeEndAutocomplete, elements.routeEndSuggestions, elements.routeEnd);
+    }
+    // When clearing route, show colleges based on current filter settings
+    if (activeMode === 'route') {
+      // Clear route visualization
+      routeLayer.clearLayers();
+      // Show all colleges filtered by type, region, state, and search
+      markersLayer.clearLayers();
+      
+      // Apply filters from dropdowns
+      const stateVal = elements.state ? elements.state.value : '';
+      const regionVal = elements.region ? elements.region.value : '';
+      const typeVal = elements.type ? elements.type.value : '';
+      const desktopSearch = elements.search;
+      const mobileSearch = document.getElementById('search-mobile');
+      const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+      
+      let filtered = colleges.filter(c => {
+        // Region filter
+        const regionMatch = !regionVal || (REGION_MAP[regionVal] || []).includes(c.state);
+        if (!regionMatch) return false;
+        
+        // State filter
+        if (stateVal && c.state !== stateVal) return false;
+        
+        // Type filter
+        if (typeVal && (c.type || c.tier) !== typeVal) return false;
+        
+        // Search filter
+        if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+        
+        return true;
+      });
+      
+      // Render filtered colleges
+      filtered.forEach(c => {
+        try {
+          if (isNaN(c.lat) || isNaN(c.lon) || c.lat === 0 || c.lon === 0) {
+            return;
+          }
+          
+          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+          
+          const popupContent = `
+            <div style="font-size:12px;line-height:1.4">
+              <b>${c.name}</b><br>
+              ${c.state} · ${(c.type||'Unknown')}<br>
+              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+              Enrollment: ${c.enrollment || 'N/A'}<br>
+              Tuition: ${tuition}<br>
+              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+            </div>`;
+          
+          L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
+            .bindTooltip(c.name, {permanent: false, direction: 'top'})
+            .bindPopup(popupContent)
+            .addTo(markersLayer);
+        } catch (e) {
+          console.error(`Error creating marker for ${c.name}:`, e);
+        }
+      });
+      
+      if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
+      map.setView([39.5, -98.35], 4);
+    }
+  };
+}
+
+if (elements.clearRadius) {
+  elements.clearRadius.onclick = () => {
+    if (elements.radius) elements.radius.value = '30';
+    if (elements.address) elements.address.value = '';
+    // Clear both desktop and mobile search fields
+    if (elements.search) elements.search.value = '';
+    const mobileSearch = document.getElementById('search-mobile');
+    if (mobileSearch) mobileSearch.value = '';
+    home = null;
+    homeLayer.clearLayers();
+    radiusLayer.clearLayers();
+    closeAutocomplete();
+    map.setView([39.5, -98.35], 4);
+    render();
+  };
+}
+
+// Accordion behavior for filter sections - when one opens, close the other
+const filterSections = document.querySelectorAll('.filter-section');
+filterSections.forEach(section => {
+  section.addEventListener('toggle', (e) => {
+    // Remove active class from all sections first
+    filterSections.forEach(s => s.classList.remove('active'));
+    
+    // Find the currently open section and mark it as active
+    const openSection = Array.from(filterSections).find(s => s.open);
+    if (openSection) {
+      openSection.classList.add('active');
+    }
+    
+    // Only act if this section is now open (was just opened)
+    if (section.open) {
+      // Determine which section opened
+      const summary = section.querySelector('summary');
+      const isNearby = summary && summary.textContent.trim().includes('Find Colleges Nearby');
+      const isRoute = summary && summary.textContent.trim().includes('Find Colleges Along a Route');
+      
+      // Set active mode
+      if (isNearby) {
+        activeMode = 'nearby';
+        // Clear route visualization when switching to nearby mode
+        routeLayer.clearLayers();
+        // Restore nearby state if available
+        if (nearbyState.home) {
+          home = nearbyState.home;
+          if (elements.address && nearbyState.address) {
+            elements.address.value = nearbyState.address;
+          }
+          if (elements.radius && nearbyState.radius) {
+            elements.radius.value = nearbyState.radius;
+          }
+          if (elements.units && nearbyState.units) {
+            elements.units.value = nearbyState.units;
+          }
+          // Re-apply the search and recreate the pin marker
+          if (home) {
+            // Clear and recreate the pin marker
+            homeLayer.clearLayers();
+            radiusLayer.clearLayers();
+            
+            // Recreate "Your Location" pin marker (red)
+            const locationPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+            L.marker([home.lat, home.lon], {
+              icon: L.icon({
+                iconUrl: 'data:image/svg+xml;base64,' + btoa(locationPinSvg),
+                iconSize: [24, 30],
+                iconAnchor: [12, 30],
+                popupAnchor: [0, -30]
+              })
+            }).addTo(homeLayer).bindPopup('Your Location');
+            
+            map.setView([home.lat, home.lon], 8);
+            render();
+          }
+        } else {
+          // If no nearby state, reset to default USA view and render
+          map.setView([39.5, -98.35], 4);
+          render();
+        }
+      } else if (isRoute) {
+        activeMode = 'route';
+        // Clear nearby visualization when switching to route mode
+        homeLayer.clearLayers();
+        radiusLayer.clearLayers();
+        // Restore route state if available
+        if (route.lastSearch && route.start && route.end) {
+          // Restore input values
+          if (elements.routeStart && route.start.description) {
+            elements.routeStart.value = route.start.description;
+          }
+          if (elements.routeEnd && route.end.description) {
+            elements.routeEnd.value = route.end.description;
+          }
+          if (elements.routeMaxDistance && route.lastSearch.maxDistance) {
+            elements.routeMaxDistance.value = route.lastSearch.maxDistance;
+          }
+          if (elements.routeUnits && route.lastSearch.units) {
+            elements.routeUnits.value = route.lastSearch.units;
+          }
+          // Redraw the route
+          findCollegesAlongRoute();
+        } else {
+          // If no route state, show colleges based on current filters (type, region, state, search)
+          // Clear only route visualization layers, keep markers showing filtered colleges
+          routeLayer.clearLayers();
+          render();
+        }
+      }
+      
+      // This section just opened, close all other sections
+      filterSections.forEach(otherSection => {
+        if (otherSection !== section && otherSection.open) {
+          otherSection.open = false;
+        }
+      });
+    }
+  });
+});
+
+// Set initial active state for the default open section
+const openSection = document.querySelector('.filter-section[open]');
+if (openSection) {
+  openSection.classList.add('active');
+}
 
 ['state', 'region', 'type', 'radius', 'units'].forEach(id => {
-  document.getElementById(id).addEventListener('change', render);
+  document.getElementById(id).addEventListener('change', () => {
+    if (activeMode === 'route' && route.lastSearch) {
+      // Re-run route search with updated filters
+      findCollegesAlongRoute();
+    } else {
+      render();
+    }
+  });
 });
 
 // Debounced search input - use event delegation to handle both desktop and mobile search fields
 document.querySelector('.controls').addEventListener('input', debounce((e) => {
   if (e.target.id === 'search' || e.target.id === 'search-mobile') {
     // Sync values between both search fields if they exist
+    // Respect activeMode - only render in nearby mode, or re-run route search in route mode
+    if (activeMode === 'route' && route.lastSearch) {
+      findCollegesAlongRoute();
+      return;
+    }
     const desktopSearch = document.getElementById('search');
     const mobileSearch = document.getElementById('search-mobile');
     if (e.target.id === 'search' && mobileSearch) {
@@ -1054,7 +2113,7 @@ if (window.location.protocol === 'file:') {
   showError('Please use a web server to test this page. CSV files cannot load from file:// protocol. Use: python3 -m http.server 8000');
   console.error('Cannot load CSV from file:// protocol due to CORS restrictions');
 } else {
-  loadCSV(DATA_URL);
+loadCSV(DATA_URL);
 }
 </script>
 
