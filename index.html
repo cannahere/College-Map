@@ -506,7 +506,36 @@ const markersLayer = L.layerGroup().addTo(map);
 const homeLayer = L.layerGroup().addTo(map);
 const radiusLayer = L.layerGroup().addTo(map);
 const routeLayer = L.layerGroup().addTo(map);
+const ROUTE_START_PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#10b981" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+const ROUTE_END_PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+const ROUTE_START_PIN_ICON = 'data:image/svg+xml;base64,' + btoa(ROUTE_START_PIN_SVG);
+const ROUTE_END_PIN_ICON = 'data:image/svg+xml;base64,' + btoa(ROUTE_END_PIN_SVG);
 let colleges = [], home = null;
+const mapViewState = {
+  nearby: null,
+  route: null
+};
+function captureMapView(mode) {
+  if (!mode) return;
+  const center = map.getCenter();
+  mapViewState[mode] = {
+    center: { lat: center.lat, lng: center.lng },
+    zoom: map.getZoom()
+  };
+}
+function applySavedMapView(mode) {
+  const view = mode ? mapViewState[mode] : null;
+  if (view && view.center && typeof view.zoom === 'number') {
+    map.setView([view.center.lat, view.center.lng], view.zoom, { animate: false });
+    return true;
+  }
+  return false;
+}
+map.on('moveend', () => {
+  if (activeMode === 'nearby' || activeMode === 'route') {
+    captureMapView(activeMode);
+  }
+});
 
 // Active mode state: 'nearby' or 'route'
 let activeMode = 'nearby';
@@ -518,7 +547,8 @@ let hasUsedSearchControls = false;
 let route = {
   start: null, // { description, lat, lon }
   end: null,
-  lastSearch: null // { start, end, maxDistance, units }
+  lastSearch: null, // { start, end, maxDistance, units }
+  lastResult: null // Cached visualization data for restoring route view quickly
 };
 
 // Nearby state (for restoration)
@@ -528,6 +558,7 @@ let nearbyState = {
   radius: null,
   units: null
 };
+let lastNearbyFilters = null;
 
 const TYPE_ORDER = ["Ivy League","Elite Private Universities","Public Flagship Universities","Private Liberal Arts Colleges","STEM / Technology Institutes","Business / Arts / Specialty Schools","Health & Medical Colleges","Faith-Based","Public Regional Universities","Community Colleges","Online / For-Profit"];
 
@@ -843,6 +874,133 @@ function handleSharedLocationSelection(field, description) {
   }
 }
 
+function getRouteFilterSignature() {
+  const typeVal = elements.type ? elements.type.value.trim() : '';
+  const regionVal = elements.region ? elements.region.value.trim() : '';
+  const stateVal = elements.state ? elements.state.value.trim() : '';
+  const desktopSearch = elements.search;
+  const mobileSearch = document.getElementById('search-mobile');
+  const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+  const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
+  const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
+  return { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+}
+
+function addRouteCollegeMarker(college, distanceText, units) {
+  try {
+    if (isNaN(college.lat) || isNaN(college.lon) || college.lat === 0 || college.lon === 0) {
+      console.warn(`Invalid coordinates for ${college.name}:`, college.lat, college.lon);
+      return;
+    }
+
+    const tuition = college.tuition ? (college.tuition.toString().includes('$') ? college.tuition : `$${Number(college.tuition).toLocaleString()}`) : 'N/A';
+    const acceptance = college.acceptance ? (college.acceptance.toString().includes('%') ? college.acceptance : `${parseFloat(college.acceptance).toFixed(1)}%`) : 'N/A';
+
+    const popupContent = `
+      <div style="font-size:12px;line-height:1.4">
+        <b>${college.name}</b><br>
+        ${college.state} · ${(college.type||'Unknown')}${distanceText || ''}<br>
+        ${college.control ? college.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+        Enrollment: ${college.enrollment || 'N/A'}<br>
+        Tuition: ${tuition}<br>
+        ${college.url ? `<a href="https://${college.url.replace(/^https?:\/\//,'')}" target="_blank">${college.url}</a>` : ''}
+      </div>`;
+
+    L.circleMarker([college.lat, college.lon], {
+      radius: 5,
+      color: '#2563eb',
+      weight: 2,
+      fillOpacity: 0.7
+    })
+      .bindTooltip(college.name, {permanent: false, direction: 'top'})
+      .bindPopup(popupContent)
+      .addTo(markersLayer);
+  } catch (e) {
+    console.error(`Error creating marker for ${college.name}:`, e);
+  }
+}
+
+function areNearbySignaturesEqual(a, b) {
+  if (!a || !b) return false;
+  const keys = ['typeVal', 'regionVal', 'stateVal', 'searchVal', 'radiusVal', 'unitsVal', 'homeLat', 'homeLon'];
+  return keys.every(key => (a[key] ?? '') === (b[key] ?? ''));
+}
+
+function isRouteCacheValid(cache, filters, currentStart, currentEnd) {
+  if (!cache || !cache.filters || !filters) return false;
+  const keys = ['typeVal', 'regionVal', 'stateVal', 'searchVal', 'maxDistance', 'units'];
+  const filtersMatch = keys.every(key => (cache.filters[key] || '') === (filters[key] || ''));
+  const sameStart = cache.start && currentStart &&
+    cache.start.lat === currentStart.lat &&
+    cache.start.lon === currentStart.lon &&
+    (cache.start.description || '') === (currentStart.description || '');
+  const sameEnd = cache.end && currentEnd &&
+    cache.end.lat === currentEnd.lat &&
+    cache.end.lon === currentEnd.lon &&
+    (cache.end.description || '') === (currentEnd.description || '');
+  return filtersMatch && sameStart && sameEnd && Array.isArray(cache.routeCoords) && cache.routeCoords.length > 0;
+}
+
+function restoreRouteFromCache(cache, options = {}) {
+  if (!cache) return false;
+  markersLayer.clearLayers();
+  routeLayer.clearLayers();
+
+  L.polyline(cache.routeCoords, {
+    color: '#2563eb',
+    weight: 4,
+    opacity: 0.8
+  }).addTo(routeLayer);
+
+  const startData = cache.start;
+  if (startData) {
+    L.marker([startData.lat, startData.lon], {
+      icon: L.icon({
+        iconUrl: ROUTE_START_PIN_ICON,
+        iconSize: [24, 30],
+        iconAnchor: [12, 30],
+        popupAnchor: [0, -30]
+      })
+    }).addTo(routeLayer).bindPopup('From');
+  }
+
+  const endData = cache.end;
+  if (endData) {
+    L.marker([endData.lat, endData.lon], {
+      icon: L.icon({
+        iconUrl: ROUTE_END_PIN_ICON,
+        iconSize: [24, 30],
+        iconAnchor: [12, 30],
+        popupAnchor: [0, -30]
+      })
+    }).addTo(routeLayer).bindPopup('To');
+  }
+
+  const units = cache.filters?.units || 'mi';
+  (cache.colleges || []).forEach(item => {
+    addRouteCollegeMarker(item.college, item.distanceText || '', units);
+  });
+
+  if (elements.count) elements.count.textContent = (cache.colleges || []).length;
+  updateMapHints(
+    (cache.colleges || []).length,
+    cache.filters?.typeVal || '',
+    cache.filters?.regionVal || '',
+    cache.filters?.stateVal || '',
+    cache.filters?.searchVal || ''
+  );
+
+  if (!options.preserveView) {
+    if (cache.bounds && cache.bounds.isValid()) {
+      map.fitBounds(cache.bounds.pad(0.15));
+    } else if (cache.routeCoords && cache.routeCoords.length) {
+      map.fitBounds(L.latLngBounds(cache.routeCoords), { padding: [50, 50] });
+    }
+  }
+  if (elements.loading) elements.loading.classList.remove('active');
+  return true;
+}
+
 /**
  * Render colleges on the map based on current filters.
  * 
@@ -949,6 +1107,17 @@ function render(){
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
   const radiusVal = parseFloat(elements.radius?.value || '0') || 0;
   const unitsVal = elements.units ? elements.units.value : 'mi';
+  const nearbySignature = {
+    typeVal,
+    regionVal,
+    stateVal,
+    searchVal,
+    radiusVal,
+    unitsVal,
+    homeLat: home ? Number(home.lat.toFixed(6)) : null,
+    homeLon: home ? Number(home.lon.toFixed(6)) : null
+  };
+  const shouldAutoFrameNearby = !lastNearbyFilters || !mapViewState.nearby || !areNearbySignaturesEqual(lastNearbyFilters, nearbySignature);
 
   let filtered = colleges.filter(c => {
     // Region filter
@@ -988,6 +1157,7 @@ function render(){
 
   console.log(`Rendering ${filtered.length} colleges (activeMode: ${activeMode}, home: ${home ? 'set' : 'null'})`);
   
+  const nearbyBounds = filtered.length > 1 ? L.latLngBounds([]) : null;
   filtered.forEach(c => {
     try {
       // Validate coordinates
@@ -1016,10 +1186,13 @@ function render(){
         ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
       </div>`;
 
-    L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
+    const marker = L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
       .bindTooltip(c.name, {permanent: false, direction: 'top'})
       .bindPopup(popupContent)
       .addTo(markersLayer);
+    if (nearbyBounds) {
+      nearbyBounds.extend(marker.getLatLng());
+    }
     } catch (e) {
       console.error(`Error creating marker for ${c.name}:`, e);
     }
@@ -1031,14 +1204,32 @@ function render(){
   // Update map hints based on filtered results
   updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
   
-  // Set map view for nearby mode: home+radius if home is set, otherwise default USA view
-  if (home) {
-    // Zoom to home location with appropriate zoom level
-    map.setView([home.lat, home.lon], 8);
+  if (shouldAutoFrameNearby) {
+    if (filtered.length === 0) {
+      if (home) {
+        map.setView([home.lat, home.lon], 8);
+      } else {
+        map.setView([39.5, -98.35], 4);
+      }
+    } else if (filtered.length === 1) {
+      map.setView([filtered[0].lat, filtered[0].lon], 8);
+    } else if (nearbyBounds && nearbyBounds.isValid()) {
+      map.fitBounds(nearbyBounds.pad(0.15));
+    } else if (home) {
+      map.setView([home.lat, home.lon], 8);
+    } else {
+      map.setView([39.5, -98.35], 4);
+    }
   } else {
-    // Default USA view when no home is set
-    map.setView([39.5, -98.35], 4);
+    if (!applySavedMapView('nearby')) {
+      if (home) {
+        map.setView([home.lat, home.lon], 8);
+      } else {
+        map.setView([39.5, -98.35], 4);
+      }
+    }
   }
+  lastNearbyFilters = nearbySignature;
 }
 
 function refreshDropdown(id, values, placeholder) {
@@ -2049,8 +2240,8 @@ function findCollegesAlongRoute() {
       }).addTo(routeLayer).bindPopup('To');
       
       // Calculate route bounds and fit map
-      const routeBounds = L.latLngBounds(routeCoords);
-      map.fitBounds(routeBounds, { padding: [50, 50] });
+      const polylineBounds = L.latLngBounds(routeCoords);
+      let routeBounds = L.latLngBounds([]);
       
       // Filter colleges along the route using perpendicular distance
       // Sample route points to improve performance (check every 10th point for long routes)
@@ -2097,7 +2288,8 @@ function findCollegesAlongRoute() {
       const desktopSearch = elements.search;
       const mobileSearch = document.getElementById('search-mobile');
       const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
-      
+      const filtersSnapshot = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+      const cachedColleges = [];
       const finalFiltered = filtered.filter(c => {
         // Type filter - check both type and tier fields
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
@@ -2116,54 +2308,23 @@ function findCollegesAlongRoute() {
       // Clear and render markers (using same style as nearby mode - blue circle dots)
       markersLayer.clearLayers();
       finalFiltered.forEach(c => {
-        try {
-          // Validate coordinates
-          if (isNaN(c.lat) || isNaN(c.lon) || c.lat === 0 || c.lon === 0) {
-            console.warn(`Invalid coordinates for ${c.name}:`, c.lat, c.lon);
-            return;
-          }
-          
-          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
-          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
-          
-          // Calculate distance from route (exact distance to nearest point on route)
-          let distanceText = '';
-          let minRouteDist = Infinity;
-          for (let i = 0; i < sampledRoute.length - 1; i++) {
-            const dist = distanceToLineSegment(
-              c.lat, c.lon,
-              sampledRoute[i][0], sampledRoute[i][1],
-              sampledRoute[i + 1][0], sampledRoute[i + 1][1],
-              units
-            );
-            minRouteDist = Math.min(minRouteDist, dist);
-          }
-          if (minRouteDist < Infinity) {
-            distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
-          }
-          
-          const popupContent = `
-            <div style="font-size:12px;line-height:1.4">
-              <b>${c.name}</b><br>
-              ${c.state} · ${(c.type||'Unknown')}${distanceText}<br>
-              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
-              Enrollment: ${c.enrollment || 'N/A'}<br>
-              Tuition: ${tuition}<br>
-              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
-            </div>`;
-
-          L.circleMarker([c.lat, c.lon], {
-            radius: 5,
-            color: '#2563eb',
-            weight: 2,
-            fillOpacity: 0.7
-          })
-            .bindTooltip(c.name, {permanent: false, direction: 'top'})
-            .bindPopup(popupContent)
-            .addTo(markersLayer);
-        } catch (e) {
-          console.error(`Error creating marker for ${c.name}:`, e);
+        let distanceText = '';
+        let minRouteDist = Infinity;
+        for (let i = 0; i < sampledRoute.length - 1; i++) {
+          const dist = distanceToLineSegment(
+            c.lat, c.lon,
+            sampledRoute[i][0], sampledRoute[i][1],
+            sampledRoute[i + 1][0], sampledRoute[i + 1][1],
+            units
+          );
+          minRouteDist = Math.min(minRouteDist, dist);
         }
+        if (minRouteDist < Infinity) {
+          distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
+        }
+        addRouteCollegeMarker(c, distanceText, units);
+        cachedColleges.push({ college: c, distanceText });
+        routeBounds.extend([c.lat, c.lon]);
       });
       
       if (elements.count) elements.count.textContent = finalFiltered.length;
@@ -2172,18 +2333,41 @@ function findCollegesAlongRoute() {
       // Update map hints for route mode
       updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
       
-      // Store route coordinates for restoration
-      route.routeCoords = routeCoords;
+      // Store route visualization for restoration
+      if (!routeBounds.isValid()) {
+        routeBounds = polylineBounds;
+      }
+      if (routeBounds.isValid()) {
+        if (finalFiltered.length > 0) {
+          map.fitBounds(routeBounds.pad(0.15));
+        } else {
+          map.fitBounds(routeBounds, { padding: [50, 50] });
+        }
+      }
+
+      route.lastResult = {
+        bounds: routeBounds.isValid() ? routeBounds : null,
+        routeCoords,
+        colleges: cachedColleges,
+        filters: filtersSnapshot,
+        start: route.start ? { ...route.start } : null,
+        end: route.end ? { ...route.end } : null
+      };
       
       isProcessingRoute = false;
     })
     .catch(error => {
       console.error('Route calculation error:', error);
       // Fallback to straight line if routing fails
-      const routeLine = L.polyline(
-        [[route.start.lat, route.start.lon], [route.end.lat, route.end.lon]],
+      const fallbackRouteCoords = [
+        [route.start.lat, route.start.lon],
+        [route.end.lat, route.end.lon]
+      ];
+      L.polyline(
+        fallbackRouteCoords,
         { color: '#2563eb', weight: 3, opacity: 0.7 }
       ).addTo(routeLayer);
+      const fallbackBounds = L.latLngBounds(fallbackRouteCoords);
       
       // Use simple distance calculation as fallback
       const filtered = colleges.filter(c => {
@@ -2209,6 +2393,7 @@ function findCollegesAlongRoute() {
       const searchVal = (elements.search ? elements.search.value.trim().toLowerCase() : '') || 
                         (document.getElementById('search-mobile') ? document.getElementById('search-mobile').value.trim().toLowerCase() : '');
       
+      const filtersSnapshot = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
       const finalFiltered = filtered.filter(c => {
         // Type filter - check both type and tier fields
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
@@ -2226,45 +2411,16 @@ function findCollegesAlongRoute() {
       
       // Clear and render markers (using same style as nearby mode)
       markersLayer.clearLayers();
+      const cachedColleges = [];
+      const fallbackCollegeBounds = L.latLngBounds([]);
       finalFiltered.forEach(c => {
-        try {
-          // Validate coordinates
-          if (isNaN(c.lat) || isNaN(c.lon) || c.lat === 0 || c.lon === 0) {
-            console.warn(`Invalid coordinates for ${c.name}:`, c.lat, c.lon);
-            return;
-          }
-          
-          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
-          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
-          
-          // Calculate approximate distance from route
-          const distToStart = calculateDistance(route.start.lat, route.start.lon, c.lat, c.lon, units);
-          const distToEnd = calculateDistance(route.end.lat, route.end.lon, c.lat, c.lon, units);
-          const minDist = Math.min(distToStart, distToEnd);
-          const distanceText = `<br>Approx. distance from route: ${minDist.toFixed(1)} ${units}`;
-          
-          const popupContent = `
-            <div style="font-size:12px;line-height:1.4">
-              <b>${c.name}</b><br>
-              ${c.state} · ${(c.type||'Unknown')}${distanceText}<br>
-              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
-              Enrollment: ${c.enrollment || 'N/A'}<br>
-              Tuition: ${tuition}<br>
-              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
-            </div>`;
-
-          L.circleMarker([c.lat, c.lon], {
-            radius: 5,
-            color: '#2563eb',
-            weight: 2,
-            fillOpacity: 0.7
-          })
-            .bindTooltip(c.name, {permanent: false, direction: 'top'})
-            .bindPopup(popupContent)
-            .addTo(markersLayer);
-        } catch (e) {
-          console.error(`Error creating marker for ${c.name}:`, e);
-        }
+        const distToStart = calculateDistance(route.start.lat, route.start.lon, c.lat, c.lon, units);
+        const distToEnd = calculateDistance(route.end.lat, route.end.lon, c.lat, c.lon, units);
+        const minDist = Math.min(distToStart, distToEnd);
+        const distanceText = `<br>Approx. distance from route: ${minDist.toFixed(1)} ${units}`;
+        addRouteCollegeMarker(c, distanceText, units);
+        cachedColleges.push({ college: c, distanceText });
+        fallbackCollegeBounds.extend([c.lat, c.lon]);
       });
       
       if (elements.count) elements.count.textContent = finalFiltered.length;
@@ -2272,6 +2428,20 @@ function findCollegesAlongRoute() {
       
       // Update map hints for route mode (fallback)
       updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
+      if (fallbackCollegeBounds.isValid()) {
+        map.fitBounds(fallbackCollegeBounds.pad(0.15));
+      } else if (fallbackBounds.isValid()) {
+        map.fitBounds(fallbackBounds, { padding: [50, 50] });
+      }
+
+      route.lastResult = {
+        bounds: fallbackCollegeBounds.isValid() ? fallbackCollegeBounds : fallbackBounds,
+        routeCoords: fallbackRouteCoords,
+        colleges: cachedColleges,
+        filters: filtersSnapshot,
+        start: route.start ? { ...route.start } : null,
+        end: route.end ? { ...route.end } : null
+      };
       
       showError('Could not calculate driving route. Showing approximate results.');
       
@@ -2496,6 +2666,7 @@ if (elements.clearRoute) {
     route.start = null;
     route.end = null;
     route.lastSearch = null;
+     route.lastResult = null;
     routeLayer.clearLayers();
     if (elements.routeStartSuggestions && elements.routeStart) {
       closeRouteAutocomplete(routeStartAutocomplete, elements.routeStartSuggestions, elements.routeStart);
@@ -2645,12 +2816,10 @@ filterSections.forEach(section => {
               })
             }).addTo(homeLayer).bindPopup('Your Location');
             
-            map.setView([home.lat, home.lon], 8);
             render();
           }
         } else {
-          // If no nearby state, reset to default USA view and render
-          map.setView([39.5, -98.35], 4);
+          // If no nearby state, rely on render to determine framing
           render();
         }
       } else if (isRoute) {
@@ -2673,8 +2842,20 @@ filterSections.forEach(section => {
           if (elements.routeUnits && route.lastSearch.units) {
             elements.routeUnits.value = route.lastSearch.units;
           }
-          // Redraw the route
-          findCollegesAlongRoute();
+          const currentFilters = getRouteFilterSignature();
+          if (route.lastResult && isRouteCacheValid(route.lastResult, currentFilters, route.start, route.end)) {
+            restoreRouteFromCache(route.lastResult, { preserveView: true });
+            if (!applySavedMapView('route')) {
+              if (route.lastResult.bounds && route.lastResult.bounds.isValid()) {
+                map.fitBounds(route.lastResult.bounds.pad(0.15));
+              } else if (route.lastResult.routeCoords && route.lastResult.routeCoords.length) {
+                map.fitBounds(L.latLngBounds(route.lastResult.routeCoords), { padding: [50, 50] });
+              }
+            }
+          } else {
+            // Redraw the route
+            findCollegesAlongRoute();
+          }
         } else {
           // If no route state, show colleges based on current filters (type, region, state, search)
           // Clear only route visualization layers, keep markers showing filtered colleges
