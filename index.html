@@ -779,7 +779,10 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
   const hintTooMany = document.getElementById('hint-too-many-colleges');
   const hintNoResults = document.getElementById('hint-no-colleges');
   
-  if (!hintTooMany || !hintNoResults) return;
+  if (!hintTooMany || !hintNoResults) {
+    console.warn('Map hint elements not found');
+    return;
+  }
   
   // Don't show any hints if user hasn't actively used search controls
   if (!hasUsedSearchControls) {
@@ -807,6 +810,7 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
   if (visibleCount === 0 && hasAnyFilter && !seenNoResults) {
     hintNoResults.classList.add('active');
     hintTooMany.classList.remove('active');
+    console.log('Showing No Results hint', {visibleCount, hasAnyFilter, seenNoResults});
     return;
   } else {
     hintNoResults.classList.remove('active');
@@ -815,6 +819,7 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
   // Priority 2: Too Many Colleges hint (only if No Results is not showing)
   if (visibleCount > 30 && !typeVal && !seenTooMany) {
     hintTooMany.classList.add('active');
+    console.log('Showing Too Many Colleges hint', {visibleCount, typeVal, seenTooMany});
   } else {
     hintTooMany.classList.remove('active');
   }
