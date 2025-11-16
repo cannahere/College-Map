@@ -224,7 +224,8 @@
       .feedback-popup {width:calc(100% - 36px);max-width:280px;right:18px;left:auto}
     }
     .radius-circle {stroke:#2563eb;stroke-width:2;stroke-dasharray:5,5;fill:none;opacity:0.5;pointer-events:none}
-    .address-autocomplete {position:relative;z-index:1001;isolation:isolate}
+    .address-autocomplete {position:relative;z-index:10;isolation:isolate}
+    .address-autocomplete.autocomplete-active {z-index:3000}
     .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1001;margin-top:0;pointer-events:auto;transform:translateZ(0);will-change:transform}
     .autocomplete-suggestions.active {display:block;animation:fadeIn 0.15s ease-out}
     @keyframes fadeIn {from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)}}
@@ -245,6 +246,8 @@
     .autocomplete-loading::before {content:'';width:16px;height:16px;border:2px solid #e0e0e0;border-top-color:#4285f4;border-radius:50%;animation:spin 0.8s linear infinite}
     @keyframes spin {to{transform:rotate(360deg)}}
     .autocomplete-empty {padding:24px;text-align:center;color:#5f6368;font-size:14px}
+    .autocomplete-section-title{padding:10px 16px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;font-weight:600}
+    .autocomplete-divider{height:1px;background:#e2e8f0;margin:4px 0}
     @media (max-width: 700px) {
       .autocomplete-item {min-height:52px}
       .autocomplete-item-icon {width:44px;height:44px;margin-left:12px}
@@ -465,6 +468,10 @@ const elements = {
   routeEndSuggestions: document.getElementById('routeEndSuggestions')
 };
 
+if (elements.addressSuggestions) elements.addressSuggestions.dataset.field = 'address';
+if (elements.routeStartSuggestions) elements.routeStartSuggestions.dataset.field = 'routeStart';
+if (elements.routeEndSuggestions) elements.routeEndSuggestions.dataset.field = 'routeEnd';
+
 let addressAutocomplete = {
   suggestions: [],
   selectedIndex: -1,
@@ -567,6 +574,272 @@ function showError(message) {
         elements.error.classList.remove('active');
       }
     }, 5000);
+  }
+}
+
+const RECENT_STORAGE_KEYS = {
+  nearby: 'ucm_recentAddresses',
+  routeStart: 'ucm_routeRecentStart',
+  routeEnd: 'ucm_routeRecentEnd'
+};
+const MAX_RECENT_ITEMS = 5;
+const SHARED_RECENT_KEY = 'ucm_recentLocations';
+const MAX_SHARED_RECENT_ITEMS = 10;
+
+function escapeHtml(text = '') {
+  return text.replace(/&/g, '&amp;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/"/g, '&quot;')
+             .replace(/'/g, '&#39;');
+}
+
+function loadRecents(storageKey) {
+  try {
+    const stored = localStorage.getItem(storageKey);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(item => typeof item === 'string' && item.trim().length);
+  } catch (error) {
+    console.warn('Unable to load recents for key', storageKey, error);
+    return [];
+  }
+}
+
+function loadSharedLocations() {
+  try {
+    const stored = localStorage.getItem(SHARED_RECENT_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(item => {
+      return item && typeof item.description === 'string' &&
+             typeof item.lat === 'number' && !isNaN(item.lat) &&
+             typeof item.lon === 'number' && !isNaN(item.lon);
+    });
+  } catch (error) {
+    console.warn('Unable to load shared locations', error);
+    return [];
+  }
+}
+
+function saveSharedLocation(description, lat, lon) {
+  if (!description || typeof description !== 'string') return;
+  const trimmed = description.trim();
+  const latNum = typeof lat === 'number' ? lat : parseFloat(lat);
+  const lonNum = typeof lon === 'number' ? lon : parseFloat(lon);
+  if (!trimmed || isNaN(latNum) || isNaN(lonNum)) return;
+  const normalizedKey = `${trimmed.toLowerCase()}|${latNum.toFixed(6)}|${lonNum.toFixed(6)}`;
+  const existing = loadSharedLocations().filter(item => {
+    const itemKey = `${(item.description || '').toLowerCase()}|${item.lat.toFixed(6)}|${item.lon.toFixed(6)}`;
+    return itemKey !== normalizedKey;
+  });
+  existing.unshift({ description: trimmed, lat: latNum, lon: lonNum });
+  try {
+    localStorage.setItem(SHARED_RECENT_KEY, JSON.stringify(existing.slice(0, MAX_SHARED_RECENT_ITEMS)));
+  } catch (error) {
+    console.warn('Unable to persist shared locations', error);
+  }
+}
+
+function saveRecent(storageKey, value) {
+  if (!storageKey || typeof value !== 'string') return;
+  const trimmed = value.trim();
+  if (!trimmed.length) return;
+  const existing = loadRecents(storageKey).filter(item => item.toLowerCase() !== trimmed.toLowerCase());
+  existing.unshift(trimmed);
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(existing.slice(0, MAX_RECENT_ITEMS)));
+  } catch (error) {
+    console.warn('Unable to persist recents for key', storageKey, error);
+  }
+}
+
+function getFallbackRecentsForField(field) {
+  if (!field) return [];
+  if (field === 'address') return loadRecents(RECENT_STORAGE_KEYS.nearby);
+  if (field === 'routeStart') return loadRecents(RECENT_STORAGE_KEYS.routeStart);
+  if (field === 'routeEnd') return loadRecents(RECENT_STORAGE_KEYS.routeEnd);
+  return [];
+}
+
+function clearRecentState(container) {
+  if (!container) return;
+  delete container.dataset.showingRecents;
+  delete container.dataset.recentContext;
+}
+
+function shouldShowRecentsForInput(inputElement) {
+  if (!inputElement) return false;
+  if (document.activeElement !== inputElement) return false;
+  return (inputElement.value || '').trim().length < 3;
+}
+
+function buildUnifiedRecentSection(fallbackRecents = [], options = {}) {
+  const query = (options.query || '').trim().toLowerCase();
+  const shouldFilterShared = options.filterShared && query.length > 0;
+  const shouldFilterFallback = options.filterFallback && query.length > 0;
+  const sharedLocations = loadSharedLocations();
+  let sharedItems = sharedLocations;
+  if (shouldFilterShared) {
+    sharedItems = sharedLocations.filter(loc => (loc.description || '').toLowerCase().startsWith(query));
+  }
+  let sectionItems = '';
+  if (sharedItems.length) {
+    sectionItems = sharedItems.map(loc => {
+      const encodedDescription = encodeURIComponent(loc.description || '');
+      const safeDescription = escapeHtml(loc.description || '');
+      const safeDetails = `${loc.lat.toFixed(3)}, ${loc.lon.toFixed(3)}`;
+      return `
+        <div class="autocomplete-item shared-location" role="option" tabindex="0"
+             data-shared="true"
+             data-description="${encodedDescription}"
+             data-lat="${loc.lat}"
+             data-lon="${loc.lon}">
+          <div class="autocomplete-item-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </div>
+          <div class="autocomplete-item-content">
+            <div class="address-name">${safeDescription}</div>
+            <div class="address-details">${safeDetails}</div>
+          </div>
+        </div>`;
+    }).join('');
+  } else {
+    let fallbackItems = fallbackRecents;
+    if (shouldFilterFallback) {
+      fallbackItems = fallbackRecents.filter(value => value.toLowerCase().startsWith(query));
+    }
+    if (fallbackItems.length) {
+      sectionItems = fallbackItems.map(value => {
+        const encodedValue = encodeURIComponent(value);
+        const safeValue = escapeHtml(value);
+        return `
+          <div class="autocomplete-item recent-suggestion" role="option" tabindex="0" data-recent="true" data-value="${encodedValue}">
+            <div class="autocomplete-item-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm0 18a8 8 0 1 1 8-8a8.009 8.009 0 0 1-8 8zm.75-12h-1.5v5l4.25 2.55l.75-1.23l-3.5-2.07z"/>
+              </svg>
+            </div>
+            <div class="autocomplete-item-content">
+              <div class="address-name">${safeValue}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+  }
+  if (!sectionItems) {
+    return '';
+  }
+  return `
+    <div class="autocomplete-section-title">Recent locations</div>
+    ${sectionItems}
+    <div class="autocomplete-divider" role="separator"></div>`;
+}
+
+function toggleAutocompleteLayer(inputElement, isActive) {
+  const wrapper = inputElement ? inputElement.closest('.address-autocomplete') : null;
+  if (!wrapper) return;
+  if (isActive) {
+    wrapper.classList.add('autocomplete-active');
+  } else {
+    wrapper.classList.remove('autocomplete-active');
+  }
+}
+
+function showRecentSuggestions(container, recents, inputElement, context, options = {}) {
+  if (!container || !inputElement) return false;
+  const unifiedSection = buildUnifiedRecentSection(recents, options);
+  if (!unifiedSection) {
+    clearRecentState(container);
+    return false;
+  }
+  container.innerHTML = unifiedSection;
+  container.classList.add('active');
+  container.dataset.showingRecents = 'true';
+  container.dataset.recentContext = context || '';
+  inputElement.setAttribute('aria-expanded', 'true');
+  return true;
+}
+
+function showAddressRecentsIfEligible() {
+  if (!elements.address || !elements.addressSuggestions) return false;
+  const queryValue = (elements.address.value || '').trim();
+  if (!shouldShowRecentsForInput(elements.address)) {
+    return false;
+  }
+  const recents = loadRecents(RECENT_STORAGE_KEYS.nearby);
+  const shown = showRecentSuggestions(
+    elements.addressSuggestions,
+    recents,
+    elements.address,
+    'address',
+    {
+      query: queryValue,
+      filterShared: true,
+      filterFallback: true
+    }
+  );
+  if (shown) {
+    addressAutocomplete.suggestions = [];
+    addressAutocomplete.selectedIndex = -1;
+  }
+  return shown;
+}
+
+function showRouteRecentsIfEligible(inputElement, suggestionsContainer, autocompleteObj, storageKey, context) {
+  if (!inputElement || !suggestionsContainer) return false;
+  const queryValue = (inputElement.value || '').trim();
+  if (!shouldShowRecentsForInput(inputElement)) {
+    return false;
+  }
+  const recents = loadRecents(storageKey);
+  const shown = showRecentSuggestions(
+    suggestionsContainer,
+    recents,
+    inputElement,
+    context,
+    {
+      query: queryValue,
+      filterShared: true,
+      filterFallback: true
+    }
+  );
+  if (shown && autocompleteObj) {
+    autocompleteObj.suggestions = [];
+    autocompleteObj.selectedIndex = -1;
+  }
+  return shown;
+}
+
+function handleRecentAddressSelection(value) {
+  if (!value) return;
+  addressAutocomplete.suggestions = [{ description: value }];
+  selectSuggestion(0);
+}
+
+function handleRecentRouteSelection(value, context) {
+  if (!value) return;
+  if (context === 'routeStart' && elements.routeStart && elements.routeStartSuggestions) {
+    routeStartAutocomplete.suggestions = [{ description: value }];
+    selectRouteSuggestion(0, routeStartAutocomplete, elements.routeStart, elements.routeStartSuggestions);
+  } else if (context === 'routeEnd' && elements.routeEnd && elements.routeEndSuggestions) {
+    routeEndAutocomplete.suggestions = [{ description: value }];
+    selectRouteSuggestion(0, routeEndAutocomplete, elements.routeEnd, elements.routeEndSuggestions);
+  }
+}
+
+function handleSharedLocationSelection(field, description) {
+  if (!field || !description) return;
+  if (field === 'address') {
+    handleRecentAddressSelection(description);
+  } else if (field === 'routeStart') {
+    handleRecentRouteSelection(description, 'routeStart');
+  } else if (field === 'routeEnd') {
+    handleRecentRouteSelection(description, 'routeEnd');
   }
 }
 
@@ -1062,9 +1335,12 @@ function geocodeAddress(address, mode = 'nearby'){
             map.setView([lat, lon], 8);
             render(); // Re-render to apply radius filter
           }
+          saveSharedLocation(address, lat, lon);
+          saveRecent(RECENT_STORAGE_KEYS.nearby, address);
           return { lat, lon };
         } else if (mode === 'route') {
           // Return for route mode (caller will store it)
+          saveSharedLocation(address, lat, lon);
           return { lat, lon, description: address };
         }
       } else {
@@ -1087,9 +1363,12 @@ function geocodeAddress(address, mode = 'nearby'){
 // Address autocomplete functions
 function searchAddresses(query) {
   if (!query || query.length < 3) {
-    closeAutocomplete();
+    if (!showAddressRecentsIfEligible()) {
+      closeAutocomplete();
+    }
     return;
   }
+  clearRecentState(elements.addressSuggestions);
   
   // Cancel previous request if any
   if (addressAutocomplete.abortController) {
@@ -1223,8 +1502,16 @@ function getAddressTypeIcon(type) {
 }
 
 function renderSuggestions() {
+  clearRecentState(elements.addressSuggestions);
+  const queryValue = (elements.address?.value || '').trim();
+  const unifiedSection = buildUnifiedRecentSection(getFallbackRecentsForField('address'), {
+    query: queryValue,
+    filterShared: true,
+    filterFallback: true
+  });
   if (addressAutocomplete.suggestions.length === 0) {
-    elements.addressSuggestions.innerHTML = '<div class="autocomplete-empty" role="option">No suggestions found</div>';
+    const emptyHtml = '<div class="autocomplete-empty" role="option">No suggestions found</div>';
+    elements.addressSuggestions.innerHTML = unifiedSection ? unifiedSection + emptyHtml : emptyHtml;
     return;
   }
   
@@ -1261,7 +1548,7 @@ function renderSuggestions() {
     `;
   }).join('');
   
-  elements.addressSuggestions.innerHTML = html;
+  elements.addressSuggestions.innerHTML = unifiedSection + html;
   elements.address.setAttribute('aria-expanded', 'true');
   
   // Add mouseenter handlers for highlighting
@@ -1317,6 +1604,7 @@ function selectSuggestion(index) {
   
   // Set the input value immediately - user sees it instantly
   elements.address.value = description;
+  saveRecent(RECENT_STORAGE_KEYS.nearby, description);
   
   // Clear the flag after a brief delay to allow the value to be set
   setTimeout(() => {
@@ -1342,6 +1630,7 @@ function selectSuggestion(index) {
 }
 
 function closeAutocomplete() {
+  clearRecentState(elements.addressSuggestions);
   elements.addressSuggestions.classList.remove('active');
   elements.address.setAttribute('aria-expanded', 'false');
   addressAutocomplete.isOpen = false;
@@ -1415,10 +1704,15 @@ function scrollToSelected() {
 
 // Route autocomplete functions (similar to address autocomplete but for route fields)
 function searchRouteAddresses(query, autocompleteObj, inputElement, suggestionsContainer) {
+  const storageKey = inputElement && inputElement.id === 'routeStart' ? RECENT_STORAGE_KEYS.routeStart : RECENT_STORAGE_KEYS.routeEnd;
+  const context = inputElement && inputElement.id === 'routeStart' ? 'routeStart' : 'routeEnd';
   if (!query || query.length < 3) {
-    closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
+    if (!showRouteRecentsIfEligible(inputElement, suggestionsContainer, autocompleteObj, storageKey, context)) {
+      closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
+    }
     return;
   }
+  clearRecentState(suggestionsContainer);
   
   if (autocompleteObj.abortController) {
     autocompleteObj.abortController.abort();
@@ -1467,8 +1761,19 @@ function searchRouteAddresses(query, autocompleteObj, inputElement, suggestionsC
 }
 
 function renderRouteSuggestions(autocompleteObj, suggestionsContainer, inputElement) {
+  clearRecentState(suggestionsContainer);
+  const fieldId = (inputElement && inputElement.id === 'routeEnd') ? 'routeEnd' :
+                  (inputElement && inputElement.id === 'routeStart') ? 'routeStart' :
+                  (suggestionsContainer && suggestionsContainer.dataset.field) || '';
+  const queryValue = (inputElement?.value || '').trim();
+  const unifiedSection = buildUnifiedRecentSection(getFallbackRecentsForField(fieldId), {
+    query: queryValue,
+    filterShared: true,
+    filterFallback: true
+  });
   if (autocompleteObj.suggestions.length === 0) {
-    suggestionsContainer.innerHTML = '<div class="autocomplete-empty" role="option">No suggestions found</div>';
+    const emptyHtml = '<div class="autocomplete-empty" role="option">No suggestions found</div>';
+    suggestionsContainer.innerHTML = unifiedSection ? unifiedSection + emptyHtml : emptyHtml;
     return;
   }
   
@@ -1505,7 +1810,7 @@ function renderRouteSuggestions(autocompleteObj, suggestionsContainer, inputElem
     `;
   }).join('');
   
-  suggestionsContainer.innerHTML = html;
+  suggestionsContainer.innerHTML = unifiedSection + html;
   inputElement.setAttribute('aria-expanded', 'true');
   
   suggestionsContainer.querySelectorAll('.autocomplete-item').forEach((item, index) => {
@@ -1549,6 +1854,11 @@ function selectRouteSuggestion(index, autocompleteObj, inputElement, suggestions
   autocompleteObj.isSelecting = true;
   closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
   inputElement.value = description;
+  if (inputElement.id === 'routeStart') {
+    saveRecent(RECENT_STORAGE_KEYS.routeStart, description);
+  } else if (inputElement.id === 'routeEnd') {
+    saveRecent(RECENT_STORAGE_KEYS.routeEnd, description);
+  }
   
   setTimeout(() => {
     autocompleteObj.isSelecting = false;
@@ -1573,6 +1883,7 @@ function selectRouteSuggestion(index, autocompleteObj, inputElement, suggestions
 }
 
 function closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement) {
+  clearRecentState(suggestionsContainer);
   suggestionsContainer.classList.remove('active');
   inputElement.setAttribute('aria-expanded', 'false');
   autocompleteObj.isOpen = false;
@@ -2005,6 +2316,16 @@ if (elements.address) {
   }, 400));
 
   elements.address.addEventListener('keydown', handleAutocompleteKeydown);
+  elements.address.addEventListener('focus', () => {
+    toggleAutocompleteLayer(elements.address, true);
+    showAddressRecentsIfEligible();
+  });
+  elements.address.addEventListener('blur', () => {
+    setTimeout(() => {
+      toggleAutocompleteLayer(elements.address, false);
+      closeAutocomplete();
+    }, 120);
+  });
 }
 
 // Event delegation as backup (items have direct handlers, but this catches edge cases)
@@ -2012,6 +2333,21 @@ if (elements.addressSuggestions) {
   elements.addressSuggestions.addEventListener('click', (e) => {
     const item = e.target.closest('.autocomplete-item');
     if (item) {
+      if (item.dataset.recent === 'true') {
+        e.preventDefault();
+        e.stopPropagation();
+        const decodedValue = item.dataset.value ? decodeURIComponent(item.dataset.value) : '';
+        handleRecentAddressSelection(decodedValue);
+        return;
+      }
+      if (item.classList.contains('shared-location')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const field = elements.addressSuggestions?.dataset.field || 'address';
+        const description = item.dataset.description ? decodeURIComponent(item.dataset.description) : '';
+        handleSharedLocationSelection(field, description);
+        return;
+      }
       const index = parseInt(item.dataset.index, 10);
       if (!isNaN(index) && index >= 0) {
         e.preventDefault();
@@ -2020,7 +2356,40 @@ if (elements.addressSuggestions) {
       }
     }
   }, true);
+  elements.addressSuggestions.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.recent-suggestion') || e.target.closest('.shared-location')) {
+      e.preventDefault();
+    }
+  }, true);
 }
+
+// Handle route recents in suggestion containers
+[elements.routeStartSuggestions, elements.routeEndSuggestions].forEach(container => {
+  if (!container) return;
+  container.addEventListener('click', (e) => {
+    const recentItem = e.target.closest('.recent-suggestion');
+    if (recentItem) {
+      e.preventDefault();
+      e.stopPropagation();
+      const decodedValue = recentItem.dataset.value ? decodeURIComponent(recentItem.dataset.value) : '';
+      handleRecentRouteSelection(decodedValue, container.dataset.recentContext || '');
+      return;
+    }
+    const sharedItem = e.target.closest('.shared-location');
+    if (sharedItem) {
+      e.preventDefault();
+      e.stopPropagation();
+      const description = sharedItem.dataset.description ? decodeURIComponent(sharedItem.dataset.description) : '';
+      const field = container.dataset.field || '';
+      handleSharedLocationSelection(field, description);
+    }
+  }, true);
+  container.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.recent-suggestion') || e.target.closest('.shared-location')) {
+      e.preventDefault();
+    }
+  }, true);
+});
 
 // Close autocomplete when clicking outside
 document.addEventListener('click', (e) => {
@@ -2054,6 +2423,18 @@ if (elements.routeStart) {
     }
     searchRouteAddresses(e.target.value, routeStartAutocomplete, elements.routeStart, elements.routeStartSuggestions);
   }, 400));
+  elements.routeStart.addEventListener('focus', () => {
+    toggleAutocompleteLayer(elements.routeStart, true);
+    showRouteRecentsIfEligible(elements.routeStart, elements.routeStartSuggestions, routeStartAutocomplete, RECENT_STORAGE_KEYS.routeStart, 'routeStart');
+  });
+  elements.routeStart.addEventListener('blur', () => {
+    setTimeout(() => {
+      toggleAutocompleteLayer(elements.routeStart, false);
+      if (elements.routeStartSuggestions) {
+        closeRouteAutocomplete(routeStartAutocomplete, elements.routeStartSuggestions, elements.routeStart);
+      }
+    }, 120);
+  });
 }
 
 if (elements.routeEnd) {
@@ -2063,6 +2444,18 @@ if (elements.routeEnd) {
     }
     searchRouteAddresses(e.target.value, routeEndAutocomplete, elements.routeEnd, elements.routeEndSuggestions);
   }, 400));
+  elements.routeEnd.addEventListener('focus', () => {
+    toggleAutocompleteLayer(elements.routeEnd, true);
+    showRouteRecentsIfEligible(elements.routeEnd, elements.routeEndSuggestions, routeEndAutocomplete, RECENT_STORAGE_KEYS.routeEnd, 'routeEnd');
+  });
+  elements.routeEnd.addEventListener('blur', () => {
+    setTimeout(() => {
+      toggleAutocompleteLayer(elements.routeEnd, false);
+      if (elements.routeEndSuggestions) {
+        closeRouteAutocomplete(routeEndAutocomplete, elements.routeEndSuggestions, elements.routeEnd);
+      }
+    }, 120);
+  });
 }
 
 // Route search button
@@ -2074,6 +2467,7 @@ if (elements.findRouteBtn) {
       const startResult = await geocodeAddress(startAddress, 'route');
       if (startResult) {
         route.start = { description: startAddress, lat: startResult.lat, lon: startResult.lon };
+        saveRecent(RECENT_STORAGE_KEYS.routeStart, startAddress);
       }
     }
     
@@ -2082,6 +2476,7 @@ if (elements.findRouteBtn) {
       const endResult = await geocodeAddress(endAddress, 'route');
       if (endResult) {
         route.end = { description: endAddress, lat: endResult.lat, lon: endResult.lon };
+        saveRecent(RECENT_STORAGE_KEYS.routeEnd, endAddress);
       }
     }
     
@@ -2529,3 +2924,4 @@ gtag('config', 'G-E2KP0JHTMC');
 
 </body>
 </html>
+[elements.routeStartSuggestions, elements.routeEndSuggestions].forEach(container => {
