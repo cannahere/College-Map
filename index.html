@@ -184,6 +184,19 @@
     @media (max-width:700px) {
       .map-hint-bubble {top:12px;right:12px;left:12px;max-width:none}
     }
+    .map-tip-bubble {position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.8125rem;max-width:240px;display:none;z-index:2001;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
+    /* Adjust tip position when hint bubbles are visible to avoid overlap */
+    .map-hint-bubble.active ~ .map-tip-bubble {top:80px}
+    .map-tip-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
+    .map-tip-bubble-content {display:flex;align-items:center;gap:8px}
+    .map-tip-bubble-icon {font-size:14px;line-height:1;flex-shrink:0}
+    .map-tip-bubble-text {font-size:0.8125rem;line-height:1.4;color:#0f172a;flex:1}
+    .map-tip-bubble-close {background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;line-height:1;padding:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.2s;margin-left:4px}
+    .map-tip-bubble-close:hover {color:#64748b}
+    @media (max-width:700px) {
+      .map-tip-bubble {top:12px;right:12px;left:12px;max-width:none;font-size:0.75rem;padding:8px 10px}
+      .map-tip-bubble-icon {font-size:12px}
+    }
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
     .loading {display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);z-index:1000}
     .loading.active {display:block}
@@ -383,6 +396,14 @@
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noResults')">×</button>
       </div>
       <div class="map-hint-bubble-body">Your filters may be too narrow — Check your Type, Region or State selections above.</div>
+    </div>
+    <!-- Helper tip bubble - appears once per session -->
+    <div class="map-tip-bubble" id="map-tip-bubble" role="alert">
+      <div class="map-tip-bubble-content">
+        <span class="map-tip-bubble-icon">💡</span>
+        <span class="map-tip-bubble-text">Tip: Tap a blue dot to see college details</span>
+        <button class="map-tip-bubble-close" aria-label="Dismiss tip" onclick="dismissMapTip()">×</button>
+      </div>
     </div>
   </section>
 <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
@@ -812,6 +833,36 @@ function dismissMapHint(type) {
   }
 }
 
+/**
+ * Show the map tip bubble if it hasn't been seen this session
+ */
+function showMapTip() {
+  const tipBubble = document.getElementById('map-tip-bubble');
+  if (!tipBubble) return;
+  
+  // Check if already seen this session
+  if (sessionStorage.getItem('ucm_seenTapDotHint') === '1') {
+    return;
+  }
+  
+  // Show the tip bubble
+  tipBubble.classList.add('active');
+  
+  // Auto-hide after 15 seconds
+  setTimeout(() => {
+    dismissMapTip();
+  }, 15000);
+}
+
+/**
+ * Dismiss the map tip bubble and store in sessionStorage
+ */
+function dismissMapTip() {
+  sessionStorage.setItem('ucm_seenTapDotHint', '1');
+  const tipBubble = document.getElementById('map-tip-bubble');
+  if (tipBubble) tipBubble.classList.remove('active');
+}
+
 
 
 function loadCSV(url){
@@ -929,6 +980,11 @@ function processCollegesData(data) {
   
   // Render colleges on initial load
     render();
+  
+  // Show the tip bubble after map is ready (only once per session)
+  setTimeout(() => {
+    showMapTip();
+  }, 500);
 }
 
 function geocodeAddress(address, mode = 'nearby'){
