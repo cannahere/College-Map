@@ -24,8 +24,9 @@
   <meta property="og:title" content="U.S. College Map | Explore Colleges by Location and Type">
   <meta property="og:description" content="Use the U.S. College Map to explore accredited colleges by state, region, or type — a simple way to plan your next campus visit.">
   <meta property="og:image" content="https://uscollegemap.org/us-college-map-logo.png">
-  <meta property="og:url" content="https://uscollegemap.org/">
-  <meta property="og:type" content="website">
+<meta property="og:url" content="https://uscollegemap.org/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="U.S. College Map">
 
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
@@ -64,6 +65,15 @@
       "Find colleges near your location",
       "Plan college visits efficiently"
     ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://uscollegemap.org/",
+    "name": "U.S. College Map",
+    "alternateName": "US College Map"
   }
   </script>
   
@@ -368,8 +378,8 @@
       <summary>Find Colleges Nearby</summary>
       <div class="filter-section-content">
         <div class="row row-nearby">
-          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="new-password" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><button id="geocodeBtn">Locate</button><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
-    <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
+          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="new-password" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+    <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="geocodeBtn">Locate</button><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
 </div>
 </div>
     </details>
@@ -468,10 +478,15 @@ const elements = {
   routeEndSuggestions: document.getElementById('routeEndSuggestions')
 };
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-if (isIOS) {
-  document.documentElement.classList.add('ios-device');
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const ua = navigator.userAgent || '';
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  if (isIOS) {
+    document.documentElement.classList.add('ios-device');
+  }
+});
 
 if (elements.addressSuggestions) elements.addressSuggestions.dataset.field = 'address';
 if (elements.routeStartSuggestions) elements.routeStartSuggestions.dataset.field = 'routeStart';
@@ -3138,11 +3153,8 @@ gtag('config', 'G-E2KP0JHTMC');
 </body>
 </html>
 [elements.routeStartSuggestions, elements.routeEndSuggestions].forEach(container => {
-    .ios-device body .pill input,
-    .ios-device body #search,
-    .ios-device body #search-mobile,
-    .ios-device body #address,
-    .ios-device body #routeStart,
-    .ios-device body #routeEnd {
+    .ios-device input,
+    .ios-device select,
+    .ios-device textarea {
       font-size:16px !important;
     }
