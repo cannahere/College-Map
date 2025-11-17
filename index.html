@@ -533,6 +533,7 @@
 <script>
 const localMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const DATA_URL = localMode ? 'colleges_usa_2024.csv' : 'https://uscollegemap.org/colleges_usa_2024.csv';
+const COLLEGE_CACHE_KEY = 'ucm_colleges_csv_v1';
 
 // Cache DOM references for performance
 const elements = {
@@ -1469,64 +1470,105 @@ function dismissMapTip() {
 
 
 
+function isLocalStorageAvailable() {
+  try {
+    const testKey = '__ucm_storage_test__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    console.warn('localStorage unavailable:', e);
+    return false;
+  }
+}
+
+function parseCollegesCSV(csvText, sourceLabel = 'network') {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvText, {
+      header: true,
+      dynamicTyping: true,
+      complete: (results) => {
+        if (results.errors && results.errors.length) {
+          console.warn(`CSV parsing warnings from ${sourceLabel}:`, results.errors);
+        }
+        if (!results.data || !results.data.length) {
+          reject(new Error('No data rows in CSV'));
+          return;
+        }
+        console.log(`CSV parsing complete from ${sourceLabel}. Rows:`, results.data.length);
+        resolve(results.data);
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+  });
+}
+
 function loadCSV(url){
   if (elements.loading) elements.loading.classList.add('active');
   
-  // Try to load from cache first
-  const cacheKey = 'colleges_data_cache';
-  const cacheTime = 'colleges_data_time';
-  const cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
+  const canUseStorage = isLocalStorageAvailable();
+  let cachedCSV = null;
+  let cacheLoaded = false;
   
-  try {
-    const cachedData = localStorage.getItem(cacheKey);
-    const cachedTime = localStorage.getItem(cacheTime);
-    
-    if (cachedData && cachedTime && Date.now() - parseInt(cachedTime) < cacheExpiry) {
-      const data = JSON.parse(cachedData);
-      processCollegesData(data);
-      if (elements.loading) elements.loading.classList.remove('active');
-      return;
+  const handleDataLoad = (data) => {
+    processCollegesData(data);
+    cacheLoaded = true;
+    if (elements.loading) elements.loading.classList.remove('active');
+  };
+  
+  if (canUseStorage) {
+    try {
+      cachedCSV = localStorage.getItem(COLLEGE_CACHE_KEY);
+      if (cachedCSV) {
+        parseCollegesCSV(cachedCSV, 'cache')
+          .then(handleDataLoad)
+          .catch(err => {
+            console.warn('Failed to parse cached CSV:', err);
+          });
+      }
+    } catch (e) {
+      console.warn('Unable to read cached CSV:', e);
     }
-  } catch (e) {
-    // Cache read failed, proceed with download
   }
   
-  Papa.parse(url, {
-    header: true,
-    dynamicTyping: true,
-    download: true,
-    complete: (results) => {
-      if (elements.loading) elements.loading.classList.remove('active');
+  fetch(url, { cache: 'no-cache' })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Network response not ok (${response.status})`);
+      }
+      return response.text();
+    })
+    .then(csvText => {
+      const cachedMatches = cachedCSV && csvText === cachedCSV;
+      const shouldProcess = !cachedMatches || !cacheLoaded;
+      const parseLabel = cachedMatches ? 'network-sync' : (cachedCSV ? 'network-refresh' : 'network');
       
-      console.log('CSV parsing complete. Rows:', results.data?.length);
-      
-      if (results.errors && results.errors.length > 0) {
-        console.warn('CSV parsing errors:', results.errors);
+      if (canUseStorage) {
+        try {
+          if (!cachedMatches) {
+            localStorage.setItem(COLLEGE_CACHE_KEY, csvText);
+          }
+        } catch (e) {
+          console.warn('Failed to cache CSV text:', e);
+        }
       }
       
-      if (!results.data || results.data.length === 0) {
-        showError('Failed to load colleges data. Please refresh the page.');
-        console.error('No data in CSV results');
-        return;
+      if (shouldProcess) {
+        return parseCollegesCSV(csvText, parseLabel)
+          .then(handleDataLoad);
       }
-      
-      // Cache the data
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify(results.data));
-        localStorage.setItem(cacheTime, Date.now().toString());
-        console.log('Data cached successfully');
-      } catch (e) {
-        console.warn('Cache write failed:', e);
+    })
+    .catch(error => {
+      console.error('CSV fetch error:', error);
+      if (!cacheLoaded) {
+        if (elements.loading) elements.loading.classList.remove('active');
+        showError('Error loading colleges data: ' + (error.message || 'Unknown error'));
+      } else {
+        console.warn('Using cached CSV due to fetch error.');
       }
-      
-      processCollegesData(results.data);
-    },
-    error: (error) => {
-      if (elements.loading) elements.loading.classList.remove('active');
-      showError('Error loading colleges data: ' + (error.message || 'Unknown error'));
-      console.error('CSV load error:', error);
-    }
-  });
+    });
 }
 
 /**
