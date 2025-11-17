@@ -2790,6 +2790,14 @@ if (elements.clearRadius) {
 
 // Accordion behavior for filter sections - when one opens, close the other
 const filterSections = document.querySelectorAll('.filter-section');
+if (filterSections.length) {
+  const isMobileViewport = window.innerWidth <= 700;
+  if (!isMobileViewport) {
+    filterSections[0].setAttribute('open', '');
+  } else {
+    filterSections[0].removeAttribute('open');
+  }
+}
 filterSections.forEach(section => {
   section.addEventListener('toggle', (e) => {
     // Remove active class from all sections first
@@ -3132,10 +3140,11 @@ gtag('config', 'G-E2KP0JHTMC');
 </body>
 </html>
 [elements.routeStartSuggestions, elements.routeEndSuggestions].forEach(container => {
-    .ios-device #search,
-    .ios-device #search-mobile,
-    .ios-device #address,
-    .ios-device #routeStart,
-    .ios-device #routeEnd {
-      font-size:16px;
+    .ios-device body .pill input,
+    .ios-device body #search,
+    .ios-device body #search-mobile,
+    .ios-device body #address,
+    .ios-device body #routeStart,
+    .ios-device body #routeEnd {
+      font-size:16px !important;
     }
