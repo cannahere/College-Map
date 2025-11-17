@@ -380,7 +380,7 @@
         <div class="row row-route">
           <div class="pill address-autocomplete"><label for="routeStart">From</label><input id="routeStart" placeholder="Enter starting address" autocomplete="new-password" aria-autocomplete="list" aria-expanded="false" aria-controls="routeStartSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeStartSuggestions" role="listbox" aria-label="From address suggestions"></div></div>
           <div class="pill address-autocomplete"><label for="routeEnd">To</label><input id="routeEnd" placeholder="Enter destination address" autocomplete="new-password" aria-autocomplete="list" aria-expanded="false" aria-controls="routeEndSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeEndSuggestions" role="listbox" aria-label="To address suggestions"></div></div>
-          <div class="pill"><label for="routeMaxDistance">Max Distance</label><input id="routeMaxDistance" type="number" min="0" step="10" value="30" style="width:90px"><select id="routeUnits"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="findRouteBtn">Find</button><button id="clearRoute" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
+          <div class="pill"><label for="routeMaxDistance">Max Distance</label><input id="routeMaxDistance" type="number" min="0" step="10" value="30" style="width:90px"><select id="routeUnits"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="findRouteBtn">Explore</button><button id="clearRoute" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
         </div>
       </div>
     </details>
@@ -1141,6 +1141,7 @@ function render(){
   };
   const shouldAutoFrameNearby = !lastNearbyFilters || !mapViewState.nearby || !areNearbySignaturesEqual(lastNearbyFilters, nearbySignature);
   const isDefaultNearbyState = !home && !regionVal && !stateVal && !typeVal && !searchVal;
+  const isSearchOnlyFilter = !!searchVal && !home && !regionVal && !stateVal && !typeVal;
 
   let filtered = colleges.filter(c => {
     // Region filter
@@ -1228,7 +1229,7 @@ function render(){
   updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
   
   if (shouldAutoFrameNearby) {
-    if (isDefaultNearbyState && mapViewState.nearby) {
+    if ((isDefaultNearbyState || isSearchOnlyFilter) && mapViewState.nearby) {
       map.setView([mapViewState.nearby.center.lat, mapViewState.nearby.center.lng], mapViewState.nearby.zoom);
       captureMapView('nearby');
     } else if (filtered.length === 0) {
@@ -2267,7 +2268,7 @@ function findCollegesAlongRoute() {
       
       // Calculate route bounds and fit map
       const polylineBounds = L.latLngBounds(routeCoords);
-      let routeBounds = L.latLngBounds([]);
+      let routeBounds = L.latLngBounds(routeCoords);
       
       // Filter colleges along the route using perpendicular distance
       // Sample route points to improve performance (check every 10th point for long routes)
@@ -2360,19 +2361,16 @@ function findCollegesAlongRoute() {
       updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
       
       // Store route visualization for restoration
-      if (!routeBounds.isValid()) {
-        routeBounds = polylineBounds;
-      }
       if (routeBounds.isValid()) {
         if (finalFiltered.length > 0) {
           map.fitBounds(routeBounds.pad(0.15));
         } else {
-          map.fitBounds(routeBounds, { padding: [50, 50] });
+          map.fitBounds(polylineBounds.pad(0.15));
         }
       }
 
       route.lastResult = {
-        bounds: routeBounds.isValid() ? routeBounds : null,
+        bounds: routeBounds.isValid() ? routeBounds : polylineBounds,
         routeCoords,
         colleges: cachedColleges,
         filters: filtersSnapshot,
@@ -2438,7 +2436,7 @@ function findCollegesAlongRoute() {
       // Clear and render markers (using same style as nearby mode)
       markersLayer.clearLayers();
       const cachedColleges = [];
-      const fallbackCollegeBounds = L.latLngBounds([]);
+      const fallbackCollegeBounds = L.latLngBounds(fallbackRouteCoords);
       finalFiltered.forEach(c => {
         const distToStart = calculateDistance(route.start.lat, route.start.lon, c.lat, c.lon, units);
         const distToEnd = calculateDistance(route.end.lat, route.end.lon, c.lat, c.lon, units);
@@ -2457,7 +2455,7 @@ function findCollegesAlongRoute() {
       if (fallbackCollegeBounds.isValid()) {
         map.fitBounds(fallbackCollegeBounds.pad(0.15));
       } else if (fallbackBounds.isValid()) {
-        map.fitBounds(fallbackBounds, { padding: [50, 50] });
+        map.fitBounds(fallbackBounds.pad(0.15));
       }
 
       route.lastResult = {
