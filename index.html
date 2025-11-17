@@ -413,6 +413,22 @@
     html.ios-device select {
       font-size:16px !important;
     }
+    /* iOS: keep route inputs at 16px so Safari doesn't zoom */
+    html.ios-device #routeStart,
+    html.ios-device #routeEnd {
+      font-size: 16px !important;
+    }
+    html.ios-device .row-route .pill input,
+    html.ios-device .row-nearby .pill input {
+      font-size:16px !important;
+    }
+    @media (max-width:768px) {
+      /* iOS-only: fix Safari zoom issue */
+      html.ios-device .row-route .pill:has(#routeStart) input,
+      html.ios-device .row-route .pill:has(#routeEnd) input {
+        font-size: 16px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -455,7 +471,7 @@
         <div class="row row-route">
           <div class="pill address-autocomplete"><label for="routeStart">From</label><input id="routeStart" placeholder="Enter starting address" autocomplete="new-password" aria-autocomplete="list" aria-expanded="false" aria-controls="routeStartSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeStartSuggestions" role="listbox" aria-label="From address suggestions"></div></div>
           <div class="pill address-autocomplete"><label for="routeEnd">To</label><input id="routeEnd" placeholder="Enter destination address" autocomplete="new-password" aria-autocomplete="list" aria-expanded="false" aria-controls="routeEndSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeEndSuggestions" role="listbox" aria-label="To address suggestions"></div></div>
-          <div class="pill"><label for="routeMaxDistance">Max Distance</label><input id="routeMaxDistance" type="number" min="0" step="10" value="30" style="width:90px"><select id="routeUnits"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="findRouteBtn">Explore</button><button id="clearRoute" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
+          <div class="pill"><label for="routeMaxDistance">Within</label><input id="routeMaxDistance" type="number" min="0" step="10" value="30" style="width:90px"><select id="routeUnits"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="findRouteBtn">Explore</button><button id="clearRoute" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
         </div>
       </div>
     </details>
