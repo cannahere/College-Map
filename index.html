@@ -188,7 +188,7 @@
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
     #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1;min-height:500px}
     .legend {position:absolute;bottom:14px;left:14px;padding:0;border:none;font-size:11px;font-weight:500;color:#0f172a;text-shadow:none;z-index:1800;background:none;border-radius:0;line-height:1;text-align:left;transform:none}
-    .map-hint-bubble {position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.98);padding:12px 14px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.875rem;max-width:260px;display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
+    .map-hint-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     .map-hint-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
     .map-hint-bubble-header {display:flex;align-items:center;gap:8px;margin-bottom:6px}
     .map-hint-bubble-icon {font-size:16px;line-height:1;flex-shrink:0}
@@ -197,9 +197,9 @@
     .map-hint-bubble-title {font-weight:600;font-size:0.875rem;line-height:1.4;color:#0f172a;flex:1}
     .map-hint-bubble-body {font-size:0.8125rem;line-height:1.5;color:#64748b}
     @media (max-width:700px) {
-      .map-hint-bubble {top:12px;right:12px;left:12px;max-width:calc(100vw - 24px);width:calc(100vw - 24px);box-sizing:border-box}
+      .map-hint-bubble {top:16px;left:12px;right:12px;width:clamp(160px, calc(100vw - 24px), 260px);max-width:calc(100vw - 24px);box-sizing:border-box}
     }
-    .map-tip-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.8125rem;max-width:260px;display:none;z-index:2001;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
+    .map-tip-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.8125rem;max-width:280px;width:clamp(200px, calc(100vw - 32px), 280px);display:none;z-index:2001;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     .map-tip-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
     .map-tip-bubble-content {display:flex;align-items:center;gap:8px}
     .map-tip-bubble-icon {font-size:14px;line-height:1;flex-shrink:0}
@@ -207,10 +207,18 @@
     .map-tip-bubble-close {background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;line-height:1;padding:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.2s;margin-left:4px}
     .map-tip-bubble-close:hover {color:#64748b}
     @media (max-width:700px) {
-      .map-tip-bubble {top:12px;right:12px;left:12px;max-width:none;font-size:0.75rem;padding:8px 10px}
+      .map-tip-bubble {top:12px;left:12px;right:12px;max-width:calc(100vw - 24px);width:clamp(180px, calc(100vw - 24px), 280px);font-size:0.75rem;padding:8px 10px;box-sizing:border-box}
       .map-tip-bubble-icon {font-size:12px}
     }
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    .route-hint-bubble {position:fixed;background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,248,255,0.98));padding:8px 12px;border-radius:12px;box-shadow:0 8px 18px rgba(15,23,42,0.18);font-size:12px;max-width:210px;display:none;z-index:6500;border:1px solid rgba(15,23,42,0.15);pointer-events:auto;opacity:0;transform:translateY(6px);transition:opacity 0.2s ease,transform 0.2s ease}
+    .route-hint-bubble.visible {opacity:1;transform:translateY(0)}
+    .route-hint-bubble-content {display:flex;align-items:center;font-weight:500;color:#0f172a}
+    .route-hint-bubble::after {content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border-width:8px 8px 0 8px;border-style:solid;border-color:rgba(246,248,255,0.98) transparent transparent transparent;filter:drop-shadow(0 2px 4px rgba(15,23,42,0.15))}
+    .route-hint-bubble::before {content:'';position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);border-width:9px 9px 0 9px;border-style:solid;border-color:rgba(15,23,42,0.15) transparent transparent transparent}
+    .route-hint-bubble.below::after {top:-8px;bottom:auto;border-width:0 8px 8px 8px;border-color:transparent transparent rgba(246,248,255,0.98) transparent}
+    .route-hint-bubble.below::before {top:-9px;bottom:auto;border-width:0 9px 9px 9px;border-color:transparent transparent rgba(15,23,42,0.15) transparent}
+    .route-hint-bubble-text {line-height:1.3;display:block;white-space:nowrap}
     .loading {display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 25px rgba(15,23,42,.15);z-index:1000}
     .loading.active {display:block}
     .error {display:none;background:#fee;color:#c33;padding:12px;border-radius:8px;margin:12px;border:1px solid #fcc}
@@ -1077,7 +1085,11 @@
       </div>
     </details>
   </nav>
-
+  <div class="route-hint-bubble" id="route-hint-bubble">
+      <div class="route-hint-bubble-content">
+        <span class="route-hint-bubble-text">Tap to explore</span>
+      </div>
+    </div>
   <section id="map" aria-label="Interactive college map">
     <!-- Smart map hint popups -->
     <div class="map-hint-bubble" id="hint-too-many-colleges" role="alert">
@@ -1086,7 +1098,7 @@
         <div class="map-hint-bubble-title">Too many colleges shown?</div>
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('tooMany')">×</button>
       </div>
-      <div class="map-hint-bubble-body">Try using the "Type" filter above to narrow down your school options.</div>
+      <div class="map-hint-bubble-body">Filter by Type above or save your favorite schools to your list to focus your map.</div>
     </div>
     <div class="map-hint-bubble" id="hint-no-colleges" role="alert">
       <div class="map-hint-bubble-header">
@@ -1109,7 +1121,7 @@
     <div class="map-tip-bubble" id="map-tip-bubble" role="alert">
       <div class="map-tip-bubble-content">
         <span class="map-tip-bubble-icon">💡</span>
-        <span class="map-tip-bubble-text">Tip: Tap a blue dot to see college details</span>
+        <span class="map-tip-bubble-text">Tap a blue dot on the map to see college details or save to your list.</span>
         <button class="map-tip-bubble-close" aria-label="Dismiss tip" onclick="dismissMapTip()">×</button>
       </div>
     </div>
@@ -1211,6 +1223,7 @@
 const localMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const DATA_URL = localMode ? 'colleges_usa_2024.csv' : 'https://uscollegemap.org/colleges_usa_2024.csv';
 const COLLEGE_CACHE_KEY = 'ucm_colleges_csv_v1';
+const ROUTE_HINT_KEY = 'ucm_routeExploreHint';
 
 // Cache DOM references for performance
 const elements = {
@@ -1231,10 +1244,10 @@ const elements = {
   routeEnd: document.getElementById('routeEnd'),
   routeMaxDistance: document.getElementById('routeMaxDistance'),
   routeUnits: document.getElementById('routeUnits'),
-  findRouteBtn: document.getElementById('findRouteBtn'),
   clearRoute: document.getElementById('clearRoute'),
   routeStartSuggestions: document.getElementById('routeStartSuggestions'),
-  routeEndSuggestions: document.getElementById('routeEndSuggestions')
+  routeEndSuggestions: document.getElementById('routeEndSuggestions'),
+  findRouteBtn: document.getElementById('findRouteBtn')
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1258,6 +1271,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth <= 700) {
     addHeaderInteractionListeners();
   }
+  setupRouteHint();
 });
 
 if (elements.addressSuggestions) elements.addressSuggestions.dataset.field = 'address';
@@ -1584,6 +1598,11 @@ function createCollegeMarker(college, popupContent, collegeId) {
   marker
     .bindTooltip(college.name, {permanent: false, direction: 'top'})
     .bindPopup(popupContent);
+  marker.on('click', () => {
+    if (marker.closeTooltip) {
+      marker.closeTooltip();
+    }
+  });
   
   // Register marker in registry
   if (collegeId) {
@@ -1621,6 +1640,10 @@ function updatePopupSaveButton(button, collegeId) {
 map.on('popupopen', (event) => {
   const popupEl = event.popup && event.popup.getElement ? event.popup.getElement() : null;
   if (!popupEl) return;
+  const sourceMarker = event.popup && event.popup._source;
+  if (sourceMarker && sourceMarker.closeTooltip) {
+    sourceMarker.closeTooltip();
+  }
   
   const button = popupEl.querySelector('.popup-save-btn');
   if (!button) return;
@@ -2217,7 +2240,7 @@ function refilterCollegesAlongRoute() {
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
   
-  let finalFiltered = filtered.filter(c => {
+  const finalFiltered = filtered.filter(c => {
     if (typeVal && (c.type || c.tier) !== typeVal) return false;
     if (regionVal) {
       const regionStates = REGION_MAP[regionVal] || [];
@@ -2228,50 +2251,7 @@ function refilterCollegesAlongRoute() {
     return true;
   });
   
-  // Apply saved-only filter if enabled
-  if (savedOnlyMode) {
-    finalFiltered = finalFiltered.filter(c => SavedStore.isSaved(c.college_id));
-    
-    // Edge case: Show message if no saved colleges match filters
-    if (finalFiltered.length === 0) {
-      const savedCount = SavedStore.getAll().length;
-      if (savedCount === 0) {
-        console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
-      } else {
-        console.log("No saved colleges match your current filters or route.");
-      }
-    }
-  }
-  
-  // Clear and render markers only (don't touch routeLayer)
-  markersLayer.clearLayers();
-  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
-  
-  const routeBounds = L.latLngBounds(routeCoords);
-  finalFiltered.forEach(c => {
-    let distanceText = '';
-    let minRouteDist = Infinity;
-    for (let i = 0; i < sampledRoute.length - 1; i++) {
-      const dist = distanceToLineSegment(
-        c.lat, c.lon,
-        sampledRoute[i][0], sampledRoute[i][1],
-        sampledRoute[i + 1][0], sampledRoute[i + 1][1],
-        units
-      );
-      minRouteDist = Math.min(minRouteDist, dist);
-    }
-    if (minRouteDist < Infinity) {
-      distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
-    }
-    addRouteCollegeMarker(c, distanceText, units);
-    routeBounds.extend([c.lat, c.lon]);
-  });
-  
-  if (elements.count) elements.count.textContent = finalFiltered.length;
-  updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
-  
-  // Update cache with new filtered colleges
-  const cachedColleges = finalFiltered.map(c => {
+  const routeEntries = finalFiltered.map(c => {
     let distanceText = '';
     let minRouteDist = Infinity;
     for (let i = 0; i < sampledRoute.length - 1; i++) {
@@ -2289,7 +2269,36 @@ function refilterCollegesAlongRoute() {
     return { college: c, distanceText };
   });
   
-  route.lastResult.colleges = cachedColleges;
+  const visibleRouteEntries = savedOnlyMode
+    ? routeEntries.filter(item => SavedStore.isSaved(item.college.college_id))
+    : routeEntries;
+  
+  if (visibleRouteEntries.length === 0 && savedOnlyMode) {
+    const savedCount = SavedStore.getAll().length;
+    if (savedCount === 0) {
+      console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+    } else {
+      console.log("No saved colleges match your current filters or route.");
+    }
+  }
+  
+  // Clear and render markers only (don't touch routeLayer)
+  markersLayer.clearLayers();
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
+  
+  const routeBounds = L.latLngBounds(routeCoords);
+  routeEntries.forEach(item => {
+    routeBounds.extend([item.college.lat, item.college.lon]);
+  });
+  
+  visibleRouteEntries.forEach(item => {
+    addRouteCollegeMarker(item.college, item.distanceText, units);
+  });
+  
+  if (elements.count) elements.count.textContent = visibleRouteEntries.length;
+  updateMapHints(visibleRouteEntries.length, typeVal, regionVal, stateVal, searchVal);
+  
+  route.lastResult.colleges = routeEntries;
   route.lastResult.filters = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
   if (routeBounds.isValid()) {
     route.lastResult.bounds = routeBounds;
@@ -2612,30 +2621,41 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
     return;
   }
   
-  // Check if hints have been dismissed this session
-  const seenTooMany = sessionStorage.getItem('ucm_seenTooManyColleges') === '1';
-  const seenNoResults = sessionStorage.getItem('ucm_seenNoResults') === '1';
-  
-  // Check if any filter is non-default
+  const tooManyViews = getHintViewCount('tooMany');
+  const noResultViews = getHintViewCount('noResults');
+
   const hasNonDefaultFilter = regionVal || stateVal || searchVal;
   const hasAnyFilter = typeVal || hasNonDefaultFilter;
   
   // Priority 1: No Results hint
-  if (visibleCount === 0 && hasAnyFilter && !seenNoResults) {
+  if (visibleCount === 0 && hasAnyFilter && noResultViews < HINT_MAX_VIEWS) {
+    if (hintNoResults.dataset.active !== 'true') {
+      incrementHintViewCount('noResults');
+    }
+    hintNoResults.dataset.active = 'true';
     hintNoResults.classList.add('active');
     hintTooMany.classList.remove('active');
-    console.log('Showing No Results hint', {visibleCount, hasAnyFilter, seenNoResults});
+    hintTooMany.dataset.active = '';
+    startHintAutoHide('noResults');
     return;
   } else {
     hintNoResults.classList.remove('active');
+    hintNoResults.dataset.active = '';
+    clearHintAutoHide('noResults');
   }
   
   // Priority 2: Too Many Colleges hint (only if No Results is not showing)
-  if (visibleCount > 30 && !typeVal && !seenTooMany) {
+  if (visibleCount > 30 && !typeVal && tooManyViews < HINT_MAX_VIEWS) {
+    if (hintTooMany.dataset.active !== 'true') {
+      incrementHintViewCount('tooMany');
+    }
+    hintTooMany.dataset.active = 'true';
     hintTooMany.classList.add('active');
-    console.log('Showing Too Many Colleges hint', {visibleCount, typeVal, seenTooMany});
+    startHintAutoHide('tooMany');
   } else {
     hintTooMany.classList.remove('active');
+    hintTooMany.dataset.active = '';
+    clearHintAutoHide('tooMany');
   }
 }
 
@@ -2644,13 +2664,19 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
  */
 function dismissMapHint(type) {
   if (type === 'tooMany') {
-    sessionStorage.setItem('ucm_seenTooManyColleges', '1');
     const hint = document.getElementById('hint-too-many-colleges');
-    if (hint) hint.classList.remove('active');
+    if (hint) {
+      hint.classList.remove('active');
+      hint.dataset.active = '';
+    }
+    clearHintAutoHide('tooMany');
   } else if (type === 'noResults') {
-    sessionStorage.setItem('ucm_seenNoResults', '1');
     const hint = document.getElementById('hint-no-colleges');
-    if (hint) hint.classList.remove('active');
+    if (hint) {
+      hint.classList.remove('active');
+      hint.dataset.active = '';
+    }
+    clearHintAutoHide('noResults');
   } else if (type === 'noSavedColleges') {
     const hint = document.getElementById('hint-no-saved-colleges');
     if (hint) hint.classList.remove('active');
@@ -2670,6 +2696,37 @@ function dismissMapHint(type) {
     }
   }
 }
+
+function getHintStorageKey(type) {
+  return type === 'tooMany' ? 'ucm_hintTooManyCount' : 'ucm_hintNoResultsCount';
+}
+
+function getHintViewCount(type) {
+  const key = getHintStorageKey(type);
+  const val = parseInt(sessionStorage.getItem(key) || '0', 10);
+  return Number.isNaN(val) ? 0 : val;
+}
+
+function incrementHintViewCount(type) {
+  const key = getHintStorageKey(type);
+  const current = getHintViewCount(type);
+  sessionStorage.setItem(key, String(Math.min(HINT_MAX_VIEWS, current + 1)));
+}
+
+function startHintAutoHide(type) {
+  clearHintAutoHide(type);
+  mapHintTimeouts[type] = setTimeout(() => {
+    dismissMapHint(type);
+  }, 60000);
+}
+
+function clearHintAutoHide(type) {
+  if (mapHintTimeouts[type]) {
+    clearTimeout(mapHintTimeouts[type]);
+    mapHintTimeouts[type] = null;
+  }
+}
+
 
 /**
  * Show the map tip bubble if it hasn't been seen this session
@@ -2704,6 +2761,14 @@ function dismissMapTip() {
 // Saved controls functions
 let savedSearchTimeout = null;
 let savedSearchResults = [];
+const mapHintTimeouts = {
+  tooMany: null,
+  noResults: null
+};
+const HINT_MAX_VIEWS = 3;
+let routeHintShown = sessionStorage.getItem(ROUTE_HINT_KEY) === '1';
+let routeHintUserInteracted = false;
+let routeHintDismissTimer = null;
 
 function openSavedListPanel() {
   const overlay = document.getElementById('saved-colleges-overlay');
@@ -2776,6 +2841,103 @@ function updateSavedOverlay() {
       }).join('');
     }
   }
+}
+
+function setupRouteHint() {
+  const routeHint = document.getElementById('route-hint-bubble');
+  const startInput = elements.routeStart;
+  const endInput = elements.routeEnd;
+  if (!routeHint || !startInput || !endInput || routeHintShown) return;
+
+  const handleEvent = (event) => {
+    if (routeHintShown) return;
+    if (event && (event.type === 'input' || event.type === 'change')) {
+      routeHintUserInteracted = true;
+    }
+    const force = event ? event.type === 'blur' : false;
+    maybeShowRouteHint(force);
+  };
+
+  ['input', 'change', 'blur'].forEach(evtName => {
+    startInput.addEventListener(evtName, handleEvent);
+    endInput.addEventListener(evtName, handleEvent);
+  });
+}
+
+function maybeShowRouteHint(force = false) {
+  if (routeHintShown) return;
+  const startFilled = !!(elements.routeStart && elements.routeStart.value.trim());
+  const endFilled = !!(elements.routeEnd && elements.routeEnd.value.trim());
+  if (!startFilled || !endFilled) return;
+  if (!routeHintUserInteracted && !force) return;
+  showRouteHintBubble();
+}
+
+function notifyRouteInputsUpdated(forceUserInteraction = false) {
+  if (forceUserInteraction) {
+    routeHintUserInteracted = true;
+  }
+  maybeShowRouteHint(forceUserInteraction);
+}
+
+function showRouteHintBubble() {
+  const routeHint = document.getElementById('route-hint-bubble');
+  const exploreBtn = elements.findRouteBtn;
+  if (!routeHint || !exploreBtn || routeHintShown) return;
+
+  routeHint.style.display = 'block';
+  routeHint.style.visibility = 'hidden';
+  routeHint.classList.remove('visible');
+  routeHint.classList.remove('below');
+
+  const buttonRect = exploreBtn.getBoundingClientRect();
+  const headerRect = document.querySelector('.app-header')?.getBoundingClientRect();
+  const bubbleRect = routeHint.getBoundingClientRect();
+  const minTop = headerRect ? headerRect.bottom + 8 : 12;
+  let placeBelow = false;
+  let top = buttonRect.top - bubbleRect.height - 8;
+  if (top < minTop) {
+    top = Math.max(buttonRect.bottom + 8, minTop);
+    placeBelow = true;
+  }
+  if (placeBelow) {
+    routeHint.classList.add('below');
+  }
+  let left = buttonRect.left + (buttonRect.width / 2) - (bubbleRect.width / 2);
+  const maxLeft = window.innerWidth - bubbleRect.width - 12;
+  left = Math.min(Math.max(12, left), maxLeft);
+
+  routeHint.style.top = `${top}px`;
+  routeHint.style.left = `${left}px`;
+  routeHint.style.visibility = 'visible';
+
+  requestAnimationFrame(() => {
+    routeHint.classList.add('visible');
+  });
+
+  if (routeHintDismissTimer) {
+    clearTimeout(routeHintDismissTimer);
+    routeHintDismissTimer = null;
+  }
+  routeHint.onclick = () => dismissRouteHint();
+  routeHintDismissTimer = setTimeout(() => dismissRouteHint(), 5000);
+  routeHintShown = true;
+  sessionStorage.setItem(ROUTE_HINT_KEY, '1');
+}
+
+function dismissRouteHint() {
+  const routeHint = document.getElementById('route-hint-bubble');
+  if (!routeHint) return;
+  routeHint.onclick = null;
+  routeHint.classList.remove('visible');
+  if (routeHintDismissTimer) {
+    clearTimeout(routeHintDismissTimer);
+    routeHintDismissTimer = null;
+  }
+  setTimeout(() => {
+    routeHint.style.display = 'none';
+    routeHint.style.visibility = '';
+  }, 200);
 }
 
 function escapeHtml(text) {
@@ -3196,6 +3358,23 @@ function loadCSV(url){
 }
 
 /**
+ * Generate a stable fallback college_id for rows missing one.
+ */
+function buildFallbackCollegeId(row) {
+  const safeName = (row.name || 'college')
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'college';
+  const state = (row.state || 'XX').toString().toUpperCase();
+  const lat = Number(row.lat);
+  const lon = Number(row.lon);
+  const latStr = Number.isFinite(lat) ? lat.toFixed(3) : '0.000';
+  const lonStr = Number.isFinite(lon) ? lon.toFixed(3) : '0.000';
+  return `${safeName}_${state}_${latStr}_${lonStr}`;
+}
+
+/**
  * Process CSV data and map to internal college objects.
  * 
  * REQUIRED CSV COLUMNS (for creating a "slim" CSV):
@@ -3217,20 +3396,24 @@ function loadCSV(url){
 let collegesById = {};
 
 function processCollegesData(data) {
-  colleges = data.filter(r => r.name && r.lat && r.lon).map(r => ({
-    college_id: r.college_id || '',
-    name: r.name,
-    lat: +r.lat,
-    lon: +r.lon,
-    state: (r.state || '').toUpperCase(),
-    type: r.type || 'Unknown',
-    tier: r.tier || '', // Used as fallback in type filter: (c.type || c.tier)
-    control: r.control || '',
-    acceptance: r.acceptance || '',
-    enrollment: r.enrollment || '',
-    tuition: r.tuition || '',
-    url: r.url || ''
-  }));
+  colleges = data.filter(r => r.name && r.lat && r.lon).map(r => {
+    const rawId = (r.college_id || '').toString().trim();
+    const collegeId = rawId || buildFallbackCollegeId(r);
+    return {
+      college_id: collegeId,
+      name: r.name,
+      lat: +r.lat,
+      lon: +r.lon,
+      state: (r.state || '').toUpperCase(),
+      type: r.type || 'Unknown',
+      tier: r.tier || '', // Used as fallback in type filter: (c.type || c.tier)
+      control: r.control || '',
+      acceptance: r.acceptance || '',
+      enrollment: r.enrollment || '',
+      tuition: r.tuition || '',
+      url: r.url || ''
+    };
+  });
   
   // Build collegesById lookup
   collegesById = {};
@@ -3853,6 +4036,7 @@ function selectRouteSuggestion(index, autocompleteObj, inputElement, suggestions
   autocompleteObj.isSelecting = true;
   closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
   inputElement.value = description;
+  notifyRouteInputsUpdated(true);
   if (inputElement.id === 'routeStart') {
     saveRecent(RECENT_STORAGE_KEYS.routeStart, description);
   } else if (inputElement.id === 'routeEnd') {
@@ -4097,7 +4281,6 @@ function findCollegesAlongRoute() {
       const mobileSearch = document.getElementById('search-mobile');
       const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
       const filtersSnapshot = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
-      const cachedColleges = [];
       const finalFiltered = filtered.filter(c => {
         // Type filter - check both type and tier fields
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
@@ -4113,29 +4296,7 @@ function findCollegesAlongRoute() {
         return true;
       });
       
-      // Apply saved-only filter if enabled
-      if (savedOnlyMode) {
-        const beforeCount = finalFiltered.length;
-        finalFiltered = finalFiltered.filter(c => SavedStore.isSaved(c.college_id));
-        
-        // Edge case: Show message if no saved colleges match filters
-        if (finalFiltered.length === 0) {
-          const savedCount = SavedStore.getAll().length;
-          if (savedCount === 0) {
-            // No saved colleges at all
-            console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
-          } else {
-            // Saved colleges exist but don't match current filters or route
-            console.log("No saved colleges match your current filters or route.");
-          }
-        }
-      }
-      
-      // Clear and render markers (using same style as nearby mode - blue circle dots)
-      markersLayer.clearLayers();
-  // Clear marker registry
-  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
-      finalFiltered.forEach(c => {
+      const allRouteColleges = finalFiltered.map(c => {
         let distanceText = '';
         let minRouteDist = Infinity;
         for (let i = 0; i < sampledRoute.length - 1; i++) {
@@ -4150,20 +4311,42 @@ function findCollegesAlongRoute() {
         if (minRouteDist < Infinity) {
           distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
         }
-        addRouteCollegeMarker(c, distanceText, units);
-        cachedColleges.push({ college: c, distanceText });
-        routeBounds.extend([c.lat, c.lon]);
+        return { college: c, distanceText };
+      });
+      allRouteColleges.forEach(item => {
+        routeBounds.extend([item.college.lat, item.college.lon]);
       });
       
-      if (elements.count) elements.count.textContent = finalFiltered.length;
+      const visibleRouteColleges = savedOnlyMode
+        ? allRouteColleges.filter(item => SavedStore.isSaved(item.college.college_id))
+        : allRouteColleges;
+      
+      if (visibleRouteColleges.length === 0 && savedOnlyMode) {
+        const savedCount = SavedStore.getAll().length;
+        if (savedCount === 0) {
+          console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+        } else {
+          console.log("No saved colleges match your current filters or route.");
+        }
+      }
+      
+      // Clear and render markers (using same style as nearby mode - blue circle dots)
+      markersLayer.clearLayers();
+      // Clear marker registry
+      Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
+      visibleRouteColleges.forEach(item => {
+        addRouteCollegeMarker(item.college, item.distanceText, units);
+      });
+      
+      if (elements.count) elements.count.textContent = visibleRouteColleges.length;
       if (elements.loading) elements.loading.classList.remove('active');
       
       // Update map hints for route mode
-      updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
+      updateMapHints(visibleRouteColleges.length, typeVal, regionVal, stateVal, searchVal);
       
       // Store route visualization for restoration
       if (routeBounds.isValid()) {
-        if (finalFiltered.length > 0) {
+        if (visibleRouteColleges.length > 0) {
           map.fitBounds(routeBounds.pad(0.15));
         } else {
           map.fitBounds(polylineBounds.pad(0.15));
@@ -4173,7 +4356,7 @@ function findCollegesAlongRoute() {
       route.lastResult = {
         bounds: routeBounds.isValid() ? routeBounds : polylineBounds,
         routeCoords,
-        colleges: cachedColleges,
+        colleges: allRouteColleges,
         filters: filtersSnapshot,
         start: route.start ? { ...route.start } : null,
         end: route.end ? { ...route.end } : null
@@ -4234,27 +4417,44 @@ function findCollegesAlongRoute() {
         return true;
       });
       
-      // Clear and render markers (using same style as nearby mode)
-      markersLayer.clearLayers();
-  // Clear marker registry
-  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
-      const cachedColleges = [];
-      const fallbackCollegeBounds = L.latLngBounds(fallbackRouteCoords);
-      finalFiltered.forEach(c => {
+      const fallbackRouteEntries = finalFiltered.map(c => {
         const distToStart = calculateDistance(route.start.lat, route.start.lon, c.lat, c.lon, units);
         const distToEnd = calculateDistance(route.end.lat, route.end.lon, c.lat, c.lon, units);
         const minDist = Math.min(distToStart, distToEnd);
         const distanceText = `<br>Approx. distance from route: ${minDist.toFixed(1)} ${units}`;
-        addRouteCollegeMarker(c, distanceText, units);
-        cachedColleges.push({ college: c, distanceText });
-        fallbackCollegeBounds.extend([c.lat, c.lon]);
+        return { college: c, distanceText };
+      });
+      const fallbackCollegeBounds = L.latLngBounds(fallbackRouteCoords);
+      fallbackRouteEntries.forEach(entry => {
+        fallbackCollegeBounds.extend([entry.college.lat, entry.college.lon]);
       });
       
-      if (elements.count) elements.count.textContent = finalFiltered.length;
+      const visibleFallbackEntries = savedOnlyMode
+        ? fallbackRouteEntries.filter(item => SavedStore.isSaved(item.college.college_id))
+        : fallbackRouteEntries;
+      
+      if (visibleFallbackEntries.length === 0 && savedOnlyMode) {
+        const savedCount = SavedStore.getAll().length;
+        if (savedCount === 0) {
+          console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+        } else {
+          console.log("No saved colleges match your current filters or route.");
+        }
+      }
+      
+      // Clear and render markers (using same style as nearby mode)
+      markersLayer.clearLayers();
+      // Clear marker registry
+      Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
+      visibleFallbackEntries.forEach(item => {
+        addRouteCollegeMarker(item.college, item.distanceText, units);
+      });
+      
+      if (elements.count) elements.count.textContent = visibleFallbackEntries.length;
       if (elements.loading) elements.loading.classList.remove('active');
       
       // Update map hints for route mode (fallback)
-      updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
+      updateMapHints(visibleFallbackEntries.length, typeVal, regionVal, stateVal, searchVal);
       if (fallbackCollegeBounds.isValid()) {
         map.fitBounds(fallbackCollegeBounds.pad(0.15));
       } else if (fallbackBounds.isValid()) {
@@ -4264,7 +4464,7 @@ function findCollegesAlongRoute() {
       route.lastResult = {
         bounds: fallbackCollegeBounds.isValid() ? fallbackCollegeBounds : fallbackBounds,
         routeCoords: fallbackRouteCoords,
-        colleges: cachedColleges,
+        colleges: fallbackRouteEntries,
         filters: filtersSnapshot,
         start: route.start ? { ...route.start } : null,
         end: route.end ? { ...route.end } : null
