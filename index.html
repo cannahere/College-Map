@@ -124,7 +124,7 @@
       .row-filters .pill label{display:none}
       .row-filters .pill select{width:100%;font-size:14px;padding:6px 8px;}
       .row-filters .pill-search{display:none !important}
-      .row-search{display:flex !important}
+      .row-search{display:none !important}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
       .row-search .pill input{flex:1;width:auto;font-size:12px;}
@@ -148,10 +148,10 @@
     .row-filters{display:flex;gap:8px;justify-content:space-between}
     .row-filters .pill{flex:1}
     .row-search{display:none}
-    .row-filters .pill-search{display:none}
+    .row-filters .pill-search{display:none !important}
     @media (min-width:1025px) {
-      .row-filters .pill-search{display:flex}
-      .row-search{display:none}
+      .row-filters .pill-search{display:none !important}
+      .row-search{display:none !important}
       .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
       .row-filters{flex:1 1 100%;margin-bottom:3px}
       .row-filters .pill:not(.pill-search){flex:0 1 180px}
@@ -305,8 +305,8 @@
       .row-filters .pill{flex:1 1 calc(33.333% - 4px);min-width:0;}
       .row-filters .pill label{display:none}
       .row-filters .pill select{width:100%;font-size:12px;padding:6px 8px;}
-      .row-filters .pill-search{display:none}
-      .row-search{display:flex}
+      .row-filters .pill-search{display:none !important}
+      .row-search{display:none !important}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
       .row-search .pill input{flex:1;width:auto;font-size:12px;}
@@ -727,20 +727,26 @@
     .saved-search-input {
       width: 100%;
       padding: 12px 16px 12px 44px;
-      border: 1px solid #E5E7EB;
+      border: 2px solid #E5E7EB;
       border-radius: 12px;
       font-size: 14px;
       font-family: Inter, sans-serif;
       color: #0f172a;
-      background: #F9FAFB;
+      background: #fff;
       box-sizing: border-box;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    .saved-search-input:hover {
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
     }
     .saved-search-input:focus {
       outline: none;
       border-color: #2563eb;
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
     }
     .saved-search-input::placeholder {
       color: #94a3b8;
@@ -1017,9 +1023,10 @@
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
-      <div class="pill pill-search"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
+      <!-- College name search temporarily hidden - functionality preserved for future use -->
+      <div class="pill pill-search" style="display: none !important;"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
   </div>
-    <div class="row row-search">
+    <div class="row row-search" style="display: none !important;">
       <div class="pill"><label for="search-mobile">Search</label><input id="search-mobile" placeholder="Enter college name" /></div>
   </div>
     
@@ -1061,7 +1068,7 @@
         <div class="map-hint-bubble-title">No colleges found?</div>
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noResults')">×</button>
       </div>
-      <div class="map-hint-bubble-body">Your filters may be too narrow — Check your Type, Region or State selections above.</div>
+      <div class="map-hint-bubble-body">Your current filters may be too narrow, or none of your saved colleges fall within this location or route.</div>
     </div>
     <!-- Helper tip bubble - appears once per session -->
     <div class="map-tip-bubble" id="map-tip-bubble" role="alert">
