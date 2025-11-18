@@ -429,6 +429,574 @@
         font-size: 16px !important;
       }
     }
+    /* Popup save button styling */
+    .popup-save-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+      padding-top: 4px;
+    }
+    .popup-save-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: Inter, sans-serif;
+      color: #64748b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 9999px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1.4;
+      width: 70px;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .popup-save-btn .popup-save-label {
+      min-width: 40px;
+      text-align: center;
+      display: inline-block;
+    }
+    .popup-save-btn:hover {
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .popup-save-btn .popup-save-icon {
+      font-size: 12px;
+      line-height: 1;
+      color: #64748b;
+    }
+    .popup-save-btn.saved {
+      color: #15803d;
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+    .popup-save-btn.saved .popup-save-icon {
+      color: #16a34a;
+    }
+    .popup-save-btn.saved:hover {
+      background: #bbf7d0;
+      color: #15803d;
+    }
+    /* Ensure Leaflet popups appear above saved controls */
+    .leaflet-popup-pane {
+      z-index: 1600 !important;
+    }
+    .leaflet-popup {
+      z-index: 1600 !important;
+    }
+    /* Saved controls overlay */
+    .saved-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #E5E7EB;
+      border-radius: 9999px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      height: 38px;
+      padding: 0 6px;
+      z-index: 1500;
+      font-family: Inter, sans-serif;
+      font-weight: 500;
+      color: #374151;
+      font-size: 12px;
+      pointer-events: auto;
+      gap: 4px;
+    }
+    .saved-list-section,
+    .saved-only-section {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 4px;
+      cursor: pointer;
+      transition: opacity 0.2s, color 0.2s;
+      user-select: none;
+    }
+    .saved-list-section {
+      color: #1d4ed8;
+      text-decoration: none;
+      gap: 6px;
+    }
+    .saved-pill {
+      display: inline-flex;
+      align-items: center;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 9999px;
+      padding: 3px 10px;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      font-weight: 600;
+    }
+    .saved-list-section:hover .saved-pill {
+      color: #1e40af;
+      background: #e0e7ff;
+      border-color: #a5b4fc;
+    }
+    .saved-list-section:focus-visible .saved-pill {
+      outline: 2px solid #1d4ed8;
+      outline-offset: 2px;
+    }
+    .saved-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .saved-text {
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .saved-controls-divider {
+      width: 1px;
+      height: 20px;
+      background: #E5E7EB;
+      margin: 0 2px;
+      flex-shrink: 0;
+    }
+    .saved-toggle {
+      flex-shrink: 0;
+      margin-right: 3px;
+    }
+    .saved-toggle-track {
+      width: 30px;
+      height: 16px;
+      background: #D1D5DB;
+      border-radius: 9999px;
+      position: relative;
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+    .saved-toggle-thumb {
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .saved-controls.saved-only-active .saved-toggle-track {
+      background: #64D85B;
+    }
+    .saved-controls.saved-only-active .saved-toggle-thumb {
+      transform: translateX(12px);
+    }
+    @media (max-width: 1024px) {
+      .saved-controls {
+        padding: 0 5px;
+      }
+      .saved-list-section,
+      .saved-only-section {
+        padding: 0 3px;
+        gap: 4px;
+      }
+      .saved-pill {
+        padding: 3px 9px;
+      }
+      .saved-icon {
+        width: 20px;
+        height: 20px;
+      }
+      .saved-toggle-track {
+        width: 28px;
+        height: 16px;
+      }
+      .saved-toggle-thumb {
+        width: 12px;
+        height: 12px;
+      }
+      .saved-controls.saved-only-active .saved-toggle-thumb {
+        transform: translateX(12px);
+      }
+    }
+    @media (max-width: 700px) {
+      .saved-controls {
+        height: 36px;
+        top: 10px;
+        right: 10px;
+      }
+      .saved-toggle-track {
+        width: 24px;
+        height: 14px;
+      }
+      .saved-toggle-thumb {
+        width: 10px;
+        height: 10px;
+        top: 2px;
+        left: 2px;
+      }
+      .saved-controls.saved-only-active .saved-toggle-thumb {
+        transform: translateX(10px);
+      }
+    }
+    /* Saved Colleges Overlay */
+    .saved-colleges-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 400px;
+      height: 100%;
+      background: #fff;
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+      z-index: 3000;
+      display: none;
+      flex-direction: column;
+      font-family: Inter, sans-serif;
+    }
+    .saved-colleges-overlay.active {
+      display: flex;
+    }
+    .saved-overlay-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      border-bottom: 1px solid #E5E7EB;
+      flex-shrink: 0;
+    }
+    .saved-overlay-title-section {
+      flex: 1;
+    }
+    .saved-overlay-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+    .saved-overlay-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+    }
+    .saved-overlay-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #94a3b8;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .saved-overlay-close:hover {
+      color: #64748b;
+    }
+    .saved-overlay-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .saved-overlay-section {
+      margin-bottom: 32px;
+    }
+    .saved-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .saved-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 12px 0;
+    }
+    .saved-section-header .saved-section-title {
+      margin: 0;
+      flex: 1;
+    }
+    .saved-search-wrapper {
+      position: relative;
+    }
+    .saved-search-input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: Inter, sans-serif;
+      color: #0f172a;
+      background: #F9FAFB;
+      box-sizing: border-box;
+      transition: all 0.2s;
+    }
+    .saved-search-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .saved-search-input::placeholder {
+      color: #94a3b8;
+    }
+    .saved-search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: #94a3b8;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .saved-search-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+    .saved-search-results.active {
+      display: block;
+    }
+    .saved-search-result-item {
+      padding: 12px;
+      border-bottom: 1px solid #F3F4F6;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .saved-search-result-item:hover {
+      background: #F9FAFB;
+    }
+    .saved-search-result-item:last-child {
+      border-bottom: none;
+    }
+    .saved-search-result-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .saved-search-result-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .saved-search-result-details {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .saved-search-result-save-btn {
+      flex-shrink: 0;
+      margin-left: 12px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 9999px;
+      border: 1px solid #E5E7EB;
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      width: 70px;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .saved-search-result-save-btn span {
+      display: inline-block;
+      width: 12px;
+      text-align: center;
+      line-height: 1;
+    }
+    .saved-search-result-save-btn:hover {
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .saved-search-result-save-btn.saved {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #15803d;
+    }
+    .saved-search-result-save-btn.saved:hover {
+      background: #bbf7d0;
+    }
+    .saved-colleges-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .saved-college-item {
+      padding: 12px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: box-shadow 0.2s;
+    }
+    .saved-college-item:hover {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .saved-college-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .saved-college-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .saved-college-details {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .saved-college-unsave-btn {
+      flex-shrink: 0;
+      margin-left: 12px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 9999px;
+      border: 1px solid #86efac;
+      background: #dcfce7;
+      color: #15803d;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      width: 70px;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .saved-college-unsave-btn:hover {
+      background: #bbf7d0;
+    }
+    .saved-empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: #64748b;
+    }
+    .saved-empty-state-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    .saved-empty-state-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .unsave-all-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #dc2626;
+      background: transparent;
+      border: 1px solid #E5E7EB;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .unsave-all-btn:hover {
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+    }
+    .saved-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 4000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .saved-modal-overlay.active {
+      display: flex;
+    }
+    .saved-modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: calc(100% - 40px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .saved-modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 20px 0;
+    }
+    .saved-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .saved-modal-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #E5E7EB;
+    }
+    .saved-modal-cancel {
+      background: #fff;
+      color: #374151;
+    }
+    .saved-modal-cancel:hover {
+      background: #F9FAFB;
+    }
+    .saved-modal-confirm {
+      background: #dc2626;
+      color: #fff;
+      border-color: #dc2626;
+    }
+    .saved-modal-confirm:hover {
+      background: #b91c1c;
+      border-color: #b91c1c;
+    }
+    @media (max-width: 700px) {
+      .saved-colleges-overlay {
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+      .saved-modal {
+        margin: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -503,6 +1071,73 @@
         <button class="map-tip-bubble-close" aria-label="Dismiss tip" onclick="dismissMapTip()">×</button>
       </div>
     </div>
+    <!-- Saved controls overlay -->
+    <div id="saved-controls" class="saved-controls">
+      <div class="saved-list-section" onclick="openSavedListPanel()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSavedListPanel();}" role="button" tabindex="0">
+        <svg class="saved-icon" width="22" height="22" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#64D85B" d="M128 0C74 0 32 42 32 96C32 166 128 256 128 256C128 256 224 166 224 96C224 42 182 0 128 0Z"/>
+          <path fill="#FFFFFF" d="M128 32L147 86H200L159 118L175 170L128 139L81 170L97 118L56 86H109L128 32Z"/>
+        </svg>
+        <span class="saved-pill"><span class="saved-text">My Saved List</span></span>
+      </div>
+      <div class="saved-controls-divider"></div>
+      <div class="saved-only-section" onclick="toggleSavedOnly()">
+        <div class="saved-toggle" id="saved-toggle">
+          <div class="saved-toggle-track">
+            <div class="saved-toggle-thumb"></div>
+          </div>
+        </div>
+        <span class="saved-text">Map Saved Only</span>
+      </div>
+    </div>
+    <!-- Saved Colleges Overlay -->
+    <div id="saved-colleges-overlay" class="saved-colleges-overlay">
+      <div class="saved-overlay-header">
+        <div class="saved-overlay-title-section">
+          <h2 class="saved-overlay-title">My Saved Colleges</h2>
+        </div>
+        <button class="saved-overlay-close" onclick="closeSavedListPanel()" aria-label="Close saved colleges panel">×</button>
+      </div>
+      <div class="saved-overlay-content">
+        <!-- Search & Add Section -->
+        <div class="saved-overlay-section">
+          <h3 class="saved-section-title">Add a college to my saved list</h3>
+          <div class="saved-search-wrapper">
+            <svg class="saved-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input 
+              type="text" 
+              id="saved-search-input" 
+              class="saved-search-input" 
+              placeholder="Search by college name…"
+              autocomplete="off"
+            />
+            <div id="saved-search-results" class="saved-search-results"></div>
+          </div>
+        </div>
+        <!-- Saved List Section -->
+        <div class="saved-overlay-section">
+          <div class="saved-section-header">
+            <h3 class="saved-section-title" id="saved-overlay-count">0 Colleges Saved</h3>
+            <button id="unsave-all-btn" class="unsave-all-btn" onclick="confirmUnsaveAll()" style="display: none;">Unsave all</button>
+          </div>
+          <div id="saved-colleges-list" class="saved-colleges-list">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Unsave All Confirmation Modal -->
+    <div id="unsave-all-modal" class="saved-modal-overlay">
+      <div class="saved-modal">
+        <h3 class="saved-modal-title">Remove all saved colleges?</h3>
+        <div class="saved-modal-actions">
+          <button class="saved-modal-btn saved-modal-cancel" onclick="closeUnsaveAllModal()">Cancel</button>
+          <button class="saved-modal-btn saved-modal-confirm" onclick="unsaveAllColleges()">Unsave all</button>
+        </div>
+      </div>
+    </div>
   </section>
 <div aria-label="College map powered by OpenStreetMap data" class="sr-only"></div>
 <div class="legend" id="legend">Showing <span id="count">0</span> schools</div>
@@ -561,6 +1196,9 @@ const elements = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize saved search
+  initSavedSearch();
+  
   const ua = navigator.userAgent || '';
   const isIOS =
     /iPad|iPhone|iPod/.test(ua) ||
@@ -663,11 +1301,218 @@ map.on('moveend', () => {
   }
 });
 
+// SavedStore: Manages saved college IDs in localStorage
+const SAVED_STORAGE_KEY = 'uscm_saved_v1';
+const SavedStore = (() => {
+  const STORAGE_KEY = SAVED_STORAGE_KEY;
+  let savedIds = new Set();
+  
+  // Load from localStorage on init
+  function load() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          savedIds = new Set(parsed);
+        } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.saved)) {
+          savedIds = new Set(parsed.saved);
+        }
+      }
+    } catch (err) {
+      console.warn('SavedStore: failed to load saved state', err);
+      savedIds = new Set();
+    }
+  }
+  
+  // Save to localStorage
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(savedIds)));
+    } catch (err) {
+      console.warn('SavedStore: failed to persist state', err);
+    }
+  }
+  
+  // Initialize on load
+  load();
+  
+  return {
+    isSaved(collegeId) {
+      return savedIds.has(collegeId);
+    },
+    toggle(collegeId) {
+      if (!collegeId) return;
+      if (savedIds.has(collegeId)) {
+        savedIds.delete(collegeId);
+      } else {
+        savedIds.add(collegeId);
+      }
+      save();
+    },
+    getAll() {
+      return Array.from(savedIds);
+    }
+  };
+})();
+
 // Active mode state: 'nearby' or 'route'
 let activeMode = 'nearby';
 
 // Track if user has actively used search controls (Locate or Find Route buttons)
 let hasUsedSearchControls = false;
+
+// Marker registry: maps college_id to Leaflet marker instance
+const markersByCollegeId = {};
+
+// Create green saved icon (pin with white star)
+const greenSavedPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 256 256"><path d="M128 0C74 0 32 42 32 96C32 166 128 256 128 256C128 256 224 166 224 96C224 42 182 0 128 0Z" fill="#64D85B"/><path d="M128 32L147 86H200L159 118L175 170L128 139L81 170L97 118L56 86H109L128 32Z" fill="#FFFFFF"/></svg>';
+const greenSavedIcon = L.icon({
+  iconUrl: 'data:image/svg+xml;base64,' + btoa(greenSavedPinSvg),
+  iconSize: [24, 30],
+  iconAnchor: [12, 30],
+  popupAnchor: [0, -30]
+});
+
+// Create blue circle icon for unsaved colleges
+const blueCircleSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2563eb" fill-opacity="0.7" stroke="#2563eb" stroke-width="2"/></svg>';
+const blueDotIcon = L.divIcon({
+  html: blueCircleSvg,
+  className: 'blue-dot-marker',
+  iconSize: [10, 10],
+  iconAnchor: [5, 5]
+});
+
+// Helper function to create a marker with appropriate icon based on saved state
+function createCollegeMarker(college, popupContent, collegeId) {
+  const isSaved = collegeId && SavedStore.isSaved(collegeId);
+  
+  let marker;
+  if (isSaved) {
+    // Use green pin icon for saved colleges
+    marker = L.marker([college.lat, college.lon], {
+      icon: greenSavedIcon
+    });
+  } else {
+    // Use blue circle marker for unsaved colleges (keep existing circleMarker style)
+    marker = L.circleMarker([college.lat, college.lon], {
+      radius: 5,
+      color: '#2563eb',
+      weight: 2,
+      fillOpacity: 0.7
+    });
+  }
+  
+  marker
+    .bindTooltip(college.name, {permanent: false, direction: 'top'})
+    .bindPopup(popupContent);
+  
+  // Register marker in registry
+  if (collegeId) {
+    markersByCollegeId[collegeId] = marker;
+  }
+  
+  return marker;
+}
+
+// Update popup save button visual state
+function updatePopupSaveButton(button, collegeId) {
+  if (!button || !collegeId) return;
+  
+  const icon = button.querySelector('.popup-save-icon');
+  const label = button.querySelector('.popup-save-label');
+  const isSaved = SavedStore.isSaved(collegeId);
+  
+  // Update button class
+  if (isSaved) {
+    button.classList.add('saved');
+  } else {
+    button.classList.remove('saved');
+  }
+  
+  // Update icon and label
+  if (icon) {
+    icon.textContent = isSaved ? '★' : '☆';
+  }
+  if (label) {
+    label.textContent = isSaved ? 'Saved' : 'Save';
+  }
+}
+
+// Handle popup open: update save button state
+map.on('popupopen', (event) => {
+  const popupEl = event.popup && event.popup.getElement ? event.popup.getElement() : null;
+  if (!popupEl) return;
+  
+  const button = popupEl.querySelector('.popup-save-btn');
+  if (!button) return;
+  
+  const collegeId = button.dataset.collegeId || '';
+  if (!collegeId) {
+    button.style.display = 'none';
+    return;
+  }
+  
+  // Update button state based on saved status
+  updatePopupSaveButton(button, collegeId);
+  
+  // Attach click handler if not already attached
+  if (!button.dataset.listenerAttached) {
+    button.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      
+      // Toggle saved state
+      SavedStore.toggle(collegeId);
+      
+      // Immediately update button visual state
+      updatePopupSaveButton(button, collegeId);
+      
+      // Update marker icon
+      const marker = markersByCollegeId[collegeId];
+      if (marker) {
+        const isSaved = SavedStore.isSaved(collegeId);
+        const latlng = marker.getLatLng();
+        const popup = marker.getPopup();
+        const tooltip = marker.getTooltip();
+        const popupContent = popup ? popup.getContent() : '';
+        const tooltipContent = tooltip ? tooltip.getContent() : '';
+        const wasPopupOpen = popup && marker.isPopupOpen();
+        
+        // Remove old marker
+        marker.remove();
+        
+        // Create new marker with appropriate icon
+        let newMarker;
+        if (isSaved) {
+          // Use green pin icon for saved colleges
+          newMarker = L.marker(latlng, {
+            icon: greenSavedIcon
+          });
+        } else {
+          // Use blue circle marker for unsaved colleges
+          newMarker = L.circleMarker(latlng, {
+            radius: 5,
+            color: '#2563eb',
+            weight: 2,
+            fillOpacity: 0.7
+          });
+        }
+        
+        if (popupContent) newMarker.bindPopup(popupContent);
+        if (tooltipContent) newMarker.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
+        newMarker.addTo(markersLayer);
+        markersByCollegeId[collegeId] = newMarker;
+        
+        // Reopen popup if it was open before
+        if (wasPopupOpen) {
+          newMarker.openPopup();
+        }
+      }
+    });
+    button.dataset.listenerAttached = '1';
+  }
+});
 
 // Route state
 let route = {
@@ -1022,6 +1867,14 @@ function addRouteCollegeMarker(college, distanceText, units) {
     const tuition = college.tuition ? (college.tuition.toString().includes('$') ? college.tuition : `$${Number(college.tuition).toLocaleString()}`) : 'N/A';
     const acceptance = college.acceptance ? (college.acceptance.toString().includes('%') ? college.acceptance : `${parseFloat(college.acceptance).toFixed(1)}%`) : 'N/A';
 
+    const saveButtonHtml = college.college_id ? `
+      <div class="popup-save-row">
+        <button type="button" class="popup-save-btn" data-college-id="${college.college_id}">
+          <span class="popup-save-icon" aria-hidden="true">☆</span>
+          <span class="popup-save-label">Save</span>
+        </button>
+      </div>` : '';
+
     const popupContent = `
       <div style="font-size:12px;line-height:1.4">
         <b>${college.name}</b><br>
@@ -1030,17 +1883,11 @@ function addRouteCollegeMarker(college, distanceText, units) {
         Enrollment: ${college.enrollment || 'N/A'}<br>
         Tuition: ${tuition}<br>
         ${college.url ? `<a href="https://${college.url.replace(/^https?:\/\//,'')}" target="_blank">${college.url}</a>` : ''}
+        ${saveButtonHtml}
       </div>`;
 
-    L.circleMarker([college.lat, college.lon], {
-      radius: 5,
-      color: '#2563eb',
-      weight: 2,
-      fillOpacity: 0.7
-    })
-      .bindTooltip(college.name, {permanent: false, direction: 'top'})
-      .bindPopup(popupContent)
-      .addTo(markersLayer);
+    const marker = createCollegeMarker(college, popupContent, college.college_id);
+    marker.addTo(markersLayer);
   } catch (e) {
     console.error(`Error creating marker for ${college.name}:`, e);
   }
@@ -1070,6 +1917,8 @@ function isRouteCacheValid(cache, filters, currentStart, currentEnd) {
 function restoreRouteFromCache(cache, options = {}) {
   if (!cache) return false;
   markersLayer.clearLayers();
+  // Clear marker registry
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
   routeLayer.clearLayers();
 
   L.polyline(cache.routeCoords, {
@@ -1103,13 +1952,20 @@ function restoreRouteFromCache(cache, options = {}) {
   }
 
   const units = cache.filters?.units || 'mi';
-  (cache.colleges || []).forEach(item => {
+  let collegesToRender = cache.colleges || [];
+  
+  // Apply saved-only filter if enabled
+  if (savedOnlyMode) {
+    collegesToRender = collegesToRender.filter(item => SavedStore.isSaved(item.college.college_id));
+  }
+  
+  collegesToRender.forEach(item => {
     addRouteCollegeMarker(item.college, item.distanceText || '', units);
   });
 
-  if (elements.count) elements.count.textContent = (cache.colleges || []).length;
+  if (elements.count) elements.count.textContent = collegesToRender.length;
   updateMapHints(
-    (cache.colleges || []).length,
+    collegesToRender.length,
     cache.filters?.typeVal || '',
     cache.filters?.regionVal || '',
     cache.filters?.stateVal || '',
@@ -1125,6 +1981,141 @@ function restoreRouteFromCache(cache, options = {}) {
   }
   if (elements.loading) elements.loading.classList.remove('active');
   return true;
+}
+
+// Re-filter colleges along route without redrawing the route line
+function refilterCollegesAlongRoute() {
+  if (!route.lastResult || !route.lastResult.routeCoords) {
+    // No cached route, need to fetch it
+    findCollegesAlongRoute();
+    return;
+  }
+  
+  const cache = route.lastResult;
+  const routeCoords = cache.routeCoords;
+  
+  // Skip if this is a fallback route (only 2 points = straight line)
+  // We don't want to process fallback routes when toggling saved-only
+  if (routeCoords.length <= 2) {
+    console.log('Skipping refilter - route is a fallback straight line');
+    return;
+  }
+  const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
+  const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
+  
+  // Sample route points for performance
+  const sampleRate = routeCoords.length > 100 ? 10 : 1;
+  const sampledRoute = [];
+  for (let i = 0; i < routeCoords.length; i += sampleRate) {
+    sampledRoute.push(routeCoords[i]);
+  }
+  if (sampledRoute[sampledRoute.length - 1] !== routeCoords[routeCoords.length - 1]) {
+    sampledRoute.push(routeCoords[routeCoords.length - 1]);
+  }
+  
+  // Filter colleges by distance to route
+  const filtered = colleges.filter(c => {
+    let minDistance = Infinity;
+    for (let i = 0; i < sampledRoute.length - 1; i++) {
+      const segmentStart = sampledRoute[i];
+      const segmentEnd = sampledRoute[i + 1];
+      const dist = distanceToLineSegment(
+        c.lat, c.lon,
+        segmentStart[0], segmentStart[1],
+        segmentEnd[0], segmentEnd[1],
+        units
+      );
+      minDistance = Math.min(minDistance, dist);
+      if (minDistance <= maxDistance) break;
+    }
+    return minDistance <= maxDistance;
+  });
+  
+  // Apply other filters
+  const typeVal = elements.type ? elements.type.value.trim() : '';
+  const regionVal = elements.region ? elements.region.value.trim() : '';
+  const stateVal = elements.state ? elements.state.value.trim() : '';
+  const desktopSearch = elements.search;
+  const mobileSearch = document.getElementById('search-mobile');
+  const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+  
+  let finalFiltered = filtered.filter(c => {
+    if (typeVal && (c.type || c.tier) !== typeVal) return false;
+    if (regionVal) {
+      const regionStates = REGION_MAP[regionVal] || [];
+      if (!regionStates.includes(c.state)) return false;
+    }
+    if (stateVal && c.state !== stateVal) return false;
+    if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+    return true;
+  });
+  
+  // Apply saved-only filter if enabled
+  if (savedOnlyMode) {
+    finalFiltered = finalFiltered.filter(c => SavedStore.isSaved(c.college_id));
+    
+    // Edge case: Show message if no saved colleges match filters
+    if (finalFiltered.length === 0) {
+      const savedCount = SavedStore.getAll().length;
+      if (savedCount === 0) {
+        console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+      } else {
+        console.log("No saved colleges match your current filters or route.");
+      }
+    }
+  }
+  
+  // Clear and render markers only (don't touch routeLayer)
+  markersLayer.clearLayers();
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
+  
+  const routeBounds = L.latLngBounds(routeCoords);
+  finalFiltered.forEach(c => {
+    let distanceText = '';
+    let minRouteDist = Infinity;
+    for (let i = 0; i < sampledRoute.length - 1; i++) {
+      const dist = distanceToLineSegment(
+        c.lat, c.lon,
+        sampledRoute[i][0], sampledRoute[i][1],
+        sampledRoute[i + 1][0], sampledRoute[i + 1][1],
+        units
+      );
+      minRouteDist = Math.min(minRouteDist, dist);
+    }
+    if (minRouteDist < Infinity) {
+      distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
+    }
+    addRouteCollegeMarker(c, distanceText, units);
+    routeBounds.extend([c.lat, c.lon]);
+  });
+  
+  if (elements.count) elements.count.textContent = finalFiltered.length;
+  updateMapHints(finalFiltered.length, typeVal, regionVal, stateVal, searchVal);
+  
+  // Update cache with new filtered colleges
+  const cachedColleges = finalFiltered.map(c => {
+    let distanceText = '';
+    let minRouteDist = Infinity;
+    for (let i = 0; i < sampledRoute.length - 1; i++) {
+      const dist = distanceToLineSegment(
+        c.lat, c.lon,
+        sampledRoute[i][0], sampledRoute[i][1],
+        sampledRoute[i + 1][0], sampledRoute[i + 1][1],
+        units
+      );
+      minRouteDist = Math.min(minRouteDist, dist);
+    }
+    if (minRouteDist < Infinity) {
+      distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
+    }
+    return { college: c, distanceText };
+  });
+  
+  route.lastResult.colleges = cachedColleges;
+  route.lastResult.filters = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+  if (routeBounds.isValid()) {
+    route.lastResult.bounds = routeBounds;
+  }
 }
 
 /**
@@ -1148,6 +2139,8 @@ function render(){
       // Clear route visualization
       routeLayer.clearLayers();
   markersLayer.clearLayers();
+  // Clear marker registry
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
       
       // Apply filters from dropdowns
       const stateVal = elements.state ? elements.state.value : '';
@@ -1174,6 +2167,24 @@ function render(){
         return true;
       });
       
+      // Apply saved-only filter if enabled
+      if (savedOnlyMode) {
+        const beforeCount = filtered.length;
+        filtered = filtered.filter(c => SavedStore.isSaved(c.college_id));
+        
+        // Edge case: Show message if no saved colleges match filters
+        if (filtered.length === 0) {
+          const savedCount = SavedStore.getAll().length;
+          if (savedCount === 0) {
+            // No saved colleges at all
+            console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+          } else {
+            // Saved colleges exist but don't match current filters
+            console.log("No saved colleges match your current filters or route.");
+          }
+        }
+      }
+      
       // Render filtered colleges
       filtered.forEach(c => {
         try {
@@ -1194,10 +2205,8 @@ function render(){
         ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
       </div>`;
 
-          L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
-            .bindTooltip(c.name, {permanent: false, direction: 'top'})
-      .bindPopup(popupContent)
-      .addTo(markersLayer);
+          const marker = createCollegeMarker(c, popupContent, c.college_id);
+          marker.addTo(markersLayer);
         } catch (e) {
           console.error(`Error creating marker for ${c.name}:`, e);
         }
@@ -1222,6 +2231,8 @@ function render(){
   }
   
   markersLayer.clearLayers();
+  // Clear marker registry
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
   radiusLayer.clearLayers();
   
   const stateVal = elements.state ? elements.state.value : '';
@@ -1269,6 +2280,24 @@ function render(){
     
     return true;
   });
+  
+  // Apply saved-only filter if enabled
+  if (savedOnlyMode) {
+    const beforeCount = filtered.length;
+    filtered = filtered.filter(c => SavedStore.isSaved(c.college_id));
+    
+    // Edge case: Show message if no saved colleges match filters
+    if (filtered.length === 0) {
+      const savedCount = SavedStore.getAll().length;
+      if (savedCount === 0) {
+        // No saved colleges at all
+        console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+      } else {
+        // Saved colleges exist but don't match current filters
+        console.log("No saved colleges match your current filters or route.");
+      }
+    }
+  }
 
   // Draw radius circle if home and radius are set
   if (home && radiusVal > 0) {
@@ -1304,6 +2333,14 @@ function render(){
         distanceText = `<br>Distance: ${distance.toFixed(1)} ${unitsVal}`;
       }
       
+    const saveButtonHtml = c.college_id ? `
+      <div class="popup-save-row">
+        <button type="button" class="popup-save-btn" data-college-id="${c.college_id}">
+          <span class="popup-save-icon" aria-hidden="true">☆</span>
+          <span class="popup-save-label">Save</span>
+        </button>
+      </div>` : '';
+
     const popupContent = `
       <div style="font-size:12px;line-height:1.4">
         <b>${c.name}</b><br>
@@ -1312,12 +2349,11 @@ function render(){
         Enrollment: ${c.enrollment || 'N/A'}<br>
         Tuition: ${tuition}<br>
         ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+        ${saveButtonHtml}
       </div>`;
 
-    const marker = L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
-      .bindTooltip(c.name, {permanent: false, direction: 'top'})
-      .bindPopup(popupContent)
-      .addTo(markersLayer);
+    const marker = createCollegeMarker(c, popupContent, c.college_id);
+    marker.addTo(markersLayer);
     if (nearbyBounds) {
       nearbyBounds.extend(marker.getLatLng());
     }
@@ -1468,7 +2504,356 @@ function dismissMapTip() {
   if (tipBubble) tipBubble.classList.remove('active');
 }
 
+// Saved controls functions
+let savedSearchTimeout = null;
+let savedSearchResults = [];
 
+function openSavedListPanel() {
+  const overlay = document.getElementById('saved-colleges-overlay');
+  if (overlay) {
+    overlay.classList.add('active');
+    updateSavedOverlay();
+    // Focus search input
+    const searchInput = document.getElementById('saved-search-input');
+    if (searchInput) {
+      setTimeout(() => searchInput.focus(), 100);
+    }
+  }
+}
+
+function closeSavedListPanel() {
+  const overlay = document.getElementById('saved-colleges-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    // Clear search
+    const searchInput = document.getElementById('saved-search-input');
+    const searchResults = document.getElementById('saved-search-results');
+    if (searchInput) searchInput.value = '';
+    if (searchResults) {
+      searchResults.classList.remove('active');
+      searchResults.innerHTML = '';
+    }
+  }
+}
+
+function updateSavedOverlay() {
+  const savedIds = SavedStore.getAll();
+  const countEl = document.getElementById('saved-overlay-count');
+  const listEl = document.getElementById('saved-colleges-list');
+  const unsaveAllBtn = document.getElementById('unsave-all-btn');
+  
+  if (countEl) {
+    countEl.textContent = `${savedIds.length} Colleges Saved`;
+  }
+  
+  if (unsaveAllBtn) {
+    unsaveAllBtn.style.display = savedIds.length > 0 ? 'block' : 'none';
+  }
+  
+  if (listEl) {
+    if (savedIds.length === 0) {
+      listEl.innerHTML = `
+        <div class="saved-empty-state">
+          <div class="saved-empty-state-title">You haven't saved any colleges yet.</div>
+          <div class="saved-empty-state-text">Tap a college on the map or use search above to start a list.</div>
+        </div>
+      `;
+    } else {
+      listEl.innerHTML = savedIds.map(collegeId => {
+        const college = collegesById[collegeId];
+        if (!college) return '';
+        const typeDisplay = college.type || 'Unknown';
+        return `
+          <div class="saved-college-item" data-college-id="${collegeId}">
+            <div class="saved-college-info">
+              <div class="saved-college-name">${escapeHtml(college.name)}</div>
+              <div class="saved-college-details">${college.state} · ${escapeHtml(typeDisplay)}</div>
+            </div>
+            <button class="saved-college-unsave-btn" onclick="unsaveCollegeFromOverlay('${collegeId}')">
+              <span style="color: #16a34a;">★</span> Saved
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Search functionality
+function initSavedSearch() {
+  const searchInput = document.getElementById('saved-search-input');
+  if (!searchInput) return;
+  
+  searchInput.addEventListener('input', (e) => {
+    const query = (e.target.value || '').trim().toLowerCase();
+    const resultsEl = document.getElementById('saved-search-results');
+    
+    if (!resultsEl) return;
+    
+    // Clear previous timeout
+    if (savedSearchTimeout) {
+      clearTimeout(savedSearchTimeout);
+    }
+    
+    if (query.length < 2) {
+      resultsEl.classList.remove('active');
+      resultsEl.innerHTML = '';
+      return;
+    }
+    
+    // Debounce search
+    savedSearchTimeout = setTimeout(() => {
+      const queryLower = query.toLowerCase();
+      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 0);
+      
+      // Score and filter colleges
+      const scored = colleges.map(college => {
+        if (!college.name) return null;
+        const nameLower = college.name.toLowerCase();
+        
+        // Perfect match (exact)
+        if (nameLower === queryLower) {
+          return { college, score: 1000, matchType: 'exact' };
+        }
+        
+        // Starts with query
+        if (nameLower.startsWith(queryLower)) {
+          return { college, score: 500, matchType: 'starts' };
+        }
+        
+        // Contains query as substring
+        if (nameLower.includes(queryLower)) {
+          return { college, score: 300, matchType: 'contains' };
+        }
+        
+        // Word-based matching
+        const nameWords = nameLower.split(/\s+/);
+        let wordMatches = 0;
+        let allWordsMatch = true;
+        
+        for (const queryWord of queryWords) {
+          let wordMatched = false;
+          for (const nameWord of nameWords) {
+            if (nameWord.startsWith(queryWord)) {
+              wordMatches += 2; // Word starts with query word
+              wordMatched = true;
+              break;
+            } else if (nameWord.includes(queryWord)) {
+              wordMatches += 1; // Word contains query word
+              wordMatched = true;
+              break;
+            }
+          }
+          if (!wordMatched) {
+            allWordsMatch = false;
+          }
+        }
+        
+        if (wordMatches > 0) {
+          const score = allWordsMatch ? 200 + wordMatches : 100 + wordMatches;
+          return { college, score, matchType: 'words' };
+        }
+        
+        return null;
+      }).filter(item => item !== null);
+      
+      // Sort by score (highest first), then alphabetically
+      scored.sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return a.college.name.localeCompare(b.college.name);
+      });
+      
+      const matches = scored.slice(0, 10).map(item => item.college);
+      
+      if (matches.length === 0) {
+        resultsEl.classList.remove('active');
+        resultsEl.innerHTML = '';
+        return;
+      }
+      
+      resultsEl.innerHTML = matches.map(college => {
+        const isSaved = SavedStore.isSaved(college.college_id);
+        const typeDisplay = college.type || 'Unknown';
+        const collegeIdEscaped = escapeHtml(college.college_id);
+        return `
+          <div class="saved-search-result-item" data-college-id="${collegeIdEscaped}">
+            <div class="saved-search-result-info">
+              <div class="saved-search-result-name">${escapeHtml(college.name)}</div>
+              <div class="saved-search-result-details">${college.state} · ${escapeHtml(typeDisplay)}</div>
+            </div>
+            <button class="saved-search-result-save-btn ${isSaved ? 'saved' : ''}" 
+                    data-college-id="${collegeIdEscaped}"
+                    onclick="saveCollegeFromSearch('${collegeIdEscaped.replace(/'/g, "\\'")}')">
+              <span style="color: ${isSaved ? '#16a34a' : '#64748b'}; display: inline-block; width: 12px; text-align: center; line-height: 1;">${isSaved ? '★' : '☆'}</span>
+              ${isSaved ? 'Saved' : 'Save'}
+            </button>
+          </div>
+        `;
+      }).join('');
+      
+      resultsEl.classList.add('active');
+      resultsEl.scrollTop = 0; // Reset scroll to top
+      savedSearchResults = matches;
+    }, 200);
+  });
+  
+  // Close results when clicking outside
+  document.addEventListener('click', (e) => {
+    const searchInput = document.getElementById('saved-search-input');
+    if (!searchInput) return;
+    const searchWrapper = searchInput.closest('.saved-search-wrapper');
+    if (searchWrapper && !searchWrapper.contains(e.target)) {
+      const resultsEl = document.getElementById('saved-search-results');
+      if (resultsEl) {
+        resultsEl.classList.remove('active');
+      }
+    }
+  });
+}
+
+function saveCollegeFromSearch(collegeId) {
+  if (!collegeId) return;
+  
+  SavedStore.toggle(collegeId);
+  updateMarkerIcon(collegeId);
+  updateSavedOverlay();
+  
+  // Update search result button using data attribute
+  const resultsEl = document.getElementById('saved-search-results');
+  if (resultsEl) {
+    const btn = resultsEl.querySelector(`button[data-college-id="${collegeId}"]`);
+    if (btn) {
+      const isSaved = SavedStore.isSaved(collegeId);
+      if (isSaved) {
+        btn.classList.add('saved');
+      } else {
+        btn.classList.remove('saved');
+      }
+      btn.innerHTML = `
+        <span style="color: ${isSaved ? '#16a34a' : '#64748b'}; display: inline-block; width: 12px; text-align: center; line-height: 1;">${isSaved ? '★' : '☆'}</span>
+        ${isSaved ? 'Saved' : 'Save'}
+      `;
+    }
+  }
+  
+  // Re-render if saved-only mode is on
+  if (savedOnlyMode) {
+    if (activeMode === 'route' && route.lastSearch) {
+      refilterCollegesAlongRoute();
+    } else {
+      render();
+    }
+  }
+}
+
+function unsaveCollegeFromOverlay(collegeId) {
+  if (!collegeId) return;
+  
+  SavedStore.toggle(collegeId);
+  updateMarkerIcon(collegeId);
+  updateSavedOverlay();
+  
+  // Re-render if saved-only mode is on
+  if (savedOnlyMode) {
+    if (activeMode === 'route' && route.lastSearch) {
+      refilterCollegesAlongRoute();
+    } else {
+      render();
+    }
+  }
+}
+
+function updateMarkerIcon(collegeId) {
+  const marker = markersByCollegeId[collegeId];
+  if (!marker) return;
+  
+  const isSaved = SavedStore.isSaved(collegeId);
+  const latlng = marker.getLatLng();
+  const popup = marker.getPopup();
+  const tooltip = marker.getTooltip();
+  const popupContent = popup ? popup.getContent() : '';
+  const tooltipContent = tooltip ? tooltip.getContent() : '';
+  const wasPopupOpen = popup && marker.isPopupOpen();
+  
+  marker.remove();
+  
+  let newMarker;
+  if (isSaved) {
+    newMarker = L.marker(latlng, { icon: greenSavedIcon });
+  } else {
+    newMarker = L.circleMarker(latlng, { radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7 });
+  }
+  
+  if (popupContent) newMarker.bindPopup(popupContent);
+  if (tooltipContent) newMarker.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
+  newMarker.addTo(markersLayer);
+  markersByCollegeId[collegeId] = newMarker;
+  
+  if (wasPopupOpen) {
+    newMarker.openPopup();
+  }
+}
+
+function confirmUnsaveAll() {
+  const modal = document.getElementById('unsave-all-modal');
+  if (modal) {
+    modal.classList.add('active');
+  }
+}
+
+function closeUnsaveAllModal() {
+  const modal = document.getElementById('unsave-all-modal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+function unsaveAllColleges() {
+  const savedIds = SavedStore.getAll();
+  
+  savedIds.forEach(collegeId => {
+    SavedStore.toggle(collegeId);
+    updateMarkerIcon(collegeId);
+  });
+  
+  closeUnsaveAllModal();
+  updateSavedOverlay();
+  
+  // Re-render if saved-only mode is on
+  if (savedOnlyMode) {
+    if (activeMode === 'route' && route.lastSearch) {
+      refilterCollegesAlongRoute();
+    } else {
+      render();
+    }
+  }
+}
+
+let savedOnlyMode = false;
+function toggleSavedOnly() {
+  savedOnlyMode = !savedOnlyMode;
+  const savedControls = document.getElementById("saved-controls");
+  if (savedControls) {
+    savedControls.classList.toggle("saved-only-active", savedOnlyMode);
+  }
+  console.log("Saved Only:", savedOnlyMode);
+  
+  // Re-render map with saved-only filter
+  if (activeMode === 'route' && route.lastSearch) {
+    // Use cached route data to avoid redrawing the route line
+    refilterCollegesAlongRoute();
+  } else {
+    render();
+  }
+}
 
 function isLocalStorageAvailable() {
   try {
@@ -1589,8 +2974,12 @@ function loadCSV(url){
  * 
  * All other CSV columns can be removed to reduce payload size.
  */
+// Lookup object: college_id -> college object
+let collegesById = {};
+
 function processCollegesData(data) {
   colleges = data.filter(r => r.name && r.lat && r.lon).map(r => ({
+    college_id: r.college_id || '',
     name: r.name,
     lat: +r.lat,
     lon: +r.lon,
@@ -1603,6 +2992,14 @@ function processCollegesData(data) {
     tuition: r.tuition || '',
     url: r.url || ''
   }));
+  
+  // Build collegesById lookup
+  collegesById = {};
+  colleges.forEach(c => {
+    if (c.college_id) {
+      collegesById[c.college_id] = c;
+    }
+  });
   
   console.log(`Loaded ${colleges.length} colleges`);
   
@@ -2477,8 +3874,28 @@ function findCollegesAlongRoute() {
         return true;
       });
       
+      // Apply saved-only filter if enabled
+      if (savedOnlyMode) {
+        const beforeCount = finalFiltered.length;
+        finalFiltered = finalFiltered.filter(c => SavedStore.isSaved(c.college_id));
+        
+        // Edge case: Show message if no saved colleges match filters
+        if (finalFiltered.length === 0) {
+          const savedCount = SavedStore.getAll().length;
+          if (savedCount === 0) {
+            // No saved colleges at all
+            console.log("You haven't saved any colleges yet. Tap a college and hit 'Save' to see it here.");
+          } else {
+            // Saved colleges exist but don't match current filters or route
+            console.log("No saved colleges match your current filters or route.");
+          }
+        }
+      }
+      
       // Clear and render markers (using same style as nearby mode - blue circle dots)
       markersLayer.clearLayers();
+  // Clear marker registry
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
       finalFiltered.forEach(c => {
         let distanceText = '';
         let minRouteDist = Infinity;
@@ -2580,6 +3997,8 @@ function findCollegesAlongRoute() {
       
       // Clear and render markers (using same style as nearby mode)
       markersLayer.clearLayers();
+  // Clear marker registry
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
       const cachedColleges = [];
       const fallbackCollegeBounds = L.latLngBounds(fallbackRouteCoords);
       finalFiltered.forEach(c => {
@@ -2849,6 +4268,8 @@ if (elements.clearRoute) {
       routeLayer.clearLayers();
       // Show all colleges filtered by type, region, state, and search
       markersLayer.clearLayers();
+  // Clear marker registry
+  Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
       
       // Apply filters from dropdowns
       const stateVal = elements.state ? elements.state.value : '';
@@ -2885,6 +4306,14 @@ if (elements.clearRoute) {
           const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
           const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
           
+          const saveButtonHtml = c.college_id ? `
+            <div class="popup-save-row">
+              <button type="button" class="popup-save-btn" data-college-id="${c.college_id}">
+                <span class="popup-save-icon" aria-hidden="true">☆</span>
+                <span class="popup-save-label">Save</span>
+              </button>
+            </div>` : '';
+
           const popupContent = `
             <div style="font-size:12px;line-height:1.4">
               <b>${c.name}</b><br>
@@ -2893,12 +4322,11 @@ if (elements.clearRoute) {
               Enrollment: ${c.enrollment || 'N/A'}<br>
               Tuition: ${tuition}<br>
               ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+              ${saveButtonHtml}
             </div>`;
           
-          L.circleMarker([c.lat, c.lon], {radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7})
-            .bindTooltip(c.name, {permanent: false, direction: 'top'})
-            .bindPopup(popupContent)
-            .addTo(markersLayer);
+          const marker = createCollegeMarker(c, popupContent, c.college_id);
+          marker.addTo(markersLayer);
         } catch (e) {
           console.error(`Error creating marker for ${c.name}:`, e);
         }
