@@ -1078,7 +1078,7 @@
       <summary>Find Colleges Nearby</summary>
       <div class="filter-section-content">
         <div class="row row-nearby">
-          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="new-password" name="search-address" readonly data-autofill-guard="true" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="geocodeBtn">Locate</button><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
 </div>
 </div>
@@ -1269,8 +1269,15 @@ function guardIOSAutofill(input) {
   if (originalInputMode) {
     input.dataset.originalInputMode = originalInputMode;
   }
-  input.setAttribute('inputmode', 'none');
+  // Set readonly and inputmode immediately to prevent autofill
   input.setAttribute('readonly', 'readonly');
+  input.setAttribute('inputmode', 'none');
+  // Use autocomplete values that iOS respects better
+  if (!input.getAttribute('autocomplete') || input.getAttribute('autocomplete') === 'off') {
+    input.setAttribute('autocomplete', 'new-password');
+  }
+  input.setAttribute('data-lpignore', 'true'); // LastPass ignore
+  input.setAttribute('data-form-type', 'other'); // Prevent form autofill
   input.dataset.iosGuardState = 'pending';
   
   const releaseGuard = (event) => {
@@ -1281,28 +1288,31 @@ function guardIOSAutofill(input) {
     if (event && typeof event.preventDefault === 'function') {
       event.preventDefault();
     }
+    // Remove readonly immediately and synchronously
     input.removeAttribute('readonly');
-    const restoredMode = input.dataset.originalInputMode;
-    if (restoredMode) {
-      input.setAttribute('inputmode', restoredMode);
-    } else {
-      input.removeAttribute('inputmode');
-    }
-    requestAnimationFrame(() => {
-      if (document.activeElement !== input) {
-        input.focus({ preventScroll: true });
-      }
-      const len = input.value.length;
-      if (typeof input.setSelectionRange === 'function') {
-        input.setSelectionRange(len, len);
-      }
-    });
+    const restoredMode = input.dataset.originalInputMode || 'search';
+    input.setAttribute('inputmode', restoredMode);
+    // Force a reflow to ensure readonly is removed
+    void input.offsetHeight;
+    // Small delay to ensure readonly is fully removed before focusing
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        if (document.activeElement !== input) {
+          input.focus({ preventScroll: true });
+        }
+        const len = input.value.length;
+        if (typeof input.setSelectionRange === 'function') {
+          input.setSelectionRange(len, len);
+        }
+      });
+    }, 20);
   };
   
   const touchUnlock = (event) => {
     input.removeEventListener('touchstart', touchUnlock);
     input.removeEventListener('pointerdown', pointerUnlock);
     input.removeEventListener('focus', focusUnlock);
+    input.removeEventListener('click', clickUnlock);
     releaseGuard(event);
   };
   
@@ -1313,6 +1323,7 @@ function guardIOSAutofill(input) {
     input.removeEventListener('touchstart', touchUnlock);
     input.removeEventListener('pointerdown', pointerUnlock);
     input.removeEventListener('focus', focusUnlock);
+    input.removeEventListener('click', clickUnlock);
     releaseGuard(event);
   };
   
@@ -1320,25 +1331,58 @@ function guardIOSAutofill(input) {
     input.removeEventListener('touchstart', touchUnlock);
     input.removeEventListener('pointerdown', pointerUnlock);
     input.removeEventListener('focus', focusUnlock);
+    input.removeEventListener('click', clickUnlock);
     releaseGuard();
+  };
+  
+  const clickUnlock = (event) => {
+    input.removeEventListener('touchstart', touchUnlock);
+    input.removeEventListener('pointerdown', pointerUnlock);
+    input.removeEventListener('focus', focusUnlock);
+    input.removeEventListener('click', clickUnlock);
+    releaseGuard(event);
   };
   
   input.addEventListener('touchstart', touchUnlock, { once: true, passive: false });
   input.addEventListener('pointerdown', pointerUnlock, { once: true });
   input.addEventListener('focus', focusUnlock, { once: true });
+  input.addEventListener('click', clickUnlock, { once: true });
+}
+
+// Apply autofill guard immediately if elements exist, or wait for DOMContentLoaded
+function applyAutofillGuards() {
+  const ua = navigator.userAgent || '';
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  
+  if (isIOS) {
+    document.documentElement.classList.add('ios-device');
+  }
+  
+  // Apply guards to all address inputs on all devices to prevent autofill
+  const inputsToGuard = [elements.address, elements.routeStart, elements.routeEnd].filter(Boolean);
+  inputsToGuard.forEach(guardIOSAutofill);
+}
+
+// Try to apply guards immediately if elements are available
+if (elements.address || elements.routeStart || elements.routeEnd) {
+  applyAutofillGuards();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize saved search
   initSavedSearch();
   
+  // Apply autofill guards again in case elements weren't ready before
+  applyAutofillGuards();
+  
   const ua = navigator.userAgent || '';
   const isIOS =
     /iPad|iPhone|iPod/.test(ua) ||
     (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  
   if (isIOS) {
-    document.documentElement.classList.add('ios-device');
-    [elements.address, elements.routeStart, elements.routeEnd].forEach(guardIOSAutofill);
     const isSmallScreen = window.innerWidth <= 768;
     if (isSmallScreen && elements.type) {
       const defaultTypeOption = elements.type.querySelector('option[value=""]');
