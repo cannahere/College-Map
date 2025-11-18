@@ -893,10 +893,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: box-shadow 0.2s;
+      transition: box-shadow 0.2s, opacity 0.25s ease, transform 0.25s ease, max-height 0.25s ease, margin 0.25s ease, padding 0.25s ease;
+      max-height: 200px;
     }
     .saved-college-item:hover {
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .saved-college-item.removing {
+      opacity: 0;
+      transform: translateX(12px);
+      max-height: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-top: 0;
+      padding-bottom: 0;
     }
     .saved-college-info {
       flex: 1;
@@ -2645,7 +2655,7 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
   }
   
   // Priority 2: Too Many Colleges hint (only if No Results is not showing)
-  if (visibleCount > 30 && !typeVal && tooManyViews < HINT_MAX_VIEWS) {
+  if (visibleCount > 30 && !typeVal && tooManyViews < 1) {
     if (hintTooMany.dataset.active !== 'true') {
       incrementHintViewCount('tooMany');
     }
@@ -2710,7 +2720,8 @@ function getHintViewCount(type) {
 function incrementHintViewCount(type) {
   const key = getHintStorageKey(type);
   const current = getHintViewCount(type);
-  sessionStorage.setItem(key, String(Math.min(HINT_MAX_VIEWS, current + 1)));
+  const maxViews = type === 'tooMany' ? 1 : HINT_MAX_VIEWS;
+  sessionStorage.setItem(key, String(Math.min(maxViews, current + 1)));
 }
 
 function startHintAutoHide(type) {
@@ -3115,20 +3126,41 @@ function saveCollegeFromSearch(collegeId) {
   }
 }
 
+function getSavedOverlayItem(collegeId) {
+  if (!collegeId) return null;
+  const selector = '.saved-college-item[data-college-id="%s"]';
+  if (window.CSS && CSS.escape) {
+    return document.querySelector(selector.replace('%s', CSS.escape(collegeId)));
+  }
+  return document.querySelector(selector.replace('%s', collegeId.replace(/"/g, '\\"')));
+}
+
 function unsaveCollegeFromOverlay(collegeId) {
   if (!collegeId) return;
   
-  SavedStore.toggle(collegeId);
-  updateMarkerIcon(collegeId);
-  updateSavedOverlay();
+  const listItem = getSavedOverlayItem(collegeId);
+  if (listItem) {
+    listItem.classList.add('removing');
+  }
   
-  // Re-render if saved-only mode is on
-  if (savedOnlyMode) {
-    if (activeMode === 'route' && route.lastSearch) {
-      refilterCollegesAlongRoute();
-    } else {
-      render();
+  const finalize = () => {
+    SavedStore.toggle(collegeId);
+    updateMarkerIcon(collegeId);
+    updateSavedOverlay();
+    
+    if (savedOnlyMode) {
+      if (activeMode === 'route' && route.lastSearch) {
+        refilterCollegesAlongRoute();
+      } else {
+        render();
+      }
     }
+  };
+  
+  if (listItem) {
+    setTimeout(finalize, 260);
+  } else {
+    finalize();
   }
 }
 
