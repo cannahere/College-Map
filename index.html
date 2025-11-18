@@ -154,7 +154,7 @@
       .row-search{display:none !important}
       .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
       .row-filters{flex:1 1 100%;margin-bottom:3px}
-      .row-filters .pill:not(.pill-search){flex:0 1 180px}
+      .row-filters .pill{flex:0 1 180px}
       .row-filters .pill-search{flex:1 1 auto;min-width:200px}
       .row-filters .pill-search input{font-size:14px}
       .row-nearby{display:flex;flex-direction:row;gap:8px;flex-wrap:nowrap;margin-bottom:0;align-items:center}
@@ -1069,6 +1069,15 @@
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noResults')">×</button>
       </div>
       <div class="map-hint-bubble-body">Your current filters may be too narrow, or none of your saved colleges fall within this location or route.</div>
+    </div>
+    <!-- No saved colleges notice - appears when Saved Only is toggled on with zero saved colleges -->
+    <div class="map-hint-bubble" id="hint-no-saved-colleges" role="alert">
+      <div class="map-hint-bubble-header">
+        <span class="map-hint-bubble-icon">📌</span>
+        <div class="map-hint-bubble-title">No saved colleges yet.</div>
+        <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noSavedColleges')">×</button>
+      </div>
+      <div class="map-hint-bubble-body">Go to "My Saved List" or tap a college on the map and press "Save" to add a school.</div>
     </div>
     <!-- Helper tip bubble - appears once per session -->
     <div class="map-tip-bubble" id="map-tip-bubble" role="alert">
@@ -2478,6 +2487,23 @@ function dismissMapHint(type) {
     sessionStorage.setItem('ucm_seenNoResults', '1');
     const hint = document.getElementById('hint-no-colleges');
     if (hint) hint.classList.remove('active');
+  } else if (type === 'noSavedColleges') {
+    const hint = document.getElementById('hint-no-saved-colleges');
+    if (hint) hint.classList.remove('active');
+    // Automatically turn off Saved Only toggle and restore previous state
+    if (savedOnlyMode) {
+      savedOnlyMode = false;
+      const savedControls = document.getElementById("saved-controls");
+      if (savedControls) {
+        savedControls.classList.remove("saved-only-active");
+      }
+      // Re-render map without saved-only filter
+      if (activeMode === 'route' && route.lastSearch) {
+        refilterCollegesAlongRoute();
+      } else {
+        render();
+      }
+    }
   }
 }
 
@@ -2852,6 +2878,46 @@ function toggleSavedOnly() {
     savedControls.classList.toggle("saved-only-active", savedOnlyMode);
   }
   console.log("Saved Only:", savedOnlyMode);
+  
+  // Check if Saved Only is turned ON and there are no saved colleges
+  if (savedOnlyMode) {
+    const savedIds = SavedStore.getAll();
+    if (savedIds.length === 0) {
+      // Show notice that there are no saved colleges yet
+      const hint = document.getElementById('hint-no-saved-colleges');
+      if (hint) {
+        hint.classList.add('active');
+        // Auto-dismiss after 8 seconds and turn off toggle
+        setTimeout(() => {
+          if (hint) {
+            hint.classList.remove('active');
+            // Automatically turn off Saved Only toggle and restore previous state
+            if (savedOnlyMode) {
+              savedOnlyMode = false;
+              const savedControls = document.getElementById("saved-controls");
+              if (savedControls) {
+                savedControls.classList.remove("saved-only-active");
+              }
+              // Re-render map without saved-only filter
+              if (activeMode === 'route' && route.lastSearch) {
+                refilterCollegesAlongRoute();
+              } else {
+                render();
+              }
+            }
+          }
+        }, 8000);
+      }
+    } else {
+      // Hide the notice if it was showing
+      const hint = document.getElementById('hint-no-saved-colleges');
+      if (hint) hint.classList.remove('active');
+    }
+  } else {
+    // Hide the notice when Saved Only is turned OFF
+    const hint = document.getElementById('hint-no-saved-colleges');
+    if (hint) hint.classList.remove('active');
+  }
   
   // Re-render map with saved-only filter
   if (activeMode === 'route' && route.lastSearch) {
