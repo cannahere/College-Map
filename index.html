@@ -1606,6 +1606,10 @@ const homeLayer = L.layerGroup().addTo(map);
 const radiusLayer = L.layerGroup().addTo(map);
 const routeLayer = L.layerGroup().addTo(map);
 
+// Store references to route polylines for dynamic styling
+let routeOutlinePolyline = null; // Navy outline
+let routeMainPolyline = null; // Royal blue main line
+
 // Device detection for dynamic marker sizing
 function detectDeviceType() {
   const width = window.innerWidth;
@@ -1660,6 +1664,55 @@ function calculateMarkerRadius(zoom, deviceType) {
   }
   
   return 5; // Fallback to desktop size
+}
+
+// Calculate route line weights and opacity based on zoom level
+// Low zoom: thinner (2-3), Medium: default (4), High: slightly thicker (4-5)
+// Opacity: lighter at low zoom, stronger at high zoom
+function calculateRouteLineWeights(zoom) {
+  let mainOpacity, outlineOpacity;
+  
+  // Opacity mapping: lighter at low zoom, stronger at high zoom
+  if (zoom <= 5) {
+    mainOpacity = 0.6;
+    outlineOpacity = 0.7; // Slightly higher for ribbon effect
+  } else if (zoom <= 7) {
+    mainOpacity = 0.75;
+    outlineOpacity = 0.85; // Slightly higher for ribbon effect
+  } else if (zoom <= 10) {
+    mainOpacity = 0.9;
+    outlineOpacity = 0.95; // Slightly higher for ribbon effect
+  } else {
+    mainOpacity = 1.0;
+    outlineOpacity = 1.0; // Full opacity at high zoom
+  }
+  
+  // Weight mapping: thinner at low zoom, thicker at high zoom
+  if (zoom <= 5) {
+    // Low zoom (far out): thinner and lighter
+    return {
+      outlineWeight: 3,
+      mainWeight: 2,
+      outlineOpacity: outlineOpacity,
+      mainOpacity: mainOpacity
+    };
+  } else if (zoom <= 9) {
+    // Medium zoom (normal trip-planning view): default
+    return {
+      outlineWeight: 5,
+      mainWeight: 4,
+      outlineOpacity: outlineOpacity,
+      mainOpacity: mainOpacity
+    };
+  } else {
+    // High zoom (zoomed in close): slightly thicker but subtle
+    return {
+      outlineWeight: 6,
+      mainWeight: 5,
+      outlineOpacity: outlineOpacity,
+      mainOpacity: mainOpacity
+    };
+  }
 }
 
 // Get current marker radius based on current zoom and device
@@ -1749,7 +1802,22 @@ map.on('moveend', () => {
 // Update marker sizes dynamically on zoom for touch devices (performance optimization)
 map.on('zoomend', () => {
   const deviceType = detectDeviceType();
-  // Only update on touch devices (mobile/tablet), desktop always uses radius 5 and icon size 24x30
+  const zoom = map ? map.getZoom() : 5;
+  
+  // Update route line weights based on zoom (all devices)
+  if (routeOutlinePolyline && routeMainPolyline) {
+    const routeWeights = calculateRouteLineWeights(zoom);
+    routeOutlinePolyline.setStyle({
+      weight: routeWeights.outlineWeight,
+      opacity: routeWeights.outlineOpacity
+    });
+    routeMainPolyline.setStyle({
+      weight: routeWeights.mainWeight,
+      opacity: routeWeights.mainOpacity
+    });
+  }
+  
+  // Only update marker sizes on touch devices (mobile/tablet), desktop always uses radius 5 and icon size 24x30
   if (deviceType === 'desktop') return;
   
   const newRadius = getCurrentMarkerRadius();
@@ -1943,7 +2011,10 @@ function updatePopupSaveButton(button, collegeId) {
   }
 }
 
-// Handle popup open: update save button state
+// Track tooltip states to restore them when popup closes
+const tooltipStates = new WeakMap();
+
+// Handle popup open: disable all tooltips and update save button state
 map.on('popupopen', (event) => {
   const popupEl = event.popup && event.popup.getElement ? event.popup.getElement() : null;
   if (!popupEl) return;
@@ -1951,6 +2022,18 @@ map.on('popupopen', (event) => {
   if (sourceMarker && sourceMarker.closeTooltip) {
     sourceMarker.closeTooltip();
   }
+  
+  // Disable tooltips on all markers when popup is open
+  markersLayer.eachLayer((layer) => {
+    if (layer.getTooltip && layer.getTooltip()) {
+      const tooltip = layer.getTooltip();
+      const tooltipContent = tooltip.getContent();
+      // Store tooltip content to restore later
+      tooltipStates.set(layer, tooltipContent);
+      // Unbind tooltip to prevent it from showing on hover
+      layer.unbindTooltip();
+    }
+  });
   
   const button = popupEl.querySelector('.popup-save-btn');
   if (!button) return;
@@ -2026,6 +2109,19 @@ map.on('popupopen', (event) => {
     });
     button.dataset.listenerAttached = '1';
   }
+});
+
+// Handle popup close: re-enable tooltips on all markers
+map.on('popupclose', () => {
+  // Re-enable tooltips on all markers when popup closes
+  markersLayer.eachLayer((layer) => {
+    const tooltipContent = tooltipStates.get(layer);
+    if (tooltipContent) {
+      // Rebind tooltip with stored content
+      layer.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
+      tooltipStates.delete(layer);
+    }
+  });
 });
 
 // Route state
@@ -2434,19 +2530,25 @@ function restoreRouteFromCache(cache, options = {}) {
   // Clear marker registry
   Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
   routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
 
   // Draw route with ribbon effect
+  const zoom = map ? map.getZoom() : 5;
+  const routeWeights = calculateRouteLineWeights(zoom);
+  
   // First draw the deep navy outline (thin line for ribbon effect)
-  L.polyline(cache.routeCoords, {
+  routeOutlinePolyline = L.polyline(cache.routeCoords, {
     color: '#0A2CA5',
-    weight: 5,
-    opacity: 0.9
+    weight: routeWeights.outlineWeight,
+    opacity: routeWeights.outlineOpacity
   }).addTo(routeLayer);
   // Then draw the vivid royal blue main route line on top
-  L.polyline(cache.routeCoords, {
+  routeMainPolyline = L.polyline(cache.routeCoords, {
     color: '#1A4CFF',
-    weight: 4,
-    opacity: 0.8
+    weight: routeWeights.mainWeight,
+    opacity: routeWeights.mainOpacity
   }).addTo(routeLayer);
 
   const startData = cache.start;
@@ -2646,6 +2748,9 @@ function render(){
       // If in route mode but no route search, show colleges based on filters only
       // Clear route visualization
       routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
   markersLayer.clearLayers();
   // Clear marker registry
   Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
@@ -2739,6 +2844,9 @@ function render(){
   
   // Clear route visualization when in nearby mode
   routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
   
   // Check if colleges data is loaded
   if (!colleges || colleges.length === 0) {
@@ -4546,6 +4654,9 @@ function findCollegesAlongRoute() {
   
   // Clear previous route visualization
   routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
   homeLayer.clearLayers();
   radiusLayer.clearLayers();
   
@@ -4570,17 +4681,20 @@ function findCollegesAlongRoute() {
       const routeCoords = routeGeometry.map(coord => [coord[1], coord[0]]);
       
       // Draw the actual driving route with ribbon effect
+      const zoom = map ? map.getZoom() : 5;
+      const routeWeights = calculateRouteLineWeights(zoom);
+      
       // First draw the deep navy outline (thin line for ribbon effect)
-      L.polyline(routeCoords, {
+      routeOutlinePolyline = L.polyline(routeCoords, {
         color: '#0A2CA5',
-        weight: 5,
-        opacity: 0.9
+        weight: routeWeights.outlineWeight,
+        opacity: routeWeights.outlineOpacity
       }).addTo(routeLayer);
       // Then draw the vivid royal blue main route line on top
-      const routeLine = L.polyline(routeCoords, {
+      routeMainPolyline = L.polyline(routeCoords, {
         color: '#1A4CFF',
-        weight: 4,
-        opacity: 0.8
+        weight: routeWeights.mainWeight,
+        opacity: routeWeights.mainOpacity
       }).addTo(routeLayer);
       
       // Track route search completion
@@ -4750,15 +4864,26 @@ function findCollegesAlongRoute() {
         [route.end.lat, route.end.lon]
       ];
       // Draw fallback route with ribbon effect
+      const zoom = map ? map.getZoom() : 5;
+      const routeWeights = calculateRouteLineWeights(zoom);
+      
       // First draw the deep navy outline (thin line for ribbon effect)
-      L.polyline(
+      routeOutlinePolyline = L.polyline(
         fallbackRouteCoords,
-        { color: '#0A2CA5', weight: 4, opacity: 0.9 }
+        { 
+          color: '#0A2CA5', 
+          weight: routeWeights.outlineWeight, 
+          opacity: routeWeights.outlineOpacity 
+        }
       ).addTo(routeLayer);
       // Then draw the vivid royal blue main route line on top
-      L.polyline(
+      routeMainPolyline = L.polyline(
         fallbackRouteCoords,
-        { color: '#1A4CFF', weight: 3, opacity: 0.7 }
+        { 
+          color: '#1A4CFF', 
+          weight: routeWeights.mainWeight, 
+          opacity: routeWeights.mainOpacity 
+        }
       ).addTo(routeLayer);
       
       // Track route search completion (fallback route)
@@ -5086,6 +5211,9 @@ if (elements.clearRoute) {
     route.lastSearch = null;
      route.lastResult = null;
     routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
     if (elements.routeStartSuggestions && elements.routeStart) {
       closeRouteAutocomplete(routeStartAutocomplete, elements.routeStartSuggestions, elements.routeStart);
     }
@@ -5096,6 +5224,9 @@ if (elements.clearRoute) {
     if (activeMode === 'route') {
       // Clear route visualization
       routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
       // Show all colleges filtered by type, region, state, and search
       markersLayer.clearLayers();
   // Clear marker registry
@@ -5222,6 +5353,9 @@ filterSections.forEach(section => {
         activeMode = 'nearby';
         // Clear route visualization when switching to nearby mode
         routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
         // Restore nearby state if available
         if (nearbyState.home) {
           home = nearbyState.home;
@@ -5295,6 +5429,9 @@ filterSections.forEach(section => {
           // If no route state, show colleges based on current filters (type, region, state, search)
           // Clear only route visualization layers, keep markers showing filtered colleges
           routeLayer.clearLayers();
+  // Clear route polyline references when route is cleared
+  routeOutlinePolyline = null;
+  routeMainPolyline = null;
           render();
         }
       }
