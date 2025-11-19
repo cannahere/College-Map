@@ -1664,6 +1664,10 @@ const SavedStore = (() => {
         savedIds.add(collegeId);
       }
       save();
+      // Track save/unsave action
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_saved_used');
+      }
     },
     getAll() {
       return Array.from(savedIds);
@@ -2922,6 +2926,10 @@ function openSavedListPanel() {
     if (searchInput) {
       setTimeout(() => searchInput.focus(), 100);
     }
+    // Track saved list opened
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'feature_saved_list_opened');
+    }
   }
 }
 
@@ -3368,6 +3376,10 @@ function toggleSavedOnly() {
     savedControls.classList.toggle("saved-only-active", savedOnlyMode);
   }
   console.log("Saved Only:", savedOnlyMode);
+  // Track saved only toggle
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'feature_saved_only_toggled');
+  }
   
   // Check if Saved Only is turned ON and there are no saved colleges
   if (savedOnlyMode) {
@@ -3678,6 +3690,10 @@ function geocodeAddress(address, mode = 'nearby'){
             
             map.setView([lat, lon], 8);
             render(); // Re-render to apply radius filter
+            // Track nearby search completion
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'feature_nearby_used');
+            }
           }
           saveSharedLocation(address, lat, lon);
           saveRecent(RECENT_STORAGE_KEYS.nearby, address);
@@ -4377,6 +4393,11 @@ function findCollegesAlongRoute() {
         opacity: 0.8
       }).addTo(routeLayer);
       
+      // Track route search completion
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_route_used');
+      }
+      
       // Draw start and destination markers (map pins - smaller size)
       // Start pin (white circle with black border)
       L.marker([route.start.lat, route.start.lon], {
@@ -4549,6 +4570,12 @@ function findCollegesAlongRoute() {
         fallbackRouteCoords,
         { color: '#1A4CFF', weight: 3, opacity: 0.7 }
       ).addTo(routeLayer);
+      
+      // Track route search completion (fallback route)
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_route_used');
+      }
+      
       const fallbackBounds = L.latLngBounds(fallbackRouteCoords);
       
       // Use simple distance calculation as fallback
@@ -5195,6 +5222,11 @@ if (elements.state) {
       lastUserSelectedState = currentValue;
       isUserChangingState = false;
       
+      // Track state filter usage
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_filter_state_used');
+      }
+      
       // Continue with normal change handling
       if (activeMode === 'route' && route.lastSearch) {
         // Re-run route search with updated filters
@@ -5225,6 +5257,15 @@ if (elements.state) {
 
 ['region', 'type', 'radius', 'units'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
+    // Track filter usage
+    if (typeof gtag !== 'undefined') {
+      if (id === 'type') {
+        gtag('event', 'feature_filter_type_used');
+      } else if (id === 'region') {
+        gtag('event', 'feature_filter_region_used');
+      }
+    }
+    
     if (activeMode === 'route' && route.lastSearch) {
       // Re-run route search with updated filters
       findCollegesAlongRoute();
