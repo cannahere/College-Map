@@ -3723,13 +3723,16 @@ function toggleSavedOnly() {
     if (hint) hint.classList.remove('active');
   }
   
-  // Re-render map with saved-only filter
-  if (activeMode === 'route' && route.lastSearch) {
-    // Use cached route data to avoid redrawing the route line
-    refilterCollegesAlongRoute();
-  } else {
-    render();
-  }
+  // Defer heavy rendering work to allow toggle UI feedback to appear first
+  requestAnimationFrame(() => {
+    // Re-render map with saved-only filter
+    if (activeMode === 'route' && route.lastSearch) {
+      // Use cached route data to avoid redrawing the route line
+      refilterCollegesAlongRoute();
+    } else {
+      render();
+    }
+  });
 }
 
 function isLocalStorageAvailable() {
