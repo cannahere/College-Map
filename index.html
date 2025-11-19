@@ -211,6 +211,30 @@
       .map-tip-bubble-icon {font-size:12px}
     }
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    /* Override Leaflet's default orange tap highlight on mobile/iPad - match desktop (white/no highlight) */
+    .leaflet-interactive:active,
+    .leaflet-interactive:focus,
+    .leaflet-interactive.leaflet-touch-active {
+      outline: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    /* Remove orange tap highlight and use white styling (matching desktop behavior) */
+    /* Target both SVG circle elements and path elements used by Leaflet circleMarker */
+    .leaflet-interactive.leaflet-touch-active circle,
+    .leaflet-interactive:active circle,
+    .leaflet-interactive:focus circle,
+    .leaflet-interactive.leaflet-touch-active path,
+    .leaflet-interactive:active path,
+    .leaflet-interactive:focus path {
+      /* Use white stroke instead of orange (matching desktop tap behavior) */
+      stroke: #ffffff !important;
+      stroke-width: 2 !important;
+      /* Keep original blue fill */
+      fill: #2563eb !important;
+      fill-opacity: 0.7 !important;
+      /* Remove any orange filter or effects */
+      filter: none !important;
+    }
     .route-hint-bubble {position:fixed;background:linear-gradient(180deg,rgba(255,249,219,0.98),rgba(255,243,191,0.98));padding:8px 12px;border-radius:12px;box-shadow:0 8px 18px rgba(15,23,42,0.18);font-size:12px;max-width:210px;display:none;z-index:6500;border:1px solid rgba(234,179,8,0.5);pointer-events:auto;opacity:0;transform:translateY(6px);transition:opacity 0.2s ease,transform 0.2s ease}
     .route-hint-bubble.visible {opacity:1;transform:translateY(0)}
     .route-hint-bubble-content {display:flex;align-items:center;font-weight:500;color:#0f172a}
@@ -1581,6 +1605,120 @@ const markersLayer = L.layerGroup().addTo(map);
 const homeLayer = L.layerGroup().addTo(map);
 const radiusLayer = L.layerGroup().addTo(map);
 const routeLayer = L.layerGroup().addTo(map);
+
+// Device detection for dynamic marker sizing
+function detectDeviceType() {
+  const width = window.innerWidth;
+  const ua = navigator.userAgent || '';
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  // iPad detection (including iPad Pro)
+  const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  
+  // Mobile phones (small screens with touch)
+  if (isTouchDevice && width <= 768 && !isIPad) {
+    return 'mobile';
+  }
+  
+  // Tablets/iPad (medium screens with touch)
+  if (isTouchDevice && (width <= 1024 || isIPad)) {
+    return 'tablet';
+  }
+  
+  // Desktop (everything else)
+  return 'desktop';
+}
+
+// Calculate marker radius based on zoom level and device type
+function calculateMarkerRadius(zoom, deviceType) {
+  if (deviceType === 'desktop') {
+    return 5; // Always radius 5 for desktop
+  }
+  
+  if (deviceType === 'mobile') {
+    // Mobile: Low zoom (0-5) → 4-5, Medium (6-9) → 6-8, High (10+) → 9-10, cap at 10
+    if (zoom <= 5) {
+      return 4 + (zoom / 5); // 4 to 5 (linear interpolation)
+    } else if (zoom <= 9) {
+      return 6 + ((zoom - 5) / 4) * 2; // 6 to 8 (linear interpolation)
+    } else {
+      // High zoom: 9 to 10 (capped), reaching 10 around zoom 11-12
+      return Math.min(9 + (zoom - 9) * 0.5, 10); // 9 to 10 (capped at 10)
+    }
+  }
+  
+  if (deviceType === 'tablet') {
+    // iPad: Same sizing as mobile for better visibility - Low zoom (0-5) → 4-5, Medium (6-9) → 6-8, High (10+) → 9-10, cap at 10
+    if (zoom <= 5) {
+      return 4 + (zoom / 5); // 4 to 5 (linear interpolation)
+    } else if (zoom <= 9) {
+      return 6 + ((zoom - 5) / 4) * 2; // 6 to 8 (linear interpolation)
+    } else {
+      // High zoom: 9 to 10 (capped), reaching 10 around zoom 11-12
+      return Math.min(9 + (zoom - 9) * 0.5, 10); // 9 to 10 (capped at 10)
+    }
+  }
+  
+  return 5; // Fallback to desktop size
+}
+
+// Get current marker radius based on current zoom and device
+function getCurrentMarkerRadius() {
+  const deviceType = detectDeviceType();
+  const zoom = map ? map.getZoom() : 5;
+  return calculateMarkerRadius(zoom, deviceType);
+}
+
+// Calculate saved icon size based on zoom level and device type
+// Maintains desktop ratio (2.4×) to blue dot diameter, with specific caps for mobile/iPad
+function calculateSavedIconSize(zoom, deviceType) {
+  if (deviceType === 'desktop') {
+    return { width: 24, height: 30 }; // Desktop: unchanged
+  }
+  
+  // Get current blue dot radius to maintain proportional ratio
+  const blueDotRadius = calculateMarkerRadius(zoom, deviceType);
+  const blueDotDiameter = blueDotRadius * 2;
+  
+  // Calculate proportional size using desktop ratio (24px icon / 10px blue dot diameter = 2.4×)
+  // This ensures saved icons are proportionally the same size relative to blue dots on all devices
+  let targetWidth = blueDotDiameter * 2.4;
+  
+  if (deviceType === 'mobile') {
+    // Mobile: scale from ~20px (low zoom) to max 28px (high zoom cap)
+    const minWidth = 20;
+    const maxWidth = 28;
+    targetWidth = Math.max(minWidth, Math.min(targetWidth, maxWidth));
+  } else if (deviceType === 'tablet') {
+    // iPad: same sizing as mobile - scale from ~20px (low zoom) to max 28px (high zoom cap)
+    const minWidth = 20;
+    const maxWidth = 28;
+    targetWidth = Math.max(minWidth, Math.min(targetWidth, maxWidth));
+  }
+  
+  // Maintain aspect ratio (24:30 = 0.8)
+  const height = targetWidth * (30 / 24);
+  
+  return { width: Math.round(targetWidth), height: Math.round(height) };
+}
+
+// Get current saved icon size based on current zoom and device
+function getCurrentSavedIconSize() {
+  const deviceType = detectDeviceType();
+  const zoom = map ? map.getZoom() : 5;
+  return calculateSavedIconSize(zoom, deviceType);
+}
+
+// Create a green saved icon with dynamic sizing
+function createGreenSavedIcon(size) {
+  const { width, height } = size || getCurrentSavedIconSize();
+  return L.icon({
+    iconUrl: 'data:image/svg+xml;base64,' + btoa(greenSavedPinSvg),
+    iconSize: [width, height],
+    iconAnchor: [width / 2, height],
+    popupAnchor: [0, -height]
+  });
+}
 const ROUTE_START_PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="4" fill="#ffffff" stroke="#111827" stroke-width="2"/></svg>';
 const ROUTE_END_PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
 const ROUTE_START_PIN_ICON = 'data:image/svg+xml;base64,' + btoa(ROUTE_START_PIN_SVG);
@@ -1606,6 +1744,36 @@ map.on('moveend', () => {
   if (activeMode === 'nearby' || activeMode === 'route') {
     captureMapView(activeMode);
   }
+});
+
+// Update marker sizes dynamically on zoom for touch devices (performance optimization)
+map.on('zoomend', () => {
+  const deviceType = detectDeviceType();
+  // Only update on touch devices (mobile/tablet), desktop always uses radius 5 and icon size 24x30
+  if (deviceType === 'desktop') return;
+  
+  const newRadius = getCurrentMarkerRadius();
+  const newIconSize = getCurrentSavedIconSize();
+  const newSavedIcon = createGreenSavedIcon(newIconSize);
+  
+  // Update all marker instances without recreating them
+  markersLayer.eachLayer((layer) => {
+    // Update circleMarker types (blue dots)
+    if (layer.setRadius && typeof layer.setRadius === 'function') {
+      layer.setRadius(newRadius);
+    }
+    // Update saved icon markers (green pins)
+    else if (layer.setIcon && typeof layer.setIcon === 'function' && layer.options && layer.options.icon) {
+      // Check if this is a saved marker by checking if it has the green saved icon
+      const currentIcon = layer.options.icon;
+      if (currentIcon && currentIcon.options && currentIcon.options.iconUrl && 
+          currentIcon.options.iconUrl.includes('data:image/svg+xml') &&
+          currentIcon.options.iconUrl.includes('64D85B')) {
+        // This is a saved icon marker (green pin), update its size
+        layer.setIcon(newSavedIcon);
+      }
+    }
+  });
 });
 
 window.addEventListener('resize', () => {
@@ -1686,12 +1854,9 @@ const markersByCollegeId = {};
 
 // Create green saved icon (pin with white star)
 const greenSavedPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 256 256"><path d="M128 0C74 0 32 42 32 96C32 166 128 256 128 256C128 256 224 166 224 96C224 42 182 0 128 0Z" fill="#64D85B"/><path d="M128 32L147 86H200L159 118L175 170L128 139L81 170L97 118L56 86H109L128 32Z" fill="#FFFFFF"/></svg>';
-const greenSavedIcon = L.icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(greenSavedPinSvg),
-  iconSize: [24, 30],
-  iconAnchor: [12, 30],
-  popupAnchor: [0, -30]
-});
+// Default green saved icon (desktop size, used as fallback)
+// Note: For dynamic sizing, use createGreenSavedIcon() instead
+const greenSavedIcon = createGreenSavedIcon({ width: 24, height: 30 });
 
 // Create blue circle icon for unsaved colleges
 const blueCircleSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2563eb" fill-opacity="0.7" stroke="#2563eb" stroke-width="2"/></svg>';
@@ -1708,14 +1873,16 @@ function createCollegeMarker(college, popupContent, collegeId) {
   
   let marker;
   if (isSaved) {
-    // Use green pin icon for saved colleges
+    // Use green pin icon for saved colleges with dynamic sizing
+    const iconSize = getCurrentSavedIconSize();
     marker = L.marker([college.lat, college.lon], {
-      icon: greenSavedIcon
+      icon: createGreenSavedIcon(iconSize)
     });
   } else {
-    // Use blue circle marker for unsaved colleges (keep existing circleMarker style)
+    // Use blue circle marker for unsaved colleges with dynamic sizing for touch devices
+    const radius = getCurrentMarkerRadius();
     marker = L.circleMarker([college.lat, college.lon], {
-      radius: 5,
+      radius: radius,
       color: '#2563eb',
       weight: 2,
       fillOpacity: 0.7
@@ -1740,11 +1907,24 @@ function createCollegeMarker(college, popupContent, collegeId) {
 }
 
 // Update popup save button visual state
+// Cached references to avoid repeated DOM queries
+const buttonCache = new WeakMap();
+
 function updatePopupSaveButton(button, collegeId) {
   if (!button || !collegeId) return;
   
-  const icon = button.querySelector('.popup-save-icon');
-  const label = button.querySelector('.popup-save-label');
+  // Cache DOM references to avoid repeated querySelector calls
+  let cached = buttonCache.get(button);
+  if (!cached) {
+    cached = {
+      icon: button.querySelector('.popup-save-icon'),
+      label: button.querySelector('.popup-save-label')
+    };
+    buttonCache.set(button, cached);
+  }
+  
+  const icon = cached.icon;
+  const label = cached.label;
   const isSaved = SavedStore.isSaved(collegeId);
   
   // Update button class
@@ -1781,8 +1961,12 @@ map.on('popupopen', (event) => {
     return;
   }
   
-  // Update button state based on saved status
-  updatePopupSaveButton(button, collegeId);
+  // Defer button state update to allow popup to appear first (performance optimization)
+  // This makes taps feel instant on mobile by not blocking popup appearance
+  requestAnimationFrame(() => {
+    // Update button state based on saved status
+    updatePopupSaveButton(button, collegeId);
+  });
   
   // Attach click handler if not already attached
   if (!button.dataset.listenerAttached) {
@@ -1793,7 +1977,7 @@ map.on('popupopen', (event) => {
       // Toggle saved state
       SavedStore.toggle(collegeId);
       
-      // Immediately update button visual state
+      // Immediately update button visual state (user action, so update synchronously)
       updatePopupSaveButton(button, collegeId);
       
       // Update marker icon
@@ -1813,14 +1997,16 @@ map.on('popupopen', (event) => {
         // Create new marker with appropriate icon
         let newMarker;
         if (isSaved) {
-          // Use green pin icon for saved colleges
+          // Use green pin icon for saved colleges with dynamic sizing
+          const iconSize = getCurrentSavedIconSize();
           newMarker = L.marker(latlng, {
-            icon: greenSavedIcon
+            icon: createGreenSavedIcon(iconSize)
           });
         } else {
-          // Use blue circle marker for unsaved colleges
+          // Use blue circle marker for unsaved colleges with dynamic sizing
+          const radius = getCurrentMarkerRadius();
           newMarker = L.circleMarker(latlng, {
-            radius: 5,
+            radius: radius,
             color: '#2563eb',
             weight: 2,
             fillOpacity: 0.7
@@ -3318,9 +3504,13 @@ function updateMarkerIcon(collegeId) {
   
   let newMarker;
   if (isSaved) {
-    newMarker = L.marker(latlng, { icon: greenSavedIcon });
+    // Use green pin icon for saved colleges with dynamic sizing
+    const iconSize = getCurrentSavedIconSize();
+    newMarker = L.marker(latlng, { icon: createGreenSavedIcon(iconSize) });
   } else {
-    newMarker = L.circleMarker(latlng, { radius: 5, color: '#2563eb', weight: 2, fillOpacity: 0.7 });
+    // Use dynamic radius for touch devices
+    const radius = getCurrentMarkerRadius();
+    newMarker = L.circleMarker(latlng, { radius: radius, color: '#2563eb', weight: 2, fillOpacity: 0.7 });
   }
   
   if (popupContent) newMarker.bindPopup(popupContent);
