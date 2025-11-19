@@ -5102,79 +5102,88 @@ if (openSection) {
 let lastUserSelectedState = '';
 let isUserChangingState = false;
 let autofillWatchInterval = null;
+let stateProtectionActive = true; // Always active by default
+
+// Strong protection function to restore state value
+function protectStateValue() {
+  if (!elements.state || isUserChangingState) {
+    return;
+  }
+  if (elements.state.value !== lastUserSelectedState) {
+    // Autofill tried to change it - restore immediately
+    elements.state.value = lastUserSelectedState;
+    // Force a reflow to ensure the change is applied
+    void elements.state.offsetHeight;
+  }
+}
 
 // Prevent autofill from changing the state dropdown
 if (elements.state) {
   // Store initial value
   lastUserSelectedState = elements.state.value;
   
-  // Track when address field is being filled (autofill detection)
-  if (elements.address) {
+  // Track when any address field is being filled (autofill detection)
+  const addressFields = [elements.address, elements.routeStart, elements.routeEnd].filter(Boolean);
+  
+  addressFields.forEach(addressField => {
     // Store state value before address field changes
-    elements.address.addEventListener('focus', () => {
+    addressField.addEventListener('focus', () => {
       lastUserSelectedState = elements.state.value;
-      // Start watching for autofill changes to state dropdown
+      stateProtectionActive = true;
+      // Start watching for autofill changes to state dropdown - more frequent checks
       if (autofillWatchInterval) {
         clearInterval(autofillWatchInterval);
       }
       autofillWatchInterval = setInterval(() => {
-        if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
-          // State was changed by autofill - restore it immediately
-          elements.state.value = lastUserSelectedState;
-        }
-      }, 50); // Check every 50ms during autofill window
+        protectStateValue();
+      }, 25); // Check every 25ms during autofill window (more frequent)
     });
     
     // Handle browser autofill event (some browsers fire this)
-    elements.address.addEventListener('change', () => {
-      // Allow browser autofill to fill the address field (including state in the address text)
-      // But prevent it from changing the state dropdown
-      if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
-        elements.state.value = lastUserSelectedState;
-      }
+    addressField.addEventListener('change', () => {
+      protectStateValue();
     });
     
-    // Stop watching when address field loses focus
-    elements.address.addEventListener('blur', () => {
-      if (autofillWatchInterval) {
-        clearInterval(autofillWatchInterval);
-        autofillWatchInterval = null;
-      }
-      // Final check and restore if needed
-      if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
-        elements.state.value = lastUserSelectedState;
-      }
+    // Handle input event (autofill can trigger this)
+    addressField.addEventListener('input', () => {
+      protectStateValue();
     });
     
-    // Also stop watching after user finishes typing (debounced)
-    let stopWatchTimeout = null;
-    elements.address.addEventListener('input', () => {
-      // Clear existing timeout
-      if (stopWatchTimeout) {
-        clearTimeout(stopWatchTimeout);
-      }
-      // Stop watching after 500ms of no input (autofill is usually instant)
-      stopWatchTimeout = setTimeout(() => {
+    // Stop watching when address field loses focus, but keep protection active longer
+    addressField.addEventListener('blur', () => {
+      // Keep protection active for a bit longer in case autofill happens after blur
+      setTimeout(() => {
         if (autofillWatchInterval) {
           clearInterval(autofillWatchInterval);
           autofillWatchInterval = null;
         }
         // Final check and restore if needed
-        if (!isUserChangingState && elements.state.value !== lastUserSelectedState) {
-          elements.state.value = lastUserSelectedState;
-        }
-      }, 500);
+        protectStateValue();
+        // Keep protection active for 3 more seconds after blur
+        setTimeout(() => {
+          // Protection stays active, just stop the interval
+        }, 3000);
+      }, 200);
     });
-  }
+  });
+  
+  // Continuous protection - always watch for unauthorized changes
+  setInterval(() => {
+    if (stateProtectionActive && !isUserChangingState) {
+      protectStateValue();
+    }
+  }, 100); // Check every 100ms continuously
   
   // Listen for user-initiated changes to state dropdown
   elements.state.addEventListener('mousedown', () => {
     isUserChangingState = true;
+    lastUserSelectedState = elements.state.value;
   });
   
   elements.state.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
       isUserChangingState = true;
+      lastUserSelectedState = elements.state.value;
     }
   });
   
@@ -5195,15 +5204,21 @@ if (elements.state) {
       }
     } else {
       // This change was NOT from user - likely autofill - restore previous value
-      e.target.value = lastUserSelectedState;
+      elements.state.value = lastUserSelectedState;
       // Don't trigger render since this wasn't a real change
+      return; // Prevent further processing of this change
     }
   });
   
-  // Reset flag after a short delay
+  // Reset flag after a short delay (only if change event didn't fire)
   elements.state.addEventListener('blur', () => {
     setTimeout(() => {
-      isUserChangingState = false;
+      // Only reset if change event hasn't already processed it
+      // Check if value changed - if it did, change event should have handled it
+      if (elements.state.value === lastUserSelectedState) {
+        // Value didn't change, so user didn't select anything - safe to reset
+        isUserChangingState = false;
+      }
     }, 200);
   });
 }
