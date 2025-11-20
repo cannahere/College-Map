@@ -198,7 +198,7 @@
     .row>.pill {flex:1}
     .row-filters{display:flex;gap:8px;justify-content:space-between}
     .row-filters .pill{flex:1 1 0;min-width:0;max-width:25%;}
-    .row-filters .pill select{width:100%;box-sizing:border-box;}
+    .row-filters .pill select,
     .row-ranking .pill-ranking select{width:100%;box-sizing:border-box;}
     .row-filters .pill-ranking{flex:1 1 0;min-width:0;max-width:25%;}
     .row-search{display:none}
@@ -258,6 +258,9 @@
       .row-route .pill select{font-size:14px}
     }
     .pill-ranking {position:relative}
+    .ranking-new-chat-bubble {display:block !important;position:fixed !important;background:#2563eb !important;color:#fff !important;padding:4px 8px !important;border-radius:8px !important;font-size:11px !important;font-weight:600 !important;white-space:nowrap !important;z-index:10001 !important;box-shadow:0 4px 12px rgba(37,99,235,0.3) !important;pointer-events:none !important;opacity:0;transform:translateY(4px);transition:opacity 0.3s ease,transform 0.3s ease;visibility:visible !important}
+    .ranking-new-chat-bubble::after {content:'';position:absolute;top:100%;left:12px;border-width:6px 6px 0 6px;border-style:solid;border-color:#2563eb transparent transparent transparent}
+    .ranking-new-chat-bubble.visible {opacity:1;transform:translateY(0)}
     .ranking-info-icon {width:18px !important;height:18px !important;min-width:18px !important;min-height:18px !important;max-width:18px !important;max-height:18px !important;border-radius:50% !important;background:#eff6ff !important;color:#2563eb !important;border:1px solid #3b82f6 !important;font-size:11px !important;font-weight:900 !important;-webkit-text-stroke:0.4px #2563eb !important;text-shadow:0 0 0.5px #2563eb !important;line-height:1 !important;padding:0 !important;margin:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;flex:0 0 18px !important;flex-shrink:0 !important;box-sizing:border-box !important;vertical-align:middle !important;transition:all 0.2s ease !important}
     .ranking-info-icon:hover {border-color:#2563eb !important;color:#1d4ed8 !important;background:#dbeafe !important;transform:scale(1.05) !important}
     .ranking-tooltip {position:absolute;top:calc(100% + 2px);right:0;margin-top:0;background:linear-gradient(180deg,rgba(255,249,219,0.98),rgba(255,243,191,0.98));padding:10px 12px;border-radius:12px;box-shadow:0 8px 18px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(234,179,8,0.5)}
@@ -620,12 +623,12 @@
       background: #bbf7d0;
       color: #15803d;
     }
-    /* Ensure Leaflet popups appear above saved controls */
+    /* Ensure Leaflet popups appear above everything, including header and logo */
     .leaflet-popup-pane {
-      z-index: 1600 !important;
+      z-index: 10000 !important;
     }
     .leaflet-popup {
-      z-index: 1600 !important;
+      z-index: 10000 !important;
     }
     /* Saved controls overlay */
     .saved-controls {
@@ -775,9 +778,75 @@
         left: 2px;
       }
       .saved-controls.saved-only-active .saved-toggle-thumb {
-        transform: translateX(10px);
-      }
+      transform: translateX(10px);
     }
+  }
+  /* Filter chips */
+  .filter-chips {
+    position: absolute;
+    top: 60px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 1500;
+    pointer-events: auto;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .filter-chips:empty {
+    display: none;
+  }
+  .filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #E5E7EB;
+    border-radius: 9999px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 4px 8px 4px 12px;
+    color: #374151;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+  .filter-chip-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .filter-chip-close {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+  .filter-chip-close:hover {
+    color: #374151;
+  }
+  @media (max-width: 700px) {
+    .filter-chips {
+      top: 58px;
+      right: 8px;
+      gap: 5px;
+    }
+    .filter-chip {
+      padding: 3px 6px 3px 10px;
+      font-size: 11px;
+      max-width: 180px;
+    }
+  }
     /* Saved Colleges Overlay */
     .saved-colleges-overlay {
       position: absolute;
@@ -1198,7 +1267,7 @@
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
-      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">Ranking tiers (default)</option></select><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">Ranking tiers are not official and are for reference only. Some tiers include extra schools to reflect variations across major lists. See full disclaimer below for details.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
+      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">Ranking tiers (default)</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">Ranking tiers are not official and are for reference only. Some tiers include extra schools to reflect variations across major lists. See full disclaimer below for details.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
       <!-- College name search temporarily hidden - functionality preserved for future use -->
       <div class="pill pill-search" style="display: none !important;"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
   </div>
@@ -1290,6 +1359,8 @@
         <span class="saved-text">Map Saved Only</span>
       </div>
     </div>
+    <!-- Filter chips -->
+    <div id="filter-chips" class="filter-chips"></div>
     <!-- Saved Colleges Overlay -->
     <div id="saved-colleges-overlay" class="saved-colleges-overlay">
       <div class="saved-overlay-header">
@@ -3229,7 +3300,7 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
   const hasAnyFilter = typeVal || hasNonDefaultFilter;
   
   // Priority 1: No Results hint
-  if (visibleCount === 0 && hasAnyFilter && noResultViews < HINT_MAX_VIEWS) {
+  if (visibleCount === 0 && hasAnyFilter && noResultViews < 1) {
     if (hintNoResults.dataset.active !== 'true') {
       incrementHintViewCount('noResults');
     }
@@ -4088,6 +4159,11 @@ function processCollegesData(data) {
   // Position ranking dropdown after CSV loads
   if (typeof positionRankingDropdown === 'function') {
     positionRankingDropdown();
+  }
+  
+  // Update filter chips after dropdowns are populated
+  if (typeof updateFilterChips === 'function') {
+    updateFilterChips();
   }
   
   // Ensure we're in nearby mode on initial load (default section is open)
@@ -5275,13 +5351,7 @@ function updateDropdownPlaceholders() {
   if (rankingSelect) {
     const rankingOption = rankingSelect.querySelector('option[value=""]');
     if (rankingOption) {
-      if (isMobile) {
-        rankingOption.textContent = 'NEW! | School ranking tiers (default)';
-      } else if (isTablet) {
-        rankingOption.textContent = 'Ranking tiers (default)';
-      } else {
-        rankingOption.textContent = 'Ranking tiers (default)';
-      }
+      rankingOption.textContent = 'Ranking | No ranking filter';
     }
   }
 }
@@ -5853,6 +5923,9 @@ if (elements.state) {
         gtag('event', 'feature_filter_state_used');
       }
       
+      // Update filter chips
+      updateFilterChips();
+      
       // Continue with normal change handling
       if (activeMode === 'route' && route.lastSearch) {
         // Re-run route search with updated filters
@@ -5902,6 +5975,9 @@ function updateMobilePillText() {
     // Update mobile pill text
     updateMobilePillText();
     
+    // Update filter chips
+    updateFilterChips();
+    
     if (activeMode === 'route' && route.lastSearch) {
       // Re-run route search with updated filters
       findCollegesAlongRoute();
@@ -5910,6 +5986,137 @@ function updateMobilePillText() {
     }
   });
 });
+
+// Function to shorten filter values for display in chips
+function shortenFilterValue(value, filterType) {
+  const shortenMap = {
+    'type': {
+      'Elite Private Universities': 'Elite Pri',
+      'Public Flagship Universities': 'Pub Flagship',
+      'Private Liberal Arts Colleges': 'Liberal Arts',
+      'STEM / Technology Institutes': 'STEM / Tech',
+      'Business / Arts / Specialty Schools': 'Biz/ Arts/Spec',
+      'Health & Medical Colleges': 'Health/Med',
+      'Public Regional Universities': 'Pub Reg',
+      'Community Colleges': 'Community Coll',
+      'Online / For-Profit': 'Online/FP'
+    },
+    'ranking': {
+      'Top 25 national universities': 'Top25Nat',
+      'Top 50 national universities': 'Top50 Nat',
+      'Top 10 liberal arts colleges': 'Top10LAC',
+      'Top 20 liberal arts colleges': 'Top20LAC'
+    }
+  };
+  
+  if (shortenMap[filterType] && shortenMap[filterType][value]) {
+    return shortenMap[filterType][value];
+  }
+  return value;
+}
+
+// Function to update filter chips
+function updateFilterChips() {
+  const chipsContainer = document.getElementById('filter-chips');
+  if (!chipsContainer) return;
+  
+  // Clear existing chips
+  chipsContainer.innerHTML = '';
+  
+  // Get current filter values
+  const typeSelect = document.getElementById('type');
+  const regionSelect = document.getElementById('region');
+  const stateSelect = document.getElementById('state');
+  const rankingSelect = document.getElementById('ranking');
+  
+  const chips = [];
+  
+  // Type filter
+  if (typeSelect && typeSelect.value && typeSelect.value !== '') {
+    const typeValue = typeSelect.options[typeSelect.selectedIndex]?.textContent || typeSelect.value;
+    const shortened = shortenFilterValue(typeValue, 'type');
+    chips.push({ type: 'type', label: shortened, value: typeSelect.value });
+  }
+  
+  // Region filter
+  if (regionSelect && regionSelect.value && regionSelect.value !== '') {
+    const regionValue = regionSelect.options[regionSelect.selectedIndex]?.textContent || regionSelect.value;
+    chips.push({ type: 'region', label: regionValue, value: regionSelect.value });
+  }
+  
+  // State filter
+  if (stateSelect && stateSelect.value && stateSelect.value !== '') {
+    const stateValue = stateSelect.options[stateSelect.selectedIndex]?.textContent || stateSelect.value;
+    chips.push({ type: 'state', label: stateValue, value: stateSelect.value });
+  }
+  
+  // Ranking filter
+  if (rankingSelect && rankingSelect.value && rankingSelect.value !== '') {
+    const rankingValue = rankingSelect.options[rankingSelect.selectedIndex]?.textContent || rankingSelect.value;
+    const shortened = shortenFilterValue(rankingValue, 'ranking');
+    chips.push({ type: 'ranking', label: shortened, value: rankingSelect.value });
+  }
+  
+  // Render chips
+  chips.forEach(chip => {
+    const chipElement = document.createElement('div');
+    chipElement.className = 'filter-chip';
+    chipElement.innerHTML = `
+      <span class="filter-chip-label">${chip.label}</span>
+      <button class="filter-chip-close" data-filter-type="${chip.type}" aria-label="Clear ${chip.type} filter" type="button">×</button>
+    `;
+    
+    // Add click handler for close button
+    const closeBtn = chipElement.querySelector('.filter-chip-close');
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearFilter(chip.type);
+    });
+    
+    chipsContainer.appendChild(chipElement);
+  });
+}
+
+// Function to clear a specific filter
+function clearFilter(filterType) {
+  const select = document.getElementById(filterType);
+  if (select) {
+    // Special handling for state filter due to autofill protection
+    if (filterType === 'state' && elements.state) {
+      // Temporarily disable autofill protection
+      const wasProtectionActive = stateProtectionActive;
+      stateProtectionActive = false;
+      
+      // Mark as user-initiated change to bypass autofill protection
+      isUserChangingState = true;
+      lastUserSelectedState = '';
+      elements.state.value = '';
+      
+      // Update filter chips immediately
+      updateFilterChips();
+      
+      // Trigger change event to update map
+      const changeEvent = new Event('change', { bubbles: true });
+      elements.state.dispatchEvent(changeEvent);
+      
+      // Reset flags after a short delay to allow change handler to process
+      setTimeout(() => {
+        isUserChangingState = false;
+        stateProtectionActive = wasProtectionActive;
+      }, 100);
+    } else {
+      // For other filters, just clear and trigger change
+      select.value = '';
+      
+      // Update filter chips immediately
+      updateFilterChips();
+      
+      // Trigger change event to update map
+      const changeEvent = new Event('change', { bubbles: true });
+      select.dispatchEvent(changeEvent);
+    }
+  }
+}
 
 // Function to move ranking between row-filters and row-ranking based on screen size
 function positionRankingDropdown() {
@@ -5964,6 +6171,7 @@ function positionRankingDropdown() {
 // Update mobile pill text and dropdown placeholders on initial load and window resize
 updateDropdownPlaceholders();
 positionRankingDropdown();
+updateFilterChips();
 if (window.innerWidth <= 700) {
   updateMobilePillText();
 }
@@ -6152,6 +6360,110 @@ gtag('config', 'G-E2KP0JHTMC');
       toggleTooltip(e);
     });
   }
+})();
+
+// Show "NEW!" chat bubble for ranking filter for return users who haven't seen it
+(function() {
+  const RANKING_NEW_BUBBLE_KEY = 'ucm_rankingNewBubbleSeen';
+  
+  function showRankingNewBubble() {
+    // Check if user has seen it before
+    const hasSeen = localStorage.getItem(RANKING_NEW_BUBBLE_KEY) === '1';
+    if (hasSeen) {
+      return; // Don't show if already seen
+    }
+    
+    // Find the ranking pill and chat bubble
+    const rankingPill = document.querySelector('.pill-ranking');
+    const chatBubble = document.getElementById('ranking-new-chat-bubble');
+    
+    if (!rankingPill || !chatBubble) {
+      // Retry after a short delay if elements aren't ready
+      setTimeout(showRankingNewBubble, 200);
+      return;
+    }
+    
+    // Position the bubble above the ranking dropdown using fixed positioning
+    // On desktop/tablet, the label is hidden, so use the select element
+    const rankingSelect = rankingPill.querySelector('select#ranking');
+    const label = rankingPill.querySelector('label[for="ranking"]');
+    
+    let targetElement = label;
+    // Check if label is visible (not display:none)
+    if (!label || label.offsetParent === null) {
+      // Label is hidden, use select element instead
+      targetElement = rankingSelect;
+    }
+    
+    if (targetElement) {
+      const rect = targetElement.getBoundingClientRect();
+      // Use viewport coordinates for fixed positioning
+      chatBubble.style.left = rect.left + 'px';
+      chatBubble.style.top = (rect.top - 28) + 'px'; // 28px above the element
+    } else {
+      // Final fallback: position relative to the pill
+      const pillRect = rankingPill.getBoundingClientRect();
+      chatBubble.style.left = pillRect.left + 'px';
+      chatBubble.style.top = (pillRect.top - 28) + 'px';
+    }
+    
+    // Ensure bubble is visible and log for debugging
+    chatBubble.style.display = 'block';
+    chatBubble.style.visibility = 'visible';
+    console.log('Ranking bubble positioned:', {
+      left: chatBubble.style.left,
+      top: chatBubble.style.top,
+      visible: chatBubble.classList.contains('visible'),
+      computedDisplay: window.getComputedStyle(chatBubble).display,
+      computedZIndex: window.getComputedStyle(chatBubble).zIndex
+    });
+    
+    // Show the bubble
+    chatBubble.classList.add('visible');
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+      chatBubble.classList.remove('visible');
+      // Mark as seen
+      localStorage.setItem(RANKING_NEW_BUBBLE_KEY, '1');
+    }, 5000);
+  }
+  
+  // Show bubble after page loads and ranking dropdown is positioned
+  function initRankingBubble() {
+    // Wait for elements to be ready
+    setTimeout(() => {
+      const rankingPill = document.querySelector('.pill-ranking');
+      if (rankingPill) {
+        showRankingNewBubble();
+      } else {
+        // Retry if not ready yet
+        setTimeout(initRankingBubble, 200);
+      }
+    }, 800);
+  }
+  
+  document.addEventListener('DOMContentLoaded', initRankingBubble);
+  
+  // Also try after window load
+  if (document.readyState === 'complete') {
+    initRankingBubble();
+  } else {
+    window.addEventListener('load', initRankingBubble);
+  }
+  
+  // Expose function for testing (can be called from console)
+  window.testRankingBubble = function() {
+    localStorage.removeItem(RANKING_NEW_BUBBLE_KEY);
+    showRankingNewBubble();
+  };
+  
+  // Expose function to check status
+  window.checkRankingBubbleStatus = function() {
+    const hasSeen = localStorage.getItem(RANKING_NEW_BUBBLE_KEY) === '1';
+    console.log('Ranking bubble seen:', hasSeen);
+    return hasSeen;
+  };
 })();
 </script>
 
