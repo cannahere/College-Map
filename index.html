@@ -810,6 +810,73 @@
     color: #374151;
     white-space: nowrap;
     max-width: 200px;
+    animation: slideInFromRight 0.3s ease-out;
+    transform-origin: right center;
+    /* iOS hardware acceleration fixes */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+  
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      -webkit-transform: translateX(100%) translateZ(0);
+      transform: translateX(100%) translateZ(0);
+    }
+    to {
+      opacity: 1;
+      -webkit-transform: translateX(0) translateZ(0);
+      transform: translateX(0) translateZ(0);
+    }
+  }
+  
+  @-webkit-keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      -webkit-transform: translateX(100%) translateZ(0);
+      transform: translateX(100%) translateZ(0);
+    }
+    to {
+      opacity: 1;
+      -webkit-transform: translateX(0) translateZ(0);
+      transform: translateX(0) translateZ(0);
+    }
+  }
+  
+  @keyframes slideOutToRight {
+    from {
+      opacity: 1;
+      -webkit-transform: translateX(0) translateZ(0);
+      transform: translateX(0) translateZ(0);
+    }
+    to {
+      opacity: 0;
+      -webkit-transform: translateX(100%) translateZ(0);
+      transform: translateX(100%) translateZ(0);
+    }
+  }
+  
+  @-webkit-keyframes slideOutToRight {
+    from {
+      opacity: 1;
+      -webkit-transform: translateX(0) translateZ(0);
+      transform: translateX(0) translateZ(0);
+    }
+    to {
+      opacity: 0;
+      -webkit-transform: translateX(100%) translateZ(0);
+      transform: translateX(100%) translateZ(0);
+    }
+  }
+  
+  .filter-chip.slide-out {
+    animation: slideOutToRight 0.3s ease-in forwards;
+    -webkit-animation: slideOutToRight 0.3s ease-in forwards;
   }
   .filter-chip-label {
     flex: 1;
@@ -6020,8 +6087,23 @@ function updateFilterChips() {
   const chipsContainer = document.getElementById('filter-chips');
   if (!chipsContainer) return;
   
-  // Clear existing chips
-  chipsContainer.innerHTML = '';
+  // Use event delegation for close buttons (handles both new and existing chips)
+  if (!chipsContainer.dataset.delegationSetup) {
+    chipsContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-chip-close')) {
+        e.stopPropagation();
+        const chip = e.target.closest('.filter-chip');
+        const filterType = e.target.dataset.filterType || chip?.dataset.filterType;
+        if (chip && filterType) {
+          chip.classList.add('slide-out');
+          setTimeout(() => {
+            clearFilter(filterType);
+          }, 300);
+        }
+      }
+    });
+    chipsContainer.dataset.delegationSetup = 'true';
+  }
   
   // Get current filter values
   const typeSelect = document.getElementById('type');
@@ -6057,23 +6139,54 @@ function updateFilterChips() {
     chips.push({ type: 'ranking', label: shortened, value: rankingSelect.value });
   }
   
-  // Render chips
+  // Track existing chips to preserve animations
+  const existingChips = Array.from(chipsContainer.children);
+  const existingChipTypes = new Set(existingChips.map(chip => chip.dataset.filterType));
+  const newChipTypes = new Set(chips.map(chip => chip.type));
+  
+  // Remove chips that are no longer needed (with slide-out animation)
+  existingChips.forEach(existingChip => {
+    const chipType = existingChip.dataset.filterType;
+    if (!newChipTypes.has(chipType)) {
+      // Chip should be removed - animate out first
+      existingChip.classList.add('slide-out');
+      setTimeout(() => {
+        if (existingChip.parentNode) {
+          existingChip.remove();
+        }
+      }, 300); // Match animation duration
+    }
+  });
+  
+  // Add new chips (with slide-in animation)
   chips.forEach(chip => {
-    const chipElement = document.createElement('div');
-    chipElement.className = 'filter-chip';
-    chipElement.innerHTML = `
-      <span class="filter-chip-label">${chip.label}</span>
-      <button class="filter-chip-close" data-filter-type="${chip.type}" aria-label="Clear ${chip.type} filter" type="button">×</button>
-    `;
+    // Check if chip already exists
+    const existingChip = Array.from(chipsContainer.children).find(
+      el => el.dataset.filterType === chip.type
+    );
     
-    // Add click handler for close button
-    const closeBtn = chipElement.querySelector('.filter-chip-close');
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      clearFilter(chip.type);
-    });
-    
-    chipsContainer.appendChild(chipElement);
+    if (!existingChip) {
+      // New chip - create and animate in
+      const chipElement = document.createElement('div');
+      chipElement.className = 'filter-chip';
+      chipElement.dataset.filterType = chip.type;
+      chipElement.innerHTML = `
+        <span class="filter-chip-label">${chip.label}</span>
+        <button class="filter-chip-close" data-filter-type="${chip.type}" aria-label="Clear ${chip.type} filter" type="button">×</button>
+      `;
+      
+      // Event delegation handles the close button click (set up above)
+      chipsContainer.appendChild(chipElement);
+    } else {
+      // Update existing chip label if it changed
+      const labelEl = existingChip.querySelector('.filter-chip-label');
+      if (labelEl && labelEl.textContent !== chip.label) {
+        labelEl.textContent = chip.label;
+      }
+      
+      // Ensure existing chip doesn't have slide-out class (in case it was being removed)
+      existingChip.classList.remove('slide-out');
+    }
   });
 }
 
