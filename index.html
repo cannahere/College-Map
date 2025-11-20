@@ -14,18 +14,18 @@
   <link rel="manifest" href="site.webmanifest">
 
   <!-- SEO Meta Tags -->
-  <title>U.S. College Map | Find Colleges Near You & Along Any Route</title>
+  <title>U.S. College Map | Explore Colleges by Type, Ranking & Location</title>
   <link rel="canonical" href="https://uscollegemap.org/">
-  <meta name="description" content="U.S. College Map helps students and families explore U.S. colleges on an interactive map. Find colleges near you or along a driving route, filter by type, region, or state, and save favorite schools to a list for early research and campus visit planning.">
-  <meta name="keywords" content="colleges near me, universities near me, community college near me, colleges in USA, universities in USA, college map, university map, find colleges near me, find universities near me, public universities near me, best public universities in USA, public universities by state, liberal arts colleges in USA, STEM colleges in USA, engineering colleges in USA, medical colleges in USA, business colleges in USA, private universities near me, top universities in USA, Ivy League universities in USA, top liberal arts colleges, colleges along my route, college visit planner, campus visit planner, college trip planner, college visit ideas, college road trip planning, college visit itinerary, college search by location, universities along a route, college list builder, university research, college research, campus visit planning, college exploration, university exploration, college application preparation, preparing for college applications, university application preparation, preparing for university applications, application journey for international students">
+  <meta name="description" content="Find colleges by type, region, or ranking. Explore schools near any location or along any route—ideal for early college research and campus visit planning.">
+  <meta name="keywords" content="college map, university map, interactive college map, US college map, colleges near me, community colleges near me, colleges by location, community colleges by location, map of colleges, college visit map, campus visit planner, college trip planner, colleges along a route, find colleges on a map, community college finder, campus visit planning, higher education USA, college rankings, university rankings, top 25 universities, top liberal arts colleges">
   <meta name="author" content="U.S. College Map">
 
   <!-- Open Graph (Social Media Preview) -->
   <meta property="og:title" content="U.S. College Map — Find Colleges Near You & Along Any Route">
   <meta property="og:description" content="Explore U.S. colleges on an interactive map. Find schools near you or along your route, filter by type or state, and save favorite colleges to your list for easy trip planning.">
   <meta property="og:image" content="https://uscollegemap.org/us-college-map-logo.png">
-<meta property="og:url" content="https://uscollegemap.org/">
-<meta property="og:type" content="website">
+  <meta property="og:url" content="https://uscollegemap.org/">
+  <meta property="og:type" content="website">
 <meta property="og:site_name" content="U.S. College Map">
 
   <!-- Twitter Cards -->
@@ -125,11 +125,20 @@
       .site-logo{height:56px;width:auto;object-fit:contain;margin-bottom:0;transition:height 0.25s ease}
       .container{padding:6px;}
       .controls{padding:8px 8px;gap:2px;}
+      /* Match live version exactly for type, region, state on mobile */
       .row-filters{flex-direction:row;gap:6px;flex-wrap:nowrap;}
-      .row-filters .pill{flex:1 1 calc(33.333% - 4px);min-width:0;}
+      .row-filters .pill{flex:1 1 calc(33.333% - 4px);min-width:0;padding:4px 6px;}
       .row-filters .pill label{display:none}
-      .row-filters .pill select{width:100%;font-size:14px;padding:6px 8px;}
+      .row-filters .pill select{width:100%;font-size:13px;padding:4px 8px;}
+      .row-ranking .pill-ranking{padding:4px 6px;}
+      .row-ranking .pill-ranking select{flex:1;margin-right:4px;width:100%;font-size:13px;padding:4px 8px;}
       .row-filters .pill-search{display:none !important}
+      /* Ranking row - show on mobile only */
+      .row-ranking{display:flex !important;gap:3px;justify-content:space-between;margin-bottom:3px;}
+      .row-ranking .pill-ranking{flex:1 1 0;min-width:0;position:relative;display:flex !important;}
+      .row-ranking .pill-ranking label{display:none !important;}
+      /* Hide ranking in row-filters on mobile since it's now in row-ranking */
+      .row-filters .pill-ranking{display:none !important;}
       .row-search{display:none !important}
       .row-search .pill{flex:1 1 100%;}
       .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
@@ -148,21 +157,68 @@
       .pill input,.pill select,.pill button{width:auto;flex:1;}
       .legend{position:relative;bottom:auto;left:auto;margin:6px;width:calc(100% - 12px);text-align:center;}
     }
+    @media (max-width:399px){
+      .row-filters{gap:6px;}
+      .row-filters .pill{flex:1 1 calc(33.333% - 4px);padding:4px 6px;}
+      .row-filters .pill select{font-size:13px;padding:4px 8px;}
+      .row-ranking .pill-ranking{padding:4px 6px;}
+      .row-ranking .pill-ranking select{font-size:13px;padding:4px 8px;}
+      .row-filters .pill-search{display:none !important}
+      .row-search{display:none !important}
+      .row-search .pill{flex:1 1 100%;}
+      .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
+      .row-search .pill input{flex:1;width:auto;font-size:12px;}
+      .row-nearby{flex-direction:column;gap:6px}
+      .row-nearby .pill.address-autocomplete{flex-direction:row;align-items:center;flex-wrap:wrap}
+      .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:11px !important;font-weight:600;color:#475569}
+      .row-nearby .pill.address-autocomplete input{flex:1;min-width:120px;font-size:12px !important}
+      .row-nearby .pill.address-autocomplete button{flex:0 0 auto;padding:5px 8px;margin-left:4px;font-size:12px !important}
+      .row-nearby .pill:not(.address-autocomplete){flex-direction:row;align-items:center;flex-wrap:nowrap;gap:4px}
+      .row-nearby .pill:not(.address-autocomplete) label{min-width:70px !important;margin-bottom:0;width:auto;margin-right:8px;font-size:11px !important;font-weight:600;color:#475569;flex-shrink:0}
+      .row-nearby #radius{width:44px !important;flex:0 0 auto;max-width:44px;font-size:12px !important;padding:5px 4px !important}
+      .row-nearby #units{width:38px !important;flex:0 0 auto;max-width:38px;font-size:12px !important;padding:5px 4px !important}
+      .row-nearby #geocodeBtn{flex:0 0 auto;padding:5px 8px;font-size:12px !important;white-space:nowrap}
+      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:5px 8px;margin-left:0;font-size:12px !important;white-space:nowrap}
+      .row-route{flex-direction:column;gap:6px}
+      .row-route .pill:has(#routeStart),.row-route .pill:has(#routeEnd){flex-direction:row;align-items:center}
+      .row-route .pill:has(#routeStart) label,.row-route .pill:has(#routeEnd) label{min-width:40px !important;margin-bottom:0;width:auto;margin-right:5px;font-size:11px !important;font-weight:600;color:#475569}
+      .row-route .pill:has(#routeStart) input,.row-route .pill:has(#routeEnd) input{font-size:12px !important}
+      .row-route .pill:has(#routeMaxDistance){flex-direction:row;align-items:center;flex-wrap:nowrap}
+      .row-route .pill:has(#routeMaxDistance) label{min-width:60px !important;margin-bottom:0;width:auto;margin-right:4px;font-size:11px !important;font-weight:600;color:#475569}
+      .row-route #routeMaxDistance{width:50px !important;flex:0 0 auto;max-width:50px;padding:4px 5px !important;font-size:12px !important}
+      .row-route #routeUnits{width:48px !important;flex:0 0 auto;max-width:48px;font-size:12px !important;padding:4px 3px !important}
+      .row-route #findRouteBtn{width:auto;flex:0 0 auto;margin-top:0;padding:5px 8px;margin-left:4px;font-size:12px !important}
+      .row-route #clearRoute{width:auto;flex:0 0 auto;margin-top:0;padding:5px 8px;margin-left:4px;font-size:12px !important}
+    }
+    @media (max-width:399px){
+      .legend{position:relative;bottom:auto;left:auto;margin:6px;width:calc(100% - 12px);text-align:center;}
+    }
     .controls {display:flex;flex-direction:column;gap:3px;padding:10px 12px 6px;border-top:1px solid #e5e7eb;background:#fff}
     .row {display:flex;gap:8px;justify-content:space-between}
     .row>.pill {flex:1}
     .row-filters{display:flex;gap:8px;justify-content:space-between}
-    .row-filters .pill{flex:1}
+    .row-filters .pill{flex:1 1 0;min-width:0;max-width:25%;}
+    .row-filters .pill select{width:100%;box-sizing:border-box;}
+    .row-ranking .pill-ranking select{width:100%;box-sizing:border-box;}
+    .row-filters .pill-ranking{flex:1 1 0;min-width:0;max-width:25%;}
     .row-search{display:none}
     .row-filters .pill-search{display:none !important}
+    /* Hide ranking row on desktop/tablet - only show on mobile (overridden in mobile media query) */
+    .row-ranking{display:none;}
+    @media (max-width:700px){
+      .row-filters{gap:6px;justify-content:flex-start;flex-wrap:nowrap;}
+      .row-filters .pill{flex:1 1 calc(33.333% - 4px);max-width:none;}
+    }
     @media (min-width:1025px) {
       .row-filters .pill-search{display:none !important}
       .row-search{display:none !important}
       .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
       .row-filters{flex:1 1 100%;margin-bottom:3px;gap:8px}
-      .row-filters .pill{flex:1 1 0}
+      .row-filters .pill{flex:1 1 0;min-width:0;max-width:25%;}
+      .row-filters .pill-ranking{flex:1 1 0;min-width:0;max-width:25%;}
       .row-filters .pill-search{flex:1 1 auto;min-width:200px}
       .row-filters .pill-search input{font-size:14px}
+      .row-filters .pill-ranking select{flex:1;margin-right:4px}
       .row-nearby{display:flex;flex-direction:row;gap:8px;flex-wrap:nowrap;margin-bottom:0;align-items:center}
       .row-nearby .pill.address-autocomplete{flex:1 1 auto;min-width:0}
       .row-nearby .pill.address-autocomplete label{min-width:60px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
@@ -170,8 +226,8 @@
       .row-nearby .pill.address-autocomplete button{font-size:14px}
       .row-nearby .pill:not(.address-autocomplete){flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
       .row-nearby .pill:not(.address-autocomplete) label{min-width:60px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
-      .row-nearby #radius{width:70px;flex:0 0 auto;font-size:14px}
-      .row-nearby #units{width:55px;flex:0 0 auto;font-size:14px}
+      .row-nearby #radius{width:73px;flex:0 0 auto;font-size:14px}
+      .row-nearby #units{width:52px;flex:0 0 auto;font-size:14px}
       .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:6px 12px;margin-left:6px;font-size:14px}
       .row-route{display:flex;flex-direction:row;gap:8px;flex-wrap:nowrap;margin-bottom:0;align-items:center}
       .row-route .pill{flex:1 1 auto;min-width:0}
@@ -190,6 +246,17 @@
     .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
     .pill input:focus {outline:none;border-color:#4285f4;box-shadow:0 0 0 1px #4285f4}
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
+    .pill-ranking {position:relative}
+    .ranking-info-icon {width:18px !important;height:18px !important;min-width:18px !important;min-height:18px !important;max-width:18px !important;max-height:18px !important;border-radius:50% !important;background:#eff6ff !important;color:#2563eb !important;border:1px solid #3b82f6 !important;font-size:11px !important;font-weight:900 !important;-webkit-text-stroke:0.4px #2563eb !important;text-shadow:0 0 0.5px #2563eb !important;line-height:1 !important;padding:0 !important;margin:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;flex:0 0 18px !important;flex-shrink:0 !important;box-sizing:border-box !important;vertical-align:middle !important;transition:all 0.2s ease !important}
+    .ranking-info-icon:hover {border-color:#2563eb !important;color:#1d4ed8 !important;background:#dbeafe !important;transform:scale(1.05) !important}
+    .ranking-tooltip {position:absolute;top:calc(100% + 2px);right:0;margin-top:0;background:linear-gradient(180deg,rgba(255,249,219,0.98),rgba(255,243,191,0.98));padding:10px 12px;border-radius:12px;box-shadow:0 8px 18px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(234,179,8,0.5)}
+    .ranking-tooltip.active {display:block;animation:fadeIn 0.2s ease-out}
+    .ranking-tooltip::after {content:'';position:absolute;bottom:100%;right:9px;border-width:0 6px 6px 6px;border-style:solid;border-color:transparent transparent rgba(255,243,191,0.98) transparent;filter:drop-shadow(0 -2px 4px rgba(15,23,42,0.15))}
+    .ranking-tooltip::before {content:'';position:absolute;bottom:calc(100% + 1px);right:8px;border-width:0 7px 7px 7px;border-style:solid;border-color:transparent transparent rgba(234,179,8,0.5) transparent}
+    .ranking-tooltip-header {display:flex;align-items:flex-start;gap:8px;margin-bottom:0}
+    .ranking-tooltip-close {position:absolute;top:8px;right:8px;background:none !important;border:none !important;color:#0f172a !important;font:inherit;font-size:14px;padding:0;line-height:1;cursor:pointer;box-shadow:none;appearance:none;width:auto;height:auto;min-width:0;min-height:0;border-radius:0;display:inline-block;flex:none}
+    .ranking-tooltip-close:focus {outline:none;box-shadow:none}
+    .ranking-tooltip-body {font-size:0.8125rem;line-height:1.5;color:#0f172a;padding-right:24px;flex:1}
     #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1;min-height:500px}
     .legend {position:absolute;bottom:14px;left:14px;padding:0;border:none;font-size:11px;font-weight:500;color:#0f172a;text-shadow:none;z-index:1800;background:none;border-radius:0;line-height:1;text-align:left;transform:none}
     .map-hint-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
@@ -303,11 +370,12 @@
       .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:11px !important;font-weight:600;color:#475569}
       .row-nearby .pill.address-autocomplete input{flex:1;min-width:120px;font-size:12px !important}
       .row-nearby .pill.address-autocomplete button{flex:0 0 auto;padding:5px 8px;margin-left:4px;font-size:12px !important}
-      .row-nearby .pill:not(.address-autocomplete){flex-direction:row;align-items:center;flex-wrap:wrap}
-      .row-nearby .pill:not(.address-autocomplete) label{min-width:70px !important;margin-bottom:0;width:auto;margin-right:8px;font-size:11px !important;font-weight:600;color:#475569}
-      .row-nearby #radius{width:50px !important;flex:0 0 auto;max-width:50px;font-size:12px !important}
-      .row-nearby #units{width:48px !important;flex:0 0 auto;max-width:48px;font-size:12px !important}
-      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:5px 8px;margin-left:4px;font-size:12px !important}
+      .row-nearby .pill:not(.address-autocomplete){flex-direction:row;align-items:center;flex-wrap:nowrap;gap:4px}
+      .row-nearby .pill:not(.address-autocomplete) label{min-width:70px !important;margin-bottom:0;width:auto;margin-right:8px;font-size:11px !important;font-weight:600;color:#475569;flex-shrink:0}
+      .row-nearby #radius{width:44px !important;flex:0 0 auto;max-width:44px;font-size:12px !important;padding:5px 4px !important}
+      .row-nearby #units{width:38px !important;flex:0 0 auto;max-width:38px;font-size:12px !important;padding:5px 4px !important}
+      .row-nearby #geocodeBtn{flex:0 0 auto;padding:5px 8px;font-size:12px !important;white-space:nowrap}
+      .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:5px 8px;margin-left:0;font-size:12px !important;white-space:nowrap}
       .row-route{flex-direction:column;gap:6px}
       .row-route .pill:has(#routeStart),.row-route .pill:has(#routeEnd){flex-direction:row;align-items:center}
       .row-route .pill:has(#routeStart) label,.row-route .pill:has(#routeEnd) label{min-width:40px !important;margin-bottom:0;width:auto;margin-right:5px;font-size:11px !important;font-weight:600;color:#475569}
@@ -338,9 +406,11 @@
     }
     @media (min-width: 701px) and (max-width: 1024px) {
       .row-filters{flex-direction:row;gap:6px;flex-wrap:nowrap;}
-      .row-filters .pill{flex:1 1 calc(33.333% - 4px);min-width:0;}
+      .row-filters .pill{flex:1 1 0;min-width:0;max-width:25%;}
+      .row-filters .pill-ranking{flex:1 1 0;min-width:0;max-width:25%;}
       .row-filters .pill label{display:none}
-      .row-filters .pill select{width:100%;font-size:12px;padding:6px 8px;}
+      .row-filters .pill select{width:100%;font-size:16px !important;padding:6px 8px;}
+      .row-filters .pill-ranking select{flex:1;margin-right:4px;font-size:16px !important;}
       .row-filters .pill-search{display:none !important}
       .row-search{display:none !important}
       .row-search .pill{flex:1 1 100%;}
@@ -356,8 +426,8 @@
       .row-nearby .pill.address-autocomplete button{flex:0 0 auto;padding:6px 10px;margin-left:4px;font-size:12px}
       .row-nearby .pill:not(.address-autocomplete){flex:0 1 auto;min-width:0;flex-direction:row;align-items:center}
       .row-nearby .pill:not(.address-autocomplete) label{min-width:70px;margin-bottom:0;width:auto;margin-right:6px;font-size:12px;font-weight:600;color:#475569}
-      .row-nearby #radius{width:65px;flex:0 0 auto;max-width:65px;font-size:12px}
-      .row-nearby #units{width:50px;flex:0 0 auto;max-width:50px;font-size:12px}
+      .row-nearby #radius{width:68px;flex:0 0 auto;max-width:68px;font-size:12px}
+      .row-nearby #units{width:47px;flex:0 0 auto;max-width:47px;font-size:12px}
       .row-nearby #clearRadius{width:auto;flex:0 0 auto;padding:6px 10px;margin-left:6px;font-size:12px}
       .row-route{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:0}
       .row-route .pill:first-child,.row-route .pill:nth-child(2){width:100%;box-sizing:border-box;padding:4px 6px}
@@ -389,6 +459,7 @@
     .snippet h2 {font-size:14px;font-weight:600;margin-bottom:4px;color:#1e293b;display:flex;align-items:center;gap:4px}
     .snippet h2 .star-icon {font-size:0.85em;line-height:1;display:inline-flex;align-items:center;margin-top:0}
     .snippet p {font-size:13px;color:#64748b;line-height:1.5}
+    .site-disclaimer {max-width:1100px;margin:0 auto 24px;font-size:10px;line-height:1.5;color:#475569;padding:0 16px;text-align:left}
     @media (max-width:700px) {
       .info-snippets {grid-template-columns:1fr}
       .filter-section {margin-top:3px}
@@ -449,6 +520,27 @@
     html.ios-device select {
       font-size:16px !important;
     }
+      /* iOS mobile: 16px for filter dropdowns */
+      @media (max-width:700px) {
+        html.ios-device .row-filters .pill select,
+        html.ios-device .row-ranking .pill-ranking select,
+        html.ios-device #type,
+        html.ios-device #region,
+        html.ios-device #state,
+        html.ios-device #ranking {
+          font-size:16px !important;
+        }
+      }
+      @media (min-width:701px) and (max-width:1024px) {
+        html.ios-device .row-filters .pill select,
+        html.ios-device .row-ranking .pill-ranking select,
+        html.ios-device #type,
+        html.ios-device #region,
+        html.ios-device #state,
+        html.ios-device #ranking {
+          font-size:16px !important;
+        }
+      }
     /* iOS: keep route inputs at 16px so Safari doesn't zoom */
     html.ios-device #routeStart,
     html.ios-device #routeEnd {
@@ -1085,7 +1177,7 @@
   <!-- Using width/height attributes for layout stability and to prevent layout shift during load -->
   <img src="us-college-map-logo.png" alt="U.S. College Map interactive tool for exploring colleges by type, region, and location" class="site-logo" width="280" height="70">
       <h1 class="sr-only">U.S. College Map — Find Colleges Near You, Along Your Route, and Save Your List</h1>
-      <p class="tagline">Planning campus visits? U.S. College Map helps you explore schools by type, region, or name — and easily find colleges near any location or along any trip.</p>
+      <p class="tagline">Planning campus visits? U.S. College Map helps you explore schools by type, region, or ranking,  and easily find colleges near any location or along any trip.</p>
     </div>
 </header>
 
@@ -1095,11 +1187,15 @@
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
+      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">Ranking tiers (default)</option></select><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">Ranking tiers are not official and are for reference only. Some tiers include extra schools to reflect variations across major lists. See full disclaimer below for details.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
       <!-- College name search temporarily hidden - functionality preserved for future use -->
       <div class="pill pill-search" style="display: none !important;"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
   </div>
     <div class="row row-search" style="display: none !important;">
       <div class="pill"><label for="search-mobile">Search</label><input id="search-mobile" placeholder="Enter college name" /></div>
+  </div>
+    <div class="row row-ranking">
+      <!-- Ranking will be moved here on mobile via JavaScript -->
   </div>
     
     <details class="filter-section">
@@ -1253,6 +1349,7 @@
       </div>
     </div>
   </section>
+  <p class="site-disclaimer">Disclaimer: Ranking tiers on this site are for general reference only and are not official rankings. They reflect schools that commonly appear near the top of well-known national lists but are not based on any single ranking system. Some tiers include additional schools to account for natural year-to-year differences across sources. Families and students should use these tiers as a starting point for exploration and always research colleges directly to determine personal fit.</p>
   </main>
 </div>
 <footer class="site-footer">© 2025 U.S. College Map</footer>
@@ -1268,6 +1365,7 @@ const elements = {
   state: document.getElementById('state'),
   region: document.getElementById('region'),
   type: document.getElementById('type'),
+  ranking: document.getElementById('ranking'),
   search: document.getElementById('search'),
   address: document.getElementById('address'),
   radius: document.getElementById('radius'),
@@ -1405,20 +1503,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply autofill guards again in case elements weren't ready before
   applyAutofillGuards();
   
+  // Position ranking dropdown on DOM ready (will be called again after it's defined and after CSV loads)
+  setTimeout(() => {
+    if (typeof positionRankingDropdown === 'function') {
+      positionRankingDropdown();
+    }
+  }, 50);
+  
+  // Update dropdown placeholders on DOM ready (will be called again after CSV loads)
+  // Note: updateDropdownPlaceholders function is defined later, but will be called after CSV loads
+  
   const ua = navigator.userAgent || '';
   const isIOS =
     /iPad|iPhone|iPod/.test(ua) ||
     (ua.includes('Mac') && navigator.maxTouchPoints > 1);
   
-  if (isIOS) {
-    const isSmallScreen = window.innerWidth <= 768;
-    if (isSmallScreen && elements.type) {
-      const defaultTypeOption = elements.type.querySelector('option[value=""]');
-      if (defaultTypeOption) {
-        defaultTypeOption.textContent = 'All types';
-      }
-    }
-  }
+  // Note: iOS-specific placeholder override removed - now handled by updateDropdownPlaceholders()
+  // which is called after CSV loads and dropdowns are refreshed
   if (window.innerWidth <= 700) {
     addHeaderInteractionListeners();
   }
@@ -2463,12 +2564,13 @@ function getRouteFilterSignature() {
   const typeVal = elements.type ? elements.type.value.trim() : '';
   const regionVal = elements.region ? elements.region.value.trim() : '';
   const stateVal = elements.state ? elements.state.value.trim() : '';
+  const rankingVal = elements.ranking ? elements.ranking.value.trim() : '';
   const desktopSearch = elements.search;
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
   const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
   const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
-  return { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+  return { typeVal, regionVal, stateVal, rankingVal, searchVal, maxDistance, units };
 }
 
 function addRouteCollegeMarker(college, distanceText, units) {
@@ -2509,13 +2611,13 @@ function addRouteCollegeMarker(college, distanceText, units) {
 
 function areNearbySignaturesEqual(a, b) {
   if (!a || !b) return false;
-  const keys = ['typeVal', 'regionVal', 'stateVal', 'searchVal', 'radiusVal', 'unitsVal', 'homeLat', 'homeLon'];
+  const keys = ['typeVal', 'regionVal', 'stateVal', 'rankingVal', 'searchVal', 'radiusVal', 'unitsVal', 'homeLat', 'homeLon'];
   return keys.every(key => (a[key] ?? '') === (b[key] ?? ''));
 }
 
 function isRouteCacheValid(cache, filters, currentStart, currentEnd) {
   if (!cache || !cache.filters || !filters) return false;
-  const keys = ['typeVal', 'regionVal', 'stateVal', 'searchVal', 'maxDistance', 'units'];
+  const keys = ['typeVal', 'regionVal', 'stateVal', 'rankingVal', 'searchVal', 'maxDistance', 'units'];
   const filtersMatch = keys.every(key => (cache.filters[key] || '') === (filters[key] || ''));
   const sameStart = cache.start && currentStart &&
     cache.start.lat === currentStart.lat &&
@@ -2663,6 +2765,7 @@ function refilterCollegesAlongRoute() {
   const typeVal = elements.type ? elements.type.value.trim() : '';
   const regionVal = elements.region ? elements.region.value.trim() : '';
   const stateVal = elements.state ? elements.state.value.trim() : '';
+  const rankingVal = elements.ranking ? elements.ranking.value.trim() : '';
   const desktopSearch = elements.search;
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
@@ -2674,6 +2777,12 @@ function refilterCollegesAlongRoute() {
       if (!regionStates.includes(c.state)) return false;
     }
     if (stateVal && c.state !== stateVal) return false;
+    if (rankingVal) {
+      if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+      if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+      if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+      if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+    }
     if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
     return true;
   });
@@ -2763,6 +2872,7 @@ function render(){
       const stateVal = elements.state ? elements.state.value : '';
       const regionVal = elements.region ? elements.region.value : '';
       const typeVal = elements.type ? elements.type.value : '';
+      const rankingVal = elements.ranking ? elements.ranking.value : '';
       const desktopSearch = elements.search;
       const mobileSearch = document.getElementById('search-mobile');
       const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
@@ -2777,6 +2887,14 @@ function render(){
         
         // Type filter
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
+        
+        // Ranking filter
+        if (rankingVal) {
+          if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+          if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+          if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+          if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+        }
         
         // Search filter
         if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
@@ -2809,8 +2927,8 @@ function render(){
             return;
           }
           
-          const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
-          const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
+    const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
+    const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
           
           const saveButtonHtml = c.college_id ? `
             <div class="popup-save-row">
@@ -2820,16 +2938,16 @@ function render(){
               </button>
             </div>` : '';
 
-          const popupContent = `
-            <div style="font-size:12px;line-height:1.4">
-              <b>${c.name}</b><br>
-              ${c.state} · ${(c.type||'Unknown')}<br>
-              ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
-              Enrollment: ${c.enrollment || 'N/A'}<br>
-              Tuition: ${tuition}<br>
-              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+    const popupContent = `
+      <div style="font-size:12px;line-height:1.4">
+        <b>${c.name}</b><br>
+        ${c.state} · ${(c.type||'Unknown')}<br>
+        ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
+        Enrollment: ${c.enrollment || 'N/A'}<br>
+        Tuition: ${tuition}<br>
+        ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
               ${saveButtonHtml}
-            </div>`;
+      </div>`;
 
           const marker = createCollegeMarker(c, popupContent, c.college_id);
           marker.addTo(markersLayer);
@@ -2867,6 +2985,7 @@ function render(){
   const stateVal = elements.state ? elements.state.value : '';
   const regionVal = elements.region ? elements.region.value : '';
   const typeVal = elements.type ? elements.type.value : '';
+  const rankingVal = elements.ranking ? elements.ranking.value : '';
   // Get search value from either desktop or mobile search field (prefer the one with a value, or desktop first)
   const desktopSearch = elements.search;
   const mobileSearch = document.getElementById('search-mobile');
@@ -2877,6 +2996,7 @@ function render(){
     typeVal,
     regionVal,
     stateVal,
+    rankingVal,
     searchVal,
     radiusVal,
     unitsVal,
@@ -2884,8 +3004,8 @@ function render(){
     homeLon: home ? Number(home.lon.toFixed(6)) : null
   };
   const shouldAutoFrameNearby = !lastNearbyFilters || !mapViewState.nearby || !areNearbySignaturesEqual(lastNearbyFilters, nearbySignature);
-  const isDefaultNearbyState = !home && !regionVal && !stateVal && !typeVal && !searchVal;
-  const isSearchOnlyFilter = !!searchVal && !home && !regionVal && !stateVal && !typeVal;
+  const isDefaultNearbyState = !home && !regionVal && !stateVal && !typeVal && !rankingVal && !searchVal;
+  const isSearchOnlyFilter = !!searchVal && !home && !regionVal && !stateVal && !typeVal && !rankingVal;
 
   let filtered = colleges.filter(c => {
     // Region filter
@@ -2897,6 +3017,14 @@ function render(){
     
     // Type filter
     if (typeVal && (c.type || c.tier) !== typeVal) return false;
+    
+    // Ranking filter
+    if (rankingVal) {
+      if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+      if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+      if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+      if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+    }
     
     // Search filter
     if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
@@ -3033,6 +3161,26 @@ function render(){
 function refreshDropdown(id, values, placeholder) {
   const select = document.getElementById(id);
   select.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option>${v}</option>`).join('');
+  // Ensure font-size is consistent after dropdown refresh (especially for mobile/tablet)
+  const width = window.innerWidth || document.documentElement.clientWidth;
+  const isMobile = width <= 700;
+  const isTablet = width >= 701 && width <= 1024;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  
+  if (isMobile) {
+    // Mobile (≤700px): 14px for all devices, 16px for iOS
+    const fontSize = isIOS ? '16px' : '14px';
+    select.style.fontSize = fontSize;
+    select.style.setProperty('font-size', fontSize, 'important');
+  } else if (isTablet) {
+    // Tablet (701px-1024px): 16px for all devices
+    select.style.fontSize = '16px';
+    select.style.setProperty('font-size', '16px', 'important');
+  } else {
+    // Remove inline font-size on desktop to let CSS handle it
+    select.style.fontSize = '';
+  }
 }
 
 /**
@@ -3890,7 +4038,11 @@ function processCollegesData(data) {
       acceptance: r.acceptance || '',
       enrollment: r.enrollment || '',
       tuition: r.tuition || '',
-      url: r.url || ''
+      url: r.url || '',
+      top25_univ: (r.top25_univ || '').toString().trim(),
+      top50_univ: (r.top50_univ || '').toString().trim(),
+      top10_lac: (r.top10_lac || '').toString().trim(),
+      top20_lac: (r.top20_lac || '').toString().trim()
     };
   });
   
@@ -3918,6 +4070,14 @@ function processCollegesData(data) {
   refreshDropdown('state', states, 'All states');
   refreshDropdown('type', orderedTypes, 'All college types');
   refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All regions');
+  
+  // Update dropdown placeholders based on current screen size (after dropdowns are refreshed)
+  updateDropdownPlaceholders();
+  
+  // Position ranking dropdown after CSV loads
+  if (typeof positionRankingDropdown === 'function') {
+    positionRankingDropdown();
+  }
   
   // Ensure we're in nearby mode on initial load (default section is open)
   activeMode = 'nearby';
@@ -4772,14 +4932,15 @@ function findCollegesAlongRoute() {
         return minDistance <= maxDistance;
       });
       
-      // Apply other filters (type, region, state, search)
+      // Apply other filters (type, region, state, ranking, search)
       const typeVal = elements.type ? elements.type.value.trim() : '';
       const regionVal = elements.region ? elements.region.value.trim() : '';
       const stateVal = elements.state ? elements.state.value.trim() : '';
+      const rankingVal = elements.ranking ? elements.ranking.value.trim() : '';
       const desktopSearch = elements.search;
       const mobileSearch = document.getElementById('search-mobile');
       const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
-      const filtersSnapshot = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+      const filtersSnapshot = { typeVal, regionVal, stateVal, rankingVal, searchVal, maxDistance, units };
       const finalFiltered = filtered.filter(c => {
         // Type filter - check both type and tier fields
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
@@ -4790,6 +4951,13 @@ function findCollegesAlongRoute() {
         }
         // State filter
         if (stateVal && c.state !== stateVal) return false;
+        // Ranking filter
+        if (rankingVal) {
+          if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+          if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+          if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+          if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+        }
         // Search filter
         if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
         return true;
@@ -4921,10 +5089,11 @@ function findCollegesAlongRoute() {
       const typeVal = elements.type ? elements.type.value.trim() : '';
       const regionVal = elements.region ? elements.region.value.trim() : '';
       const stateVal = elements.state ? elements.state.value.trim() : '';
+      const rankingVal = elements.ranking ? elements.ranking.value.trim() : '';
       const searchVal = (elements.search ? elements.search.value.trim().toLowerCase() : '') || 
                         (document.getElementById('search-mobile') ? document.getElementById('search-mobile').value.trim().toLowerCase() : '');
       
-      const filtersSnapshot = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+      const filtersSnapshot = { typeVal, regionVal, stateVal, rankingVal, searchVal, maxDistance, units };
       const finalFiltered = filtered.filter(c => {
         // Type filter - check both type and tier fields
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
@@ -4935,6 +5104,13 @@ function findCollegesAlongRoute() {
         }
         // State filter
         if (stateVal && c.state !== stateVal) return false;
+        // Ranking filter
+        if (rankingVal) {
+          if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+          if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+          if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+          if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+        }
         // Search filter
         if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
         return true;
@@ -5003,9 +5179,111 @@ function findCollegesAlongRoute() {
 // Region dropdown (doesn't depend on CSV)
 refreshDropdown('region', ['Northeast', 'Midwest', 'South', 'West', 'Territories'], 'All regions');
 
+// Update dropdown placeholder text based on screen size
+function updateDropdownPlaceholders() {
+  const width = window.innerWidth || document.documentElement.clientWidth;
+  const isMobile = width <= 700;
+  const isTablet = width >= 701 && width <= 1024;
+  
+  // Debug: log when mobile mode is detected
+  if (isMobile) {
+    console.log('[updateDropdownPlaceholders] Mobile mode - width:', width);
+  }
+  
+  // List of filter dropdown IDs
+  const filterDropdowns = ['type', 'region', 'state', 'ranking'];
+  
+  // Explicitly enforce font-size for mobile/tablet to ensure consistency
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  
+  if (isMobile) {
+    // Mobile (≤700px): 14px for all devices, 16px for iOS
+    const fontSize = isIOS ? '16px' : '14px';
+    filterDropdowns.forEach(id => {
+      const select = document.getElementById(id);
+      if (select) {
+        select.style.fontSize = fontSize;
+        select.style.setProperty('font-size', fontSize, 'important');
+      }
+    });
+    // Also apply to ranking dropdown
+    const rankingSelect = document.getElementById('ranking');
+    if (rankingSelect) {
+      rankingSelect.style.fontSize = fontSize;
+      rankingSelect.style.setProperty('font-size', fontSize, 'important');
+    }
+  } else if (isTablet) {
+    // Tablet (701px-1024px): 16px for all devices
+    filterDropdowns.forEach(id => {
+      const select = document.getElementById(id);
+      if (select) {
+        select.style.fontSize = '16px';
+        select.style.setProperty('font-size', '16px', 'important');
+      }
+    });
+  } else {
+    // Remove inline font-size on desktop to let CSS handle it
+    filterDropdowns.forEach(id => {
+      const select = document.getElementById(id);
+      if (select) {
+        select.style.fontSize = '';
+      }
+    });
+  }
+  
+  // Update Type dropdown
+  const typeSelect = document.getElementById('type');
+  if (typeSelect) {
+    const typeOption = typeSelect.querySelector('option[value=""]');
+    if (typeOption) {
+      typeOption.textContent = isMobile ? 'All types' : 'All college types';
+    }
+  }
+  
+  // Update Region dropdown
+  const regionSelect = document.getElementById('region');
+  if (regionSelect) {
+    const regionOption = regionSelect.querySelector('option[value=""]');
+    if (regionOption) {
+      regionOption.textContent = isMobile ? 'All regions' : 'All regions';
+    }
+  }
+  
+  // Update State dropdown
+  const stateSelect = document.getElementById('state');
+  if (stateSelect) {
+    const stateOption = stateSelect.querySelector('option[value=""]');
+    if (stateOption) {
+      stateOption.textContent = isMobile ? 'All states' : 'All states';
+    }
+  }
+  
+  // Update Ranking dropdown
+  const rankingSelect = document.getElementById('ranking');
+  if (rankingSelect) {
+    const rankingOption = rankingSelect.querySelector('option[value=""]');
+    if (rankingOption) {
+      if (isMobile) {
+        rankingOption.textContent = 'NEW! | School ranking tiers (default)';
+      } else if (isTablet) {
+        rankingOption.textContent = 'Ranking tiers (default)';
+      } else {
+        rankingOption.textContent = 'Ranking tiers (default)';
+      }
+    }
+  }
+}
+
+// Ranking dropdown (static options)
+refreshDropdown('ranking', ['Top 25 national universities', 'Top 50 national universities', 'Top 10 liberal arts colleges', 'Top 20 liberal arts colleges'], 'Ranking tiers (default)');
+updateDropdownPlaceholders();
+
 // Type dropdown (initialize with common types, will be updated when CSV loads)
 try {
   refreshDropdown('type', TYPE_ORDER.filter(Boolean), 'Any college type');
+  // Update placeholders after initial type dropdown setup
+  updateDropdownPlaceholders();
 } catch (e) {
   console.error('Error initializing type dropdown:', e);
   // Fallback: ensure dropdown at least exists
@@ -5013,6 +5291,7 @@ try {
   if (typeSelect) {
     typeSelect.innerHTML = '<option value="">All college types</option>';
   }
+  updateDropdownPlaceholders();
 }
 
 // Event listeners
@@ -5318,6 +5597,8 @@ if (elements.clearRadius) {
     if (elements.search) elements.search.value = '';
     const mobileSearch = document.getElementById('search-mobile');
     if (mobileSearch) mobileSearch.value = '';
+    // Clear ranking filter
+    if (elements.ranking) elements.ranking.value = '';
     home = null;
     homeLayer.clearLayers();
     radiusLayer.clearLayers();
@@ -5378,7 +5659,7 @@ filterSections.forEach(section => {
           // Re-apply the search and recreate the pin marker
           if (home) {
             // Clear and recreate the pin marker
-            homeLayer.clearLayers();
+        homeLayer.clearLayers();
             radiusLayer.clearLayers();
             
             // Recreate "Your Location" pin marker (red)
@@ -5447,9 +5728,9 @@ filterSections.forEach(section => {
       filterSections.forEach(otherSection => {
         if (otherSection !== section && otherSection.open) {
           otherSection.open = false;
-        }
-      });
-    }
+      }
+    });
+}
   });
 });
 
@@ -5589,7 +5870,14 @@ if (elements.state) {
   });
 }
 
-['region', 'type', 'radius', 'units'].forEach(id => {
+// Update mobile pill text format - labels are hidden on mobile, so this function is not needed
+function updateMobilePillText() {
+  // Labels are hidden on mobile (≤700px), so no text update needed
+  // The select dropdown itself will show the selected value or placeholder
+  return;
+}
+
+['region', 'type', 'ranking', 'radius', 'units'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     // Track filter usage
     if (typeof gtag !== 'undefined') {
@@ -5600,6 +5888,9 @@ if (elements.state) {
       }
     }
     
+    // Update mobile pill text
+    updateMobilePillText();
+    
     if (activeMode === 'route' && route.lastSearch) {
       // Re-run route search with updated filters
       findCollegesAlongRoute();
@@ -5607,6 +5898,86 @@ if (elements.state) {
       render();
     }
   });
+});
+
+// Function to move ranking between row-filters and row-ranking based on screen size
+function positionRankingDropdown() {
+  // Try to find ranking pill in either location
+  let rankingPill = document.querySelector('.row-filters .pill-ranking');
+  if (!rankingPill) {
+    rankingPill = document.querySelector('.row-ranking .pill-ranking');
+  }
+  const rowRanking = document.querySelector('.row-ranking');
+  const rowFilters = document.querySelector('.row-filters');
+  
+  if (!rankingPill || !rowRanking || !rowFilters) {
+    // If elements don't exist yet, try again after a short delay
+    if (document.readyState === 'loading') {
+      setTimeout(positionRankingDropdown, 100);
+    }
+    return;
+  }
+  
+  const isMobile = window.innerWidth <= 700;
+  
+  if (isMobile) {
+    // Move ranking to row-ranking on mobile
+    // First ensure row-ranking is visible
+    rowRanking.style.display = 'flex';
+    rowRanking.style.setProperty('display', 'flex', 'important');
+    
+    if (rankingPill.parentElement !== rowRanking) {
+      // Remove display:none before moving
+      rankingPill.style.display = '';
+      rankingPill.style.removeProperty('display');
+      rowRanking.appendChild(rankingPill);
+    }
+    
+    // Ensure it's visible after moving
+    rankingPill.style.display = 'flex';
+    rankingPill.style.setProperty('display', 'flex', 'important');
+  } else {
+    // Move ranking back to row-filters on desktop/tablet
+    if (rankingPill.parentElement !== rowFilters) {
+      // Insert after state pill
+      const statePill = document.querySelector('.row-filters .pill:has(#state)');
+      if (statePill && statePill.nextSibling) {
+        rowFilters.insertBefore(rankingPill, statePill.nextSibling);
+      } else {
+        rowFilters.appendChild(rankingPill);
+      }
+    }
+  }
+}
+
+// Update mobile pill text and dropdown placeholders on initial load and window resize
+updateDropdownPlaceholders();
+positionRankingDropdown();
+if (window.innerWidth <= 700) {
+  updateMobilePillText();
+}
+window.addEventListener('resize', () => {
+  // Update dropdown placeholder text based on screen size
+  updateDropdownPlaceholders();
+  
+  // Reposition ranking dropdown based on screen size
+  positionRankingDropdown();
+  
+  if (window.innerWidth <= 700) {
+    updateMobilePillText();
+  } else {
+    // Reset to default on desktop
+    ['type', 'region', 'state', 'ranking'].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) {
+        const labelEl = select.closest('.pill')?.querySelector('label');
+        if (labelEl) {
+          const labels = { type: 'Type', region: 'Region', state: 'State', ranking: 'Ranking' };
+          labelEl.textContent = labels[id];
+        }
+      }
+    });
+  }
 });
 
 // Debounced search input - use event delegation to handle both desktop and mobile search fields
@@ -5708,6 +6079,68 @@ gtag('config', 'G-E2KP0JHTMC');
       feedbackPopup.classList.remove('active');
     }
   });
+})();
+
+// Ranking info tooltip functionality
+(function() {
+  const rankingInfoBtn = document.getElementById('ranking-info-btn');
+  const rankingTooltip = document.getElementById('ranking-tooltip');
+  const rankingTooltipClose = document.getElementById('ranking-tooltip-close');
+  
+  if (rankingInfoBtn && rankingTooltip) {
+    let isTooltipOpen = false;
+    
+    function toggleTooltip(e) {
+      e.stopPropagation();
+      isTooltipOpen = !isTooltipOpen;
+      if (isTooltipOpen) {
+        rankingTooltip.classList.add('active');
+      } else {
+        rankingTooltip.classList.remove('active');
+      }
+    }
+    
+    function closeTooltip(e) {
+      if (e) e.stopPropagation();
+      isTooltipOpen = false;
+      rankingTooltip.classList.remove('active');
+    }
+    
+    // Close button functionality
+    if (rankingTooltipClose) {
+      rankingTooltipClose.addEventListener('click', closeTooltip);
+    }
+    
+    // Desktop: hover and click
+    rankingInfoBtn.addEventListener('mouseenter', () => {
+      if (!isTooltipOpen) {
+        rankingTooltip.classList.add('active');
+      }
+    });
+    
+    rankingInfoBtn.addEventListener('mouseleave', () => {
+      if (!isTooltipOpen) {
+        rankingTooltip.classList.remove('active');
+      }
+    });
+    
+    rankingInfoBtn.addEventListener('click', toggleTooltip);
+    
+    // Close on click outside
+    document.addEventListener('click', function(e) {
+      if (isTooltipOpen && 
+          !rankingTooltip.contains(e.target) && 
+          !rankingInfoBtn.contains(e.target)) {
+        closeTooltip();
+      }
+    });
+    
+    // Mobile: tap to toggle
+    rankingInfoBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      toggleTooltip(e);
+    });
+  }
 })();
 </script>
 
