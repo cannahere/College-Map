@@ -2550,6 +2550,15 @@ function parseSharedViewURL() {
   isSharedView = true;
   console.log('Shared view enabled', { isSharedView, sharedViewIdsSize: sharedViewIds.size });
   
+  // Google Analytics: Track shared map view
+  if (typeof gtag !== 'undefined') {
+    const mode = window.sharedViewState?.mode || 'explore';
+    gtag('event', 'feature_shared_map_viewed', {
+      'college_count': sharedViewIds ? sharedViewIds.size : 0,
+      'mode': mode
+    });
+  }
+  
   // Immediately set Map Saved Only to ON for shared views
   savedOnlyMode = true;
   const savedToggle = document.getElementById('saved-toggle');
@@ -4859,6 +4868,16 @@ async function handleSavedShareClick(event) {
   
   // Generate share URL
   const shareUrl = generateShareURL();
+  
+  // Google Analytics: Track share action
+  if (typeof gtag !== 'undefined') {
+    const savedIds = SavedStore.getAll();
+    const mode = activeMode || 'explore';
+    gtag('event', 'feature_share_used', {
+      'college_count': savedIds.length,
+      'mode': mode
+    });
+  }
   
   // Copy to clipboard
   const copied = await copyToClipboard(shareUrl);
