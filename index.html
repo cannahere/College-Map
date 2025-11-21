@@ -655,6 +655,10 @@
       pointer-events: auto;
       gap: 4px;
     }
+    /* Lower z-index for saved-controls when overlay is active so pill appears behind overlay */
+    body:has(.saved-colleges-overlay.active) .saved-controls {
+      z-index: 2500;
+    }
     .saved-list-section,
     .saved-only-section {
       display: flex;
@@ -774,8 +778,12 @@
       .saved-share-tooltip {
         display: block;
       }
-      .saved-share-icon:hover .saved-share-tooltip {
+      .saved-share-icon:hover .saved-share-tooltip:not(.tooltip-hidden) {
         opacity: 1;
+      }
+      .saved-share-tooltip.tooltip-hidden {
+        opacity: 0 !important;
+        pointer-events: none !important;
       }
     }
     /* On mobile/tablet (touch devices), hide tooltip completely and ensure tap works */
@@ -788,8 +796,8 @@
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 20px;
-      transform: translate(-50%, 40px);
+      top: 50%;
+      transform: translate(-50%, calc(-50% + 40px));
       background: #fff;
       color: #0f172a;
       border-radius: 12px;
@@ -811,11 +819,14 @@
     }
     .toast.active {
       opacity: 1;
-      transform: translate(-50%, 0);
+      transform: translate(-50%, -50%);
       pointer-events: auto;
     }
     .toast-message {
       flex: 1;
+      white-space: normal;
+      word-wrap: break-word;
+      text-align: center;
     }
     @media (min-width: 600px) {
       .toast {
@@ -1177,7 +1188,7 @@
       height: 100%;
       background: linear-gradient(180deg,#ffffff 0%,#fefefe 120px,#f3f6ff 100%);
       box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
-      z-index: 3000;
+      z-index: 9000;
       display: none;
       flex-direction: column;
       font-family: Inter, sans-serif;
@@ -4049,8 +4060,31 @@ function render(){
   updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
   
   if (shouldAutoFrameNearby) {
-    if ((isDefaultNearbyState || isSearchOnlyFilter) && mapViewState.nearby) {
-      map.setView([mapViewState.nearby.center.lat, mapViewState.nearby.center.lng], mapViewState.nearby.zoom);
+    // Special handling for Territories region - zoom out to show global view
+    if (regionVal === 'Territories') {
+      if (filtered.length === 0) {
+        // No results, show global view that includes all US territories
+        // Territories span: PR/VI (Caribbean), GU/MP (Western Pacific), AS (South Pacific)
+        // Use a wide view centered on Pacific to show all territories
+        map.setView([10, -170], 2);
+      } else if (filtered.length === 1) {
+        // Single college, zoom to it
+        map.setView([filtered[0].lat, filtered[0].lon], 8);
+      } else if (nearbyBounds && nearbyBounds.isValid()) {
+        // Multiple colleges - fit bounds with padding, no mainland constraint
+        // Territories are spread globally, so don't clamp to mainland
+        const paddedBounds = nearbyBounds.pad(0.2);
+        map.fitBounds(paddedBounds);
+      } else {
+        // Fallback: global view centered on Pacific
+        map.setView([10, -170], 2);
+      }
+    } else if (isDefaultNearbyState || isSearchOnlyFilter) {
+      // When no filters are active, restore to default US view (not saved view which might be from a territory)
+      const defaultView = getInitialNearbyView();
+      map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+      // Update mapViewState to reflect the default view
+      mapViewState.nearby = { ...defaultView };
       captureMapView('nearby');
     } else if (filtered.length === 0) {
       if (home) {
@@ -4062,7 +4096,38 @@ function render(){
       map.setView([filtered[0].lat, filtered[0].lon], 8);
     } else if (nearbyBounds && nearbyBounds.isValid()) {
       const paddedBounds = nearbyBounds.pad(0.15);
-      const constrainedBounds = clampBoundsToMainland(paddedBounds);
+      // Only clamp to mainland if no state filter is active, or if the state filter is for a mainland state
+      // This allows territories like AS, HI, AK, PR to be shown when explicitly selected
+      let constrainedBounds = paddedBounds;
+      if (stateVal) {
+        // Check if all filtered colleges are in the same state, and if that state is outside mainland
+        // If user explicitly selected a non-mainland state, don't clamp
+        const allSameState = filtered.every(c => c.state === stateVal);
+        if (allSameState) {
+          // Check if this state's colleges are outside mainland bounds
+          const boundsSouth = nearbyBounds.getSouth();
+          const boundsWest = nearbyBounds.getWest();
+          const boundsNorth = nearbyBounds.getNorth();
+          const boundsEast = nearbyBounds.getEast();
+          const isOutsideMainland = 
+            boundsSouth < US_MAINLAND_VIEW.getSouth() ||
+            boundsWest < US_MAINLAND_VIEW.getWest() ||
+            boundsNorth > US_MAINLAND_VIEW.getNorth() ||
+            boundsEast > US_MAINLAND_VIEW.getEast();
+          // If explicitly selected state is outside mainland, don't clamp
+          if (isOutsideMainland) {
+            constrainedBounds = paddedBounds;
+          } else {
+            constrainedBounds = clampBoundsToMainland(paddedBounds);
+          }
+        } else {
+          // Mixed states - apply clamping
+          constrainedBounds = clampBoundsToMainland(paddedBounds);
+        }
+      } else {
+        // No state filter - apply clamping to prevent showing empty ocean
+        constrainedBounds = clampBoundsToMainland(paddedBounds);
+      }
       map.fitBounds(constrainedBounds);
     } else if (home) {
       map.setView([home.lat, home.lon], 8);
@@ -4329,6 +4394,11 @@ function openSavedListPanel() {
   const overlay = document.getElementById('saved-colleges-overlay');
   if (overlay && !overlay.classList.contains('active')) {
     overlay.classList.add('active');
+    // Lower z-index of saved-controls so pill appears behind overlay
+    const savedControls = document.getElementById('saved-controls');
+    if (savedControls) {
+      savedControls.style.zIndex = '2500';
+    }
     freezeMapInteractions();
     updateSavedOverlay();
     // Focus search input
@@ -4347,6 +4417,11 @@ function closeSavedListPanel() {
   const overlay = document.getElementById('saved-colleges-overlay');
   if (overlay && overlay.classList.contains('active')) {
     overlay.classList.remove('active');
+    // Restore z-index of saved-controls
+    const savedControls = document.getElementById('saved-controls');
+    if (savedControls) {
+      savedControls.style.zIndex = '';
+    }
     resumeMapInteractions();
     // Clear search
     const searchInput = document.getElementById('saved-search-input');
@@ -4988,6 +5063,19 @@ async function copyToClipboard(text) {
 // Share icon click handler
 async function handleSavedShareClick(event) {
   event.stopPropagation();
+  
+  // Hide tooltip on click (desktop) - it will reappear when mouse leaves and re-enters
+  const shareIcon = document.getElementById('saved-share-icon');
+  const tooltip = shareIcon?.querySelector('.saved-share-tooltip');
+  if (tooltip) {
+    tooltip.classList.add('tooltip-hidden');
+    // Remove hidden class when mouse leaves the icon so tooltip can show again on next hover
+    const handleMouseLeave = () => {
+      tooltip.classList.remove('tooltip-hidden');
+      shareIcon.removeEventListener('mouseleave', handleMouseLeave);
+    };
+    shareIcon.addEventListener('mouseleave', handleMouseLeave);
+  }
   
   // Generate share URL
   const shareUrl = generateShareURL();
