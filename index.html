@@ -286,15 +286,17 @@
     @media (max-width:700px) {
       .map-hint-bubble {top:16px;left:12px;right:12px;width:clamp(160px, calc(100vw - 24px), 260px);max-width:calc(100vw - 24px);box-sizing:border-box}
     }
-    .map-tip-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.8125rem;max-width:280px;width:clamp(200px, calc(100vw - 32px), 280px);display:none;z-index:2001;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
+    .map-tip-bubble {position:absolute;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.8125rem;max-width:280px;width:clamp(200px, calc(100vw - 32px), 280px);display:none;z-index:2001;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     .map-tip-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
+    .map-tip-bubble::after {content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border-width:6px 6px 0 6px;border-style:solid;border-color:rgba(255,255,255,0.98) transparent transparent transparent;filter:drop-shadow(0 2px 4px rgba(15,23,42,0.15))}
+    .map-tip-bubble::before {content:'';position:absolute;top:calc(100% + 1px);left:calc(50% - 1px);transform:translateX(-50%);border-width:7px 7px 0 7px;border-style:solid;border-color:rgba(226,232,240,0.8) transparent transparent transparent}
     .map-tip-bubble-content {display:flex;align-items:center;gap:8px}
     .map-tip-bubble-icon {font-size:14px;line-height:1;flex-shrink:0}
     .map-tip-bubble-text {font-size:0.8125rem;line-height:1.4;color:#0f172a;flex:1}
     .map-tip-bubble-close {background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;line-height:1;padding:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.2s;margin-left:4px}
     .map-tip-bubble-close:hover {color:#64748b}
     @media (max-width:700px) {
-      .map-tip-bubble {top:12px;left:12px;right:12px;max-width:calc(100vw - 24px);width:clamp(180px, calc(100vw - 24px), 280px);font-size:0.75rem;padding:8px 10px;box-sizing:border-box}
+      .map-tip-bubble {max-width:calc(100vw - 24px);width:clamp(180px, calc(100vw - 24px), 280px);font-size:0.75rem;padding:8px 10px;box-sizing:border-box}
       .map-tip-bubble-icon {font-size:12px}
     }
     .leaflet-tooltip {background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:500;padding:4px 8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
@@ -1591,7 +1593,7 @@
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
-      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">Ranking tiers (default)</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">Ranking tiers are not official and are for reference only. Some tiers include extra schools to reflect variations across major lists. See full disclaimer below for details.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
+      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">Ranking tiers (default)</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">School ranking tiers are for reference only*. Some tiers include extra schools to reflect variations across major lists.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
       <!-- College name search temporarily hidden - functionality preserved for future use -->
       <div class="pill pill-search" style="display: none !important;"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
   </div>
@@ -1764,7 +1766,7 @@
       </div>
     </div>
   </section>
-  <p class="site-disclaimer">Disclaimer: Ranking tiers on this site are for general reference only and are not official rankings. They reflect schools that commonly appear near the top of well-known national lists but are not based on any single ranking system. Some tiers include additional schools to account for natural year-to-year differences across sources. Families and students should use these tiers as a starting point for exploration and always research colleges directly to determine personal fit.</p>
+  <p class="site-disclaimer">*Ranking tiers on this site are for general reference only and are not official rankings. They reflect schools that commonly appear near the top of well-known national lists but are not based on any single ranking system. Some tiers include additional schools to account for natural year-to-year differences across sources. Families and students should use these tiers as a starting point for exploration and always research colleges directly to determine personal fit.</p>
   </main>
 </div>
 <footer class="site-footer">© 2025 U.S. College Map</footer>
@@ -2740,15 +2742,16 @@ function applySharedViewState() {
           // Draw radius circle
           if (radiusLayer) {
             radiusLayer.clearLayers();
-            if (radiusVal > 0) {
-              L.circle([home.lat, home.lon], {
-                radius: radiusInMeters,
-                color: '#2563eb',
-                fillColor: '#2563eb',
-                fillOpacity: 0.1,
-                weight: 2
-              }).addTo(radiusLayer);
-            }
+            // Draw circle even if radius is 0 (use 0.5)
+            const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
+            const effectiveRadiusInMeters = unitsVal === 'mi' ? effectiveRadius * 1609.34 : effectiveRadius * 1000;
+            L.circle([home.lat, home.lon], {
+              radius: effectiveRadiusInMeters,
+              color: '#2563eb',
+              fillColor: '#2563eb',
+              fillOpacity: 0.1,
+              weight: 2
+            }).addTo(radiusLayer);
           }
           
           // Render colleges
@@ -2783,7 +2786,19 @@ function applySharedViewState() {
     if (routeDetails) routeDetails.open = true;
     
     // Store route search state so it can be re-rendered
-    const maxDistance = parseFloat(elements.routeMaxDistance?.value || state.route.maxDistance || '30') || 30;
+    // Parse maxDistance - handle 0 correctly (don't use || operator as 0 is falsy)
+    const maxDistanceInputStr = elements.routeMaxDistance?.value || state.route.maxDistance;
+    let maxDistanceInput;
+    if (maxDistanceInputStr === '' || maxDistanceInputStr === null || maxDistanceInputStr === undefined) {
+      maxDistanceInput = 30;
+    } else {
+      maxDistanceInput = parseFloat(maxDistanceInputStr);
+      if (isNaN(maxDistanceInput)) {
+        maxDistanceInput = 30;
+      }
+    }
+    // If maxDistance is 0, use 0.5 instead
+    const maxDistance = maxDistanceInput === 0 ? 0.5 : maxDistanceInput;
     const units = elements.routeUnits?.value || state.route.units || 'mi';
     route.lastSearch = {
       start: route.start,
@@ -3374,7 +3389,19 @@ function getRouteFilterSignature() {
   const desktopSearch = elements.search;
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
-  const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
+  // Parse maxDistance - handle 0 correctly (don't use || operator as 0 is falsy)
+  const maxDistanceInputStr = elements.routeMaxDistance?.value;
+  let maxDistanceInput;
+  if (maxDistanceInputStr === '' || maxDistanceInputStr === null || maxDistanceInputStr === undefined) {
+    maxDistanceInput = 30;
+  } else {
+    maxDistanceInput = parseFloat(maxDistanceInputStr);
+    if (isNaN(maxDistanceInput)) {
+      maxDistanceInput = 30;
+    }
+  }
+  // If maxDistance is 0, use 0.5 instead
+  const maxDistance = maxDistanceInput === 0 ? 0.5 : maxDistanceInput;
   const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
   return { typeVal, regionVal, stateVal, rankingVal, searchVal, maxDistance, units };
 }
@@ -3536,7 +3563,19 @@ function refilterCollegesAlongRoute() {
     console.log('Skipping refilter - route is a fallback straight line');
     return;
   }
-  const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
+  // Parse maxDistance - handle 0 correctly (don't use || operator as 0 is falsy)
+  const maxDistanceInputStr = elements.routeMaxDistance?.value;
+  let maxDistanceInput;
+  if (maxDistanceInputStr === '' || maxDistanceInputStr === null || maxDistanceInputStr === undefined) {
+    maxDistanceInput = 30;
+  } else {
+    maxDistanceInput = parseFloat(maxDistanceInputStr);
+    if (isNaN(maxDistanceInput)) {
+      maxDistanceInput = 30;
+    }
+  }
+  // If maxDistance is 0, use 0.5 instead
+  const maxDistance = maxDistanceInput === 0 ? 0.5 : maxDistanceInput;
   const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
   
   // Sample route points for performance
@@ -3764,6 +3803,26 @@ function render(){
       
       if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
       
+      // Show tip bubble when blue dots first appear (first-time users only)
+      // Check if we have any blue dots (unsaved markers) and haven't shown the tip yet
+      if (filtered.length > 0 && sessionStorage.getItem('ucm_seenTapDotHint') !== '1') {
+        // Check if there are any unsaved markers (blue dots)
+        let hasBlueDots = false;
+        markersLayer.eachLayer((layer) => {
+          if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
+            hasBlueDots = true;
+            return false; // Break the loop
+          }
+        });
+        
+        if (hasBlueDots) {
+          // Wait a bit for map to finish rendering, then show tip
+          setTimeout(() => {
+            showMapTip();
+          }, 300);
+        }
+      }
+      
       // Update map hints for route mode (no route search yet)
       updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
     }
@@ -3836,9 +3895,11 @@ function render(){
     if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
     
     // Radius filter (if home location is set)
-    if (home && radiusVal > 0) {
+    if (home) {
+      // If radius is 0, use 0.5 instead
+      const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
       const distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
-      if (distance > radiusVal) return false;
+      if (distance > effectiveRadius) return false;
     }
     
     return true;
@@ -3897,9 +3958,10 @@ function render(){
     console.log(`[render] savedOnlyMode is false, showing all colleges`);
   }
 
-  // Draw radius circle if home and radius are set
-  if (home && radiusVal > 0) {
-    const radiusMeters = radiusVal * (unitsVal === 'mi' ? 1609.34 : 1000);
+  // Draw radius circle if home is set (use 0.5 if radius is 0)
+  if (home) {
+    const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
+    const radiusMeters = effectiveRadius * (unitsVal === 'mi' ? 1609.34 : 1000);
     L.circle([home.lat, home.lon], {
       radius: radiusMeters,
       color: '#2563eb',
@@ -3962,6 +4024,26 @@ function render(){
 
   if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
   console.log(`Added ${filtered.length} markers to map`);
+  
+  // Show tip bubble when blue dots first appear (first-time users only)
+  // Check if we have any blue dots (unsaved markers) and haven't shown the tip yet
+  if (filtered.length > 0 && sessionStorage.getItem('ucm_seenTapDotHint') !== '1') {
+    // Check if there are any unsaved markers (blue dots)
+    let hasBlueDots = false;
+    markersLayer.eachLayer((layer) => {
+      if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
+        hasBlueDots = true;
+        return false; // Break the loop
+      }
+    });
+    
+    if (hasBlueDots) {
+      // Wait a bit for map to finish rendering, then show tip
+      setTimeout(() => {
+        showMapTip();
+      }, 300);
+    }
+  }
   
   // Update map hints based on filtered results
   updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
@@ -4161,31 +4243,72 @@ function clearHintAutoHide(type) {
 
 
 /**
- * Show the map tip bubble if it hasn't been seen this session
+ * Show the map tip bubble pointing to a blue dot near the center
+ * Only shows for first-time users when blue dots first appear
  */
 function showMapTip() {
   const tipBubble = document.getElementById('map-tip-bubble');
-  if (!tipBubble) return;
+  if (!tipBubble || !map) return;
   
   // Check if already seen this session
   if (sessionStorage.getItem('ucm_seenTapDotHint') === '1') {
     return;
   }
   
+  // Check if user has seen it before (first-time user check)
+  if (localStorage.getItem('ucm_seenTapDotHint') === '1') {
+    return;
+  }
+  
+  // Find a blue dot (unsaved marker) near the center of the map
+  const mapCenter = map.getCenter();
+  let closestBlueDot = null;
+  let closestDistance = Infinity;
+  
+  markersLayer.eachLayer((layer) => {
+    // Check if this is a blue dot (circleMarker, not a saved marker with icon)
+    if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
+      const markerLatLng = layer.getLatLng();
+      const distance = mapCenter.distanceTo(markerLatLng);
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestBlueDot = markerLatLng;
+      }
+    }
+  });
+  
+  // If no blue dot found, don't show the tip
+  if (!closestBlueDot) {
+    return;
+  }
+  
+  // Convert marker position to pixel coordinates
+  const markerPoint = map.latLngToContainerPoint(closestBlueDot);
+  const bubbleHeight = 60; // Approximate height of bubble
+  const bubbleOffset = 10; // Space between bubble and marker
+  
+  // Position bubble above the marker
+  tipBubble.style.top = `${markerPoint.y - bubbleHeight - bubbleOffset}px`;
+  tipBubble.style.left = `${markerPoint.x}px`;
+  tipBubble.style.transform = 'translateX(-50%)';
+  tipBubble.style.right = 'auto';
+  
   // Show the tip bubble
   tipBubble.classList.add('active');
   
-  // Auto-hide after 15 seconds
+  // Auto-hide after 8 seconds
   setTimeout(() => {
     dismissMapTip();
-  }, 15000);
+  }, 8000);
 }
 
 /**
- * Dismiss the map tip bubble and store in sessionStorage
+ * Dismiss the map tip bubble and store in sessionStorage and localStorage
  */
 function dismissMapTip() {
   sessionStorage.setItem('ucm_seenTapDotHint', '1');
+  localStorage.setItem('ucm_seenTapDotHint', '1');
   const tipBubble = document.getElementById('map-tip-bubble');
   if (tipBubble) tipBubble.classList.remove('active');
 }
@@ -5117,10 +5240,6 @@ function processCollegesData(data) {
     console.log('Skipping initial render - shared view will handle rendering');
   }
   
-  // Show the tip bubble after map is ready (only once per session)
-  setTimeout(() => {
-    showMapTip();
-  }, 500);
 }
 
 function geocodeAddress(address, mode = 'nearby'){
@@ -5838,7 +5957,19 @@ function findCollegesAlongRoute() {
   console.log('Starting route search...', { start: route.start, end: route.end });
   isProcessingRoute = true;
   
-  const maxDistance = parseFloat(elements.routeMaxDistance?.value || '30') || 30;
+  // Parse maxDistance - handle 0 correctly (don't use || operator as 0 is falsy)
+  const maxDistanceInputStr = elements.routeMaxDistance?.value;
+  let maxDistanceInput;
+  if (maxDistanceInputStr === '' || maxDistanceInputStr === null || maxDistanceInputStr === undefined) {
+    maxDistanceInput = 30;
+  } else {
+    maxDistanceInput = parseFloat(maxDistanceInputStr);
+    if (isNaN(maxDistanceInput)) {
+      maxDistanceInput = 30;
+    }
+  }
+  // If maxDistance is 0, use 0.5 instead
+  const maxDistance = maxDistanceInput === 0 ? 0.5 : maxDistanceInput;
   const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
   
   // Store route search state
