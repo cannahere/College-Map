@@ -111,9 +111,11 @@
     .main-container {display:flex;flex-direction:column;min-height:100vh}
     .container {max-width:1100px;margin:0 auto;padding:16px}
     header.app-header {position:sticky;top:0;background:#fff;z-index:5000;border-bottom:1px solid #e2e8f0;box-shadow:0 10px 25px rgba(15,23,42,.08)}
+    .shared-map-banner.active ~ .main-container header.app-header {top:auto}
+    body:has(.shared-map-banner.active) header.app-header {top:auto}
     .app-header {display:flex;align-items:flex-start;justify-content:flex-start;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05);transition:padding 0.25s ease, min-height 0.25s ease, box-shadow 0.25s ease}
     .header-logo-tagline {display:flex;flex-direction:column;align-items:flex-start;gap:0}
-    .site-logo {height:70px;width:auto;object-fit:contain;transition:all 0.3s ease;margin-bottom:0}
+    .site-logo {height:64px;width:auto;object-fit:contain;transition:all 0.3s ease;margin-bottom:0}
     .tagline {font-family:Inter,sans-serif;font-size:14px;color:#6b7280;line-height:1.5;text-align:left;margin:0;margin-top:4px;margin-bottom:3px;margin-left:10px;font-weight:400;max-width:calc(100% - 10px)}
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
     @media (max-width:700px){
@@ -122,7 +124,7 @@
       .header-logo-tagline{align-items:flex-start;text-align:left}
       .tagline{text-align:left;margin-left:0;max-width:100%;font-size:12px;color:#94A3B8;line-height:1.4;margin-top:4px;margin-bottom:6px;transition:opacity 0.25s ease,max-height 0.25s ease}
       .app-header.collapsed .tagline{opacity:0;max-height:0;margin:0;overflow:hidden}
-      .site-logo{height:56px;width:auto;object-fit:contain;margin-bottom:0;transition:height 0.25s ease}
+      .site-logo{height:50px;width:auto;object-fit:contain;margin-bottom:0;transition:height 0.25s ease}
       .container{padding:6px;}
       .controls{padding:8px 8px;gap:2px;}
       /* Match live version exactly for type, region, state on mobile */
@@ -271,7 +273,7 @@
     .ranking-tooltip-close {position:absolute;top:8px;right:8px;background:none !important;border:none !important;color:#0f172a !important;font:inherit;font-size:14px;padding:0;line-height:1;cursor:pointer;box-shadow:none;appearance:none;width:auto;height:auto;min-width:0;min-height:0;border-radius:0;display:inline-block;flex:none}
     .ranking-tooltip-close:focus {outline:none;box-shadow:none}
     .ranking-tooltip-body {font-size:0.8125rem;line-height:1.5;color:#0f172a;padding-right:24px;flex:1}
-    #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;z-index:1;min-height:500px}
+    #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;min-height:500px}
     .legend {position:absolute;bottom:14px;left:14px;padding:0;border:none;font-size:11px;font-weight:500;color:#0f172a;text-shadow:none;z-index:1800;background:none;border-radius:0;line-height:1;text-align:left;transform:none}
     .map-hint-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     .map-hint-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
@@ -643,7 +645,7 @@
       align-items: center;
       height: 38px;
       padding: 0 6px;
-      z-index: 1500;
+      z-index: 8000;
       font-family: Inter, sans-serif;
       font-weight: 500;
       color: #374151;
@@ -658,8 +660,226 @@
       gap: 5px;
       padding: 0 4px;
       cursor: pointer;
-      transition: opacity 0.2s, color 0.2s;
+      transition: opacity 0.2s, color 0.2s, padding-right 0.15s ease;
       user-select: none;
+      position: relative;
+    }
+    .saved-only-section.saved-only-active {
+      padding-right: 36px;
+    }
+    .saved-only-main {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: transform 0.15s ease;
+    }
+    .saved-only-section.saved-only-active .saved-only-main {
+      transform: translateX(-2px);
+    }
+    .saved-only-divider {
+      position: absolute;
+      right: 28px;
+      width: 1px;
+      height: 20px;
+      background: #E5E7EB;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .saved-only-section.saved-only-active .saved-only-divider {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .saved-share-icon {
+      position: absolute;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      pointer-events: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .saved-only-section.saved-only-active .saved-share-icon {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .saved-share-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: #1d4ed8;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+    .saved-share-tooltip {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: linear-gradient(180deg, rgba(255, 249, 219, 0.98), rgba(255, 243, 191, 0.98));
+      color: #0f172a;
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+      border: 1px solid rgba(234, 179, 8, 0.5);
+      font-size: 0.75rem;
+      font-family: Inter, sans-serif;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      transform: translateY(-4px);
+      z-index: 7000 !important;
+      display: none;
+    }
+    .saved-share-icon:hover .saved-share-tooltip {
+      transform: translateY(0);
+    }
+    .saved-share-tooltip::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 10px;
+      border-width: 0 6px 6px 6px;
+      border-style: solid;
+      border-color: transparent transparent rgba(255, 243, 191, 0.98) transparent;
+      filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.15));
+    }
+    .saved-share-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -7px;
+      right: 9px;
+      border-width: 0 7px 7px 7px;
+      border-style: solid;
+      border-color: transparent transparent rgba(234, 179, 8, 0.5) transparent;
+    }
+    /* Tooltip and hover effects only on desktop (hover-capable devices) */
+    @media (hover: hover) and (pointer: fine) {
+      .saved-share-icon:hover svg {
+        stroke: #1e40af;
+      }
+      .saved-share-tooltip {
+        display: block;
+      }
+      .saved-share-icon:hover .saved-share-tooltip {
+        opacity: 1;
+      }
+    }
+    /* On mobile/tablet (touch devices), hide tooltip completely and ensure tap works */
+    @media (hover: none) or (pointer: coarse) {
+      .saved-share-tooltip {
+        display: none !important;
+      }
+    }
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translate(-50%, 40px);
+      background: #fff;
+      color: #0f172a;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+      border: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+      max-width: 90vw;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10000;
+      font-size: 14px;
+      line-height: 1.4;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      font-family: Inter, sans-serif;
+    }
+    .toast.active {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+    }
+    .toast-message {
+      flex: 1;
+    }
+    @media (min-width: 600px) {
+      .toast {
+        max-width: 400px;
+        width: auto;
+      }
+    }
+    /* Shared map banner */
+    .shared-map-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fef3c7;
+      border-bottom: 2px solid #fbbf24;
+      padding: 12px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10000;
+      font-size: 14px;
+      color: #dc2626;
+      font-weight: 700;
+      font-family: Inter, sans-serif;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .shared-map-banner.active {
+      display: flex;
+    }
+    .shared-map-banner-message {
+      flex: 1;
+      line-height: 1.4;
+      font-weight: 700;
+      color: #dc2626;
+    }
+    .shared-map-banner-close {
+      background: none;
+      border: none;
+      color: #dc2626;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 12px;
+      flex-shrink: 0;
+      transition: color 0.2s;
+      font-weight: 700;
+    }
+    .shared-map-banner-close:hover {
+      color: #b91c1c;
+      background: rgba(220, 38, 38, 0.1);
+      border-radius: 4px;
+    }
+    @media (max-width: 700px) {
+      .shared-map-banner {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+      .shared-map-banner-message {
+        font-size: 13px;
+      }
     }
     .saved-list-section {
       color: #1d4ed8;
@@ -742,6 +962,22 @@
         padding: 0 3px;
         gap: 4px;
       }
+      .saved-only-section.saved-only-active {
+        padding-right: 32px;
+      }
+      .saved-only-divider {
+        right: 24px;
+        height: 20px;
+      }
+      .saved-share-icon {
+        right: 3px;
+        width: 18px;
+        height: 18px;
+      }
+      .saved-share-icon svg {
+        width: 16px;
+        height: 16px;
+      }
       .saved-pill {
         padding: 3px 9px;
       }
@@ -780,6 +1016,22 @@
       .saved-controls.saved-only-active .saved-toggle-thumb {
       transform: translateX(10px);
     }
+      .saved-only-section.saved-only-active {
+        padding-right: 30px;
+      }
+      .saved-only-divider {
+        right: 22px;
+        height: 18px;
+      }
+      .saved-share-icon {
+        right: 3px;
+        width: 16px;
+        height: 16px;
+      }
+      .saved-share-icon svg {
+        width: 14px;
+        height: 14px;
+      }
   }
   /* Filter chips */
   .filter-chips {
@@ -1317,6 +1569,11 @@
   </style>
 </head>
 <body>
+<!-- Shared map banner -->
+<div class="shared-map-banner" id="shared-map-banner">
+  <div class="shared-map-banner-message">You're viewing a shared map of saved colleges. Your own saved list won't be changed.</div>
+  <button class="shared-map-banner-close" id="shared-map-banner-close" aria-label="Close banner" type="button">×</button>
+</div>
 <div class="main-container">
 <header class="app-header">
     <div class="header-logo-tagline">
@@ -1417,13 +1674,22 @@
         <span class="saved-pill"><span class="saved-text">My Saved List</span></span>
       </div>
       <div class="saved-controls-divider"></div>
-      <div class="saved-only-section" onclick="toggleSavedOnly()">
-        <div class="saved-toggle" id="saved-toggle">
-          <div class="saved-toggle-track">
-            <div class="saved-toggle-thumb"></div>
+      <div class="saved-only-section" id="saved-only-section">
+        <div class="saved-only-main" onclick="toggleSavedOnly()">
+          <div class="saved-toggle" id="saved-toggle">
+            <div class="saved-toggle-track">
+              <div class="saved-toggle-thumb"></div>
+            </div>
           </div>
+          <span class="saved-text">Map Saved Only</span>
         </div>
-        <span class="saved-text">Map Saved Only</span>
+        <div class="saved-only-divider"></div>
+        <div class="saved-share-icon" id="saved-share-icon" onclick="handleSavedShareClick(event)">
+          <div class="saved-share-tooltip">Share this saved map</div>
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+          </svg>
+        </div>
       </div>
     </div>
     <!-- Filter chips -->
@@ -1646,6 +1912,18 @@ if (elements.address || elements.routeStart || elements.routeEnd) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Parse shared view URL if present
+  parseSharedViewURL();
+  
+  // If CSV has already loaded (from cache) and we're in shared view, apply shared state now
+  if (isSharedView && window.sharedViewState && colleges && colleges.length > 0) {
+    console.log('[DOMContentLoaded] CSV already loaded, applying shared view state now');
+    applySharedViewState();
+  }
+  
+  // Initialize shared view banner
+  initSharedViewBanner();
+  
   // Initialize saved search
   initSavedSearch();
   
@@ -2031,6 +2309,79 @@ const ROUTE_END_PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" he
 const ROUTE_START_PIN_ICON = 'data:image/svg+xml;base64,' + btoa(ROUTE_START_PIN_SVG);
 const ROUTE_END_PIN_ICON = 'data:image/svg+xml;base64,' + btoa(ROUTE_END_PIN_SVG);
 let colleges = [], home = null;
+// Shared view state (temporary, in-memory only)
+let sharedViewIds = null;
+let isSharedView = false;
+// Saved-only mode (declared early so it can be set before CSV loads)
+let savedOnlyMode = false;
+
+// Parse shared view URL immediately (before DOMContentLoaded) to set savedOnlyMode early
+// This ensures savedOnlyMode is set before any rendering happens
+if (typeof URLSearchParams !== 'undefined') {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get('view');
+  if (view === 'savedshare') {
+    const collegesParam = params.get('colleges');
+    if (collegesParam) {
+      // Normalize IDs to strings and trim whitespace
+      sharedViewIds = new Set(collegesParam.split(',').map(id => id.trim()).filter(id => id));
+      console.log('[Early init] Shared view IDs parsed:', sharedViewIds.size, 'Sample IDs:', Array.from(sharedViewIds).slice(0, 5));
+    } else {
+      sharedViewIds = new Set();
+      console.log('[Early init] No shared college IDs in URL');
+    }
+    isSharedView = true;
+    savedOnlyMode = true; // Set immediately to prevent initial render from showing all colleges
+    
+    // Also set window.sharedViewState early so handleDataLoad can use it
+    const lat = parseFloat(params.get('lat'));
+    const lng = parseFloat(params.get('lng'));
+    const zoom = parseFloat(params.get('zoom'));
+    
+    window.sharedViewState = {
+      center: (lat && lng) ? { lat, lng } : null,
+      zoom: zoom || null,
+      mode: params.get('mode') || 'explore',
+      nearby: null,
+      route: null
+    };
+    
+    // Parse mode-specific data
+    if (window.sharedViewState.mode === 'nearby') {
+      const homeLat = parseFloat(params.get('homeLat'));
+      const homeLng = parseFloat(params.get('homeLng'));
+      const radius = params.get('radius');
+      const units = params.get('units');
+      
+      if (homeLat && homeLng) {
+        window.sharedViewState.nearby = {
+          lat: homeLat,
+          lon: homeLng,
+          radius: radius || null,
+          units: units || 'mi'
+        };
+      }
+    } else if (window.sharedViewState.mode === 'route') {
+      const startLat = parseFloat(params.get('startLat'));
+      const startLng = parseFloat(params.get('startLng'));
+      const endLat = parseFloat(params.get('endLat'));
+      const endLng = parseFloat(params.get('endLng'));
+      const routeRadius = params.get('routeRadius');
+      const routeUnits = params.get('routeUnits');
+      
+      if (startLat && startLng && endLat && endLng) {
+        window.sharedViewState.route = {
+          start: { lat: startLat, lon: startLng },
+          end: { lat: endLat, lon: endLng },
+          maxDistance: routeRadius || null,
+          units: routeUnits || 'mi'
+        };
+      }
+    }
+    
+    console.log('[Early init] Shared view detected, savedOnlyMode set to true', { sharedViewIdsSize: sharedViewIds.size, sharedViewState: window.sharedViewState });
+  }
+}
 function captureMapView(mode) {
   if (!mode) return;
   const center = map.getCenter();
@@ -2144,6 +2495,13 @@ const SavedStore = (() => {
   
   return {
     isSaved(collegeId) {
+      // In shared view, check sharedViewIds instead of local savedIds
+      if (isSharedView && sharedViewIds) {
+        // Normalize collegeId to string for consistent comparison
+        const normalizedId = String(collegeId || '').trim();
+        const isInShared = sharedViewIds.has(normalizedId);
+        return isInShared;
+      }
       return savedIds.has(collegeId);
     },
     toggle(collegeId) {
@@ -2160,10 +2518,300 @@ const SavedStore = (() => {
       }
     },
     getAll() {
+      // In shared view, return shared IDs instead of local savedIds
+      if (isSharedView && sharedViewIds) {
+        return Array.from(sharedViewIds);
+      }
       return Array.from(savedIds);
     }
   };
 })();
+
+// Parse URL for shared view
+function parseSharedViewURL() {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get('view');
+  
+  if (view !== 'savedshare') {
+    return false;
+  }
+  
+  // Parse shared college IDs
+  const collegesParam = params.get('colleges');
+  if (collegesParam) {
+    // Normalize IDs to strings and trim whitespace
+    sharedViewIds = new Set(collegesParam.split(',').map(id => id.trim()).filter(id => id));
+    console.log('Shared view IDs parsed:', sharedViewIds.size, 'Sample IDs:', Array.from(sharedViewIds).slice(0, 5));
+  } else {
+    sharedViewIds = new Set();
+    console.log('No shared college IDs in URL');
+  }
+  
+  isSharedView = true;
+  console.log('Shared view enabled', { isSharedView, sharedViewIdsSize: sharedViewIds.size });
+  
+  // Immediately set Map Saved Only to ON for shared views
+  savedOnlyMode = true;
+  const savedToggle = document.getElementById('saved-toggle');
+  const savedControls = document.getElementById('saved-controls');
+  const savedOnlySection = document.getElementById('saved-only-section');
+  if (savedToggle) {
+    savedToggle.classList.add('active');
+  }
+  if (savedControls) {
+    savedControls.classList.add('saved-only-active');
+  }
+  if (savedOnlySection) {
+    savedOnlySection.classList.add('saved-only-active');
+  }
+  console.log('Map Saved Only set to ON for shared view');
+  
+  // Show banner
+  const banner = document.getElementById('shared-map-banner');
+  if (banner) {
+    banner.classList.add('active');
+  }
+  
+  // Parse map center and zoom
+  const lat = parseFloat(params.get('lat'));
+  const lng = parseFloat(params.get('lng'));
+  const zoom = parseFloat(params.get('zoom'));
+  
+  // Store shared view state for later use
+  window.sharedViewState = {
+    center: (lat && lng) ? { lat, lng } : null,
+    zoom: zoom || null,
+    mode: params.get('mode') || 'explore',
+    nearby: null,
+    route: null
+  };
+  
+  // Parse mode-specific data
+  if (window.sharedViewState.mode === 'nearby') {
+    const homeLat = parseFloat(params.get('homeLat'));
+    const homeLng = parseFloat(params.get('homeLng'));
+    const radius = params.get('radius');
+    const units = params.get('units');
+    
+    if (homeLat && homeLng) {
+      window.sharedViewState.nearby = {
+        lat: homeLat,
+        lon: homeLng,
+        radius: radius || null,
+        units: units || 'mi'
+      };
+    }
+  } else if (window.sharedViewState.mode === 'route') {
+    const startLat = parseFloat(params.get('startLat'));
+    const startLng = parseFloat(params.get('startLng'));
+    const endLat = parseFloat(params.get('endLat'));
+    const endLng = parseFloat(params.get('endLng'));
+    const routeRadius = params.get('routeRadius');
+    const routeUnits = params.get('routeUnits');
+    
+    if (startLat && startLng && endLat && endLng) {
+      window.sharedViewState.route = {
+        start: { lat: startLat, lon: startLng },
+        end: { lat: endLat, lon: endLng },
+        maxDistance: routeRadius || null,
+        units: routeUnits || 'mi'
+      };
+    }
+  }
+  
+  return true;
+}
+
+// Initialize shared view banner close handler
+function initSharedViewBanner() {
+  const banner = document.getElementById('shared-map-banner');
+  const closeBtn = document.getElementById('shared-map-banner-close');
+  
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      if (banner) {
+        banner.classList.remove('active');
+      }
+    });
+  }
+}
+
+// Apply shared view state to map and UI
+function applySharedViewState() {
+  console.log('[applySharedViewState] Called', { isSharedView, hasSharedViewState: !!window.sharedViewState, sharedViewIdsSize: sharedViewIds ? sharedViewIds.size : 'null' });
+  
+  if (!isSharedView || !window.sharedViewState) {
+    console.log('[applySharedViewState] Returning early - shared view not active or state not available', { isSharedView, sharedViewState: window.sharedViewState });
+    return;
+  }
+  
+  const state = window.sharedViewState;
+  console.log('[applySharedViewState] Applying shared view state', state);
+  
+  // Saved-only mode is already set in parseSharedViewURL(), but ensure UI is updated
+  // (in case elements weren't ready when parseSharedViewURL() ran)
+  savedOnlyMode = true;
+  const savedToggle = document.getElementById('saved-toggle');
+  const savedControls = document.getElementById('saved-controls');
+  const savedOnlySection = document.getElementById('saved-only-section');
+  if (savedToggle) {
+    savedToggle.classList.add('active');
+  }
+  if (savedControls) {
+    savedControls.classList.add('saved-only-active');
+  }
+  if (savedOnlySection) {
+    savedOnlySection.classList.add('saved-only-active');
+  }
+  
+  // Wait for map to be ready before applying state
+  if (!map) {
+    console.warn('[applySharedViewState] Map not ready, retrying...');
+    setTimeout(applySharedViewState, 100);
+    return;
+  }
+  
+  console.log('[applySharedViewState] Map is ready, proceeding with state application');
+  
+  // Set map center and zoom
+  if (state.center && state.zoom) {
+    map.setView([state.center.lat, state.center.lng], state.zoom, { animate: false });
+  }
+  
+  // Apply mode-specific state
+  if (state.mode === 'nearby' && state.nearby) {
+    activeMode = 'nearby';
+    // Set home location for nearby mode
+    home = { lat: state.nearby.lat, lon: state.nearby.lon };
+    console.log('Set home location for shared view:', home);
+    
+    // Update nearby UI elements
+    if (elements.address) {
+      // Set address display (we'll need to reverse geocode or use a placeholder)
+      elements.address.value = 'Shared location';
+    }
+    if (elements.radius && state.nearby.radius) {
+      elements.radius.value = state.nearby.radius;
+    }
+    if (elements.units && state.nearby.units) {
+      elements.units.value = state.nearby.units;
+    }
+    
+    // Switch to nearby mode
+    const nearbyDetails = document.querySelector('details[data-mode="nearby"]');
+    const routeDetails = document.querySelector('details[data-mode="route"]');
+    if (nearbyDetails) nearbyDetails.open = true;
+    if (routeDetails) routeDetails.open = false;
+    
+    // Trigger nearby search after map is ready
+    map.whenReady(() => {
+      setTimeout(() => {
+        if (home) {
+          console.log('Applying nearby shared view', { home, state: state.nearby });
+          // Use existing nearby search logic
+          const radiusVal = parseFloat(elements.radius?.value || state.nearby.radius || '0') || 0;
+          const unitsVal = elements.units?.value || state.nearby.units || 'mi';
+          const radiusInMeters = unitsVal === 'mi' ? radiusVal * 1609.34 : radiusVal * 1000;
+          
+          // Clear and draw home location pin and radius circle
+          if (homeLayer) {
+            homeLayer.clearLayers();
+            // Add "Your Location" pin marker (red)
+            const locationPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="#fff"/></svg>';
+            L.marker([home.lat, home.lon], {
+              icon: L.icon({
+                iconUrl: 'data:image/svg+xml;base64,' + btoa(locationPinSvg),
+                iconSize: [24, 30],
+                iconAnchor: [12, 30],
+                popupAnchor: [0, -30]
+              })
+            }).addTo(homeLayer).bindPopup('Your Location');
+          }
+          
+          // Draw radius circle
+          if (radiusLayer) {
+            radiusLayer.clearLayers();
+            if (radiusVal > 0) {
+              L.circle([home.lat, home.lon], {
+                radius: radiusInMeters,
+                color: '#2563eb',
+                fillColor: '#2563eb',
+                fillOpacity: 0.1,
+                weight: 2
+              }).addTo(radiusLayer);
+            }
+          }
+          
+          // Render colleges
+          render();
+        }
+      }, 200);
+    });
+    
+  } else if (state.mode === 'route' && state.route) {
+    activeMode = 'route';
+    route.start = state.route.start;
+    route.end = state.route.end;
+    
+    // Update route UI elements
+    if (elements.routeStart) {
+      elements.routeStart.value = 'Shared start';
+    }
+    if (elements.routeEnd) {
+      elements.routeEnd.value = 'Shared end';
+    }
+    if (elements.routeMaxDistance && state.route.maxDistance) {
+      elements.routeMaxDistance.value = state.route.maxDistance;
+    }
+    if (elements.routeUnits && state.route.units) {
+      elements.routeUnits.value = state.route.units;
+    }
+    
+    // Switch to route mode
+    const nearbyDetails = document.querySelector('details[data-mode="nearby"]');
+    const routeDetails = document.querySelector('details[data-mode="route"]');
+    if (nearbyDetails) nearbyDetails.open = false;
+    if (routeDetails) routeDetails.open = true;
+    
+    // Store route search state so it can be re-rendered
+    const maxDistance = parseFloat(elements.routeMaxDistance?.value || state.route.maxDistance || '30') || 30;
+    const units = elements.routeUnits?.value || state.route.units || 'mi';
+    route.lastSearch = {
+      start: route.start,
+      end: route.end,
+      maxDistance,
+      units
+    };
+    
+    // Trigger route search after map is ready
+    map.whenReady(() => {
+      setTimeout(() => {
+        if (route.start && route.end) {
+          console.log('Applying route shared view', { start: route.start, end: route.end });
+          // Use existing route search logic
+          findCollegesAlongRoute();
+        }
+      }, 200);
+    });
+  } else {
+    // Explore mode - just render with saved-only filter
+    console.log('[applySharedViewState] Explore mode - setting up render');
+    if (!map) {
+      console.warn('[applySharedViewState] Map not ready for explore mode, retrying...');
+      setTimeout(applySharedViewState, 100);
+      return;
+    }
+    
+    map.whenReady(() => {
+      setTimeout(() => {
+        console.log('[applySharedViewState] Applying explore shared view - calling render()');
+        console.log('[applySharedViewState] Before render - savedOnlyMode:', savedOnlyMode, 'sharedViewIds size:', sharedViewIds ? sharedViewIds.size : 'null');
+        render();
+        console.log('[applySharedViewState] After render - markers should be visible');
+      }, 200);
+    });
+  }
+}
 
 // Active mode state: 'nearby' or 'route'
 let activeMode = 'nearby';
@@ -3190,7 +3838,40 @@ function render(){
   // Apply saved-only filter if enabled
   if (savedOnlyMode) {
     const beforeCount = filtered.length;
-    filtered = filtered.filter(c => SavedStore.isSaved(c.college_id));
+    console.log(`[render] Applying saved-only filter. Before: ${beforeCount} colleges. isSharedView: ${isSharedView}, sharedViewIds size: ${sharedViewIds ? sharedViewIds.size : 'null'}`);
+    
+    if (isSharedView && sharedViewIds) {
+      // Debug: Show sample IDs from both sets for comparison
+      const sampleCollegeIds = filtered.slice(0, 5).map(c => ({ id: c.college_id, name: c.name }));
+      const sampleSharedIds = Array.from(sharedViewIds).slice(0, 5);
+      console.log(`[render] Sample college IDs from filtered (first 5):`, sampleCollegeIds);
+      console.log(`[render] Sample IDs from sharedViewIds (first 5):`, sampleSharedIds);
+      
+      // Check if any IDs match
+      let matchCount = 0;
+      filtered.slice(0, 10).forEach(c => {
+        const normalizedId = String(c.college_id || '').trim();
+        if (sharedViewIds.has(normalizedId)) {
+          matchCount++;
+          if (matchCount <= 3) {
+            console.log(`[render] ✓ Match found: "${c.name}" (ID: "${normalizedId}")`);
+          }
+        }
+      });
+      console.log(`[render] Found ${matchCount} matches in first 10 colleges`);
+    }
+    
+    filtered = filtered.filter(c => {
+      const isSaved = SavedStore.isSaved(c.college_id);
+      return isSaved;
+    });
+    console.log(`[render] After saved-only filter: ${filtered.length} colleges will be displayed`);
+    
+    if (filtered.length === 0 && isSharedView && sharedViewIds && sharedViewIds.size > 0) {
+      console.error(`[render] WARNING: No colleges matched after filtering! sharedViewIds has ${sharedViewIds.size} IDs but 0 colleges matched.`);
+      console.error(`[render] This suggests an ID format mismatch. Sample shared IDs:`, Array.from(sharedViewIds).slice(0, 3));
+      console.error(`[render] Sample college IDs:`, colleges.slice(0, 3).map(c => c.college_id));
+    }
     
     // Edge case: Show message if no saved colleges match filters
     if (filtered.length === 0) {
@@ -3203,6 +3884,8 @@ function render(){
         console.log("No saved colleges match your current filters or route.");
       }
     }
+  } else {
+    console.log(`[render] savedOnlyMode is false, showing all colleges`);
   }
 
   // Draw radius circle if home and radius are set
@@ -3967,12 +4650,17 @@ function unsaveAllColleges() {
   }
 }
 
-let savedOnlyMode = false;
+// savedOnlyMode is declared earlier in the file (near line 2262) for early initialization
+// let savedOnlyMode = false;
 function toggleSavedOnly() {
   savedOnlyMode = !savedOnlyMode;
   const savedControls = document.getElementById("saved-controls");
+  const savedOnlySection = document.getElementById("saved-only-section");
   if (savedControls) {
     savedControls.classList.toggle("saved-only-active", savedOnlyMode);
+  }
+  if (savedOnlySection) {
+    savedOnlySection.classList.toggle("saved-only-active", savedOnlyMode);
   }
   console.log("Saved Only:", savedOnlyMode);
   // Track saved only toggle
@@ -3996,8 +4684,12 @@ function toggleSavedOnly() {
             if (savedOnlyMode) {
               savedOnlyMode = false;
               const savedControls = document.getElementById("saved-controls");
+              const savedOnlySection = document.getElementById("saved-only-section");
               if (savedControls) {
                 savedControls.classList.remove("saved-only-active");
+              }
+              if (savedOnlySection) {
+                savedOnlySection.classList.remove("saved-only-active");
               }
               // Re-render map without saved-only filter
               if (activeMode === 'route' && route.lastSearch) {
@@ -4018,6 +4710,11 @@ function toggleSavedOnly() {
     // Hide the notice when Saved Only is turned OFF
     const hint = document.getElementById('hint-no-saved-colleges');
     if (hint) hint.classList.remove('active');
+    // Remove active class from saved-only-section when turning OFF
+    const savedOnlySection = document.getElementById("saved-only-section");
+    if (savedOnlySection) {
+      savedOnlySection.classList.remove("saved-only-active");
+    }
   }
   
   // Defer heavy rendering work to allow toggle UI feedback to appear first
@@ -4030,6 +4727,147 @@ function toggleSavedOnly() {
       render();
     }
   });
+}
+
+// Placeholder function for share icon click
+// Toast notification system
+const toast = (() => {
+  let toastElement = null;
+  let hideTimer = null;
+  
+  const init = () => {
+    if (!toastElement) {
+      toastElement = document.createElement('div');
+      toastElement.className = 'toast';
+      toastElement.id = 'share-toast';
+      toastElement.innerHTML = '<div class="toast-message"></div>';
+      document.body.appendChild(toastElement);
+    }
+    return toastElement;
+  };
+  
+  const show = (message, duration = 3000) => {
+    const toast = init();
+    const messageEl = toast.querySelector('.toast-message');
+    if (messageEl) {
+      messageEl.textContent = message;
+    }
+    toast.classList.add('active');
+    
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+    }
+    hideTimer = setTimeout(() => {
+      hide();
+    }, duration);
+  };
+  
+  const hide = () => {
+    if (toastElement) {
+      toastElement.classList.remove('active');
+    }
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  };
+  
+  return { show, hide };
+})();
+
+// Generate share URL
+function generateShareURL() {
+  const baseUrl = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams();
+  
+  // Flag for shared saved map
+  params.set('view', 'savedshare');
+  
+  // Get saved college IDs and normalize to strings
+  const savedIds = SavedStore.getAll();
+  if (savedIds.length > 0) {
+    // Ensure all IDs are strings for consistent URL encoding
+    const normalizedIds = savedIds.map(id => String(id).trim()).filter(id => id);
+    params.set('colleges', normalizedIds.join(','));
+    console.log('[generateShareURL] Sharing', normalizedIds.length, 'college IDs:', normalizedIds.slice(0, 5));
+  }
+  
+  // Get current map center and zoom
+  const center = map.getCenter();
+  const zoom = map.getZoom();
+  params.set('lat', center.lat.toFixed(6));
+  params.set('lng', center.lng.toFixed(6));
+  params.set('zoom', zoom.toString());
+  
+  // Add mode-specific data
+  if (activeMode === 'nearby' && home) {
+    params.set('mode', 'nearby');
+    params.set('homeLat', home.lat.toFixed(6));
+    params.set('homeLng', home.lon.toFixed(6));
+    if (elements.radius && elements.radius.value) {
+      params.set('radius', elements.radius.value);
+    }
+    if (elements.units && elements.units.value) {
+      params.set('units', elements.units.value);
+    }
+  } else if (activeMode === 'route' && route.start && route.end) {
+    params.set('mode', 'route');
+    params.set('startLat', route.start.lat.toFixed(6));
+    params.set('startLng', route.start.lon.toFixed(6));
+    params.set('endLat', route.end.lat.toFixed(6));
+    params.set('endLng', route.end.lon.toFixed(6));
+    if (elements.routeMaxDistance && elements.routeMaxDistance.value) {
+      params.set('routeRadius', elements.routeMaxDistance.value);
+    }
+    if (elements.routeUnits && elements.routeUnits.value) {
+      params.set('routeUnits', elements.routeUnits.value);
+    }
+  } else {
+    params.set('mode', 'explore');
+  }
+  
+  return `${baseUrl}?${params.toString()}`;
+}
+
+// Copy to clipboard
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return success;
+    }
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    return false;
+  }
+}
+
+// Share icon click handler
+async function handleSavedShareClick(event) {
+  event.stopPropagation();
+  
+  // Generate share URL
+  const shareUrl = generateShareURL();
+  
+  // Copy to clipboard
+  const copied = await copyToClipboard(shareUrl);
+  
+  if (copied) {
+    // Show success toast
+    toast.show('Link copied — share this map of your saved colleges.', 4000);
+  }
+  // If copy fails, silently do nothing (as per MVP requirements)
 }
 
 function isLocalStorageAvailable() {
@@ -4078,6 +4916,15 @@ function loadCSV(url){
     processCollegesData(data);
     cacheLoaded = true;
     if (elements.loading) elements.loading.classList.remove('active');
+    
+    // Apply shared view state after data loads
+    console.log('[handleDataLoad] Checking shared view:', { isSharedView, hasSharedViewState: !!window.sharedViewState, sharedViewState: window.sharedViewState });
+    if (isSharedView && window.sharedViewState) {
+      console.log('[handleDataLoad] Calling applySharedViewState()');
+      applySharedViewState();
+    } else {
+      console.warn('[handleDataLoad] Not applying shared view state - isSharedView:', isSharedView, 'hasSharedViewState:', !!window.sharedViewState);
+    }
   };
   
   if (canUseStorage) {
@@ -4172,9 +5019,17 @@ function buildFallbackCollegeId(row) {
 let collegesById = {};
 
 function processCollegesData(data) {
+  let processedCount = 0;
   colleges = data.filter(r => r.name && r.lat && r.lon).map(r => {
     const rawId = (r.college_id || '').toString().trim();
     const collegeId = rawId || buildFallbackCollegeId(r);
+    
+    // Debug: Log first few college IDs to verify format matches shared IDs
+    if (isSharedView && sharedViewIds && processedCount < 3) {
+      console.log(`[processCollegesData] College ID: "${collegeId}" (type: ${typeof collegeId})`);
+      processedCount++;
+    }
+    
     return {
       college_id: collegeId,
       name: r.name,
@@ -4236,8 +5091,12 @@ function processCollegesData(data) {
   // Ensure we're in nearby mode on initial load (default section is open)
   activeMode = 'nearby';
   
-  // Render colleges on initial load
+  // Render colleges on initial load (skip if in shared view - applySharedViewState will handle it)
+  if (!isSharedView) {
     render();
+  } else {
+    console.log('Skipping initial render - shared view will handle rendering');
+  }
   
   // Show the tip bubble after map is ready (only once per session)
   setTimeout(() => {
@@ -6036,6 +6895,8 @@ function updateMobilePillText() {
         gtag('event', 'feature_filter_type_used');
       } else if (id === 'region') {
         gtag('event', 'feature_filter_region_used');
+      } else if (id === 'ranking') {
+        gtag('event', 'feature_filter_ranking_used');
       }
     }
     
