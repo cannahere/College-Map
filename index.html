@@ -293,7 +293,7 @@
     .ranking-tooltip-body {font-size:0.8125rem;line-height:1.5;color:#0f172a;padding-right:24px;flex:1}
     #map {height:calc(100vh - 280px);background:#e5e7eb;border-top:1px solid #e2e8f0;position:relative;min-height:500px}
     .legend {position:absolute;bottom:14px;left:14px;padding:0;border:none;font-size:11px;font-weight:500;color:#0f172a;text-shadow:none;z-index:1800;background:none;border-radius:0;line-height:1;text-align:left;transform:none}
-    .map-hint-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:2000;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
+    .map-hint-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:8500;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     .map-hint-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
     .map-hint-bubble-header {display:flex;align-items:center;gap:8px;margin-bottom:6px}
     .map-hint-bubble-icon {font-size:16px;line-height:1;flex-shrink:0}
@@ -565,6 +565,12 @@
         html.ios-device #state,
         html.ios-device #ranking {
           font-size:16px !important;
+        }
+        /* Make ranking dropdown full width on iOS mobile */
+        html.ios-device .row-ranking .pill-ranking select {
+          width: 100% !important;
+          flex: 1 1 100% !important;
+          margin-right: 0 !important;
         }
       }
       @media (min-width:701px) and (max-width:1024px) {
@@ -1933,11 +1939,11 @@ function applyAutofillGuards() {
   
   if (isIOS) {
     document.documentElement.classList.add('ios-device');
+    // Apply guards to address inputs on iOS only to prevent autofill
+    const inputsToGuard = [elements.address, elements.routeStart, elements.routeEnd].filter(Boolean);
+    inputsToGuard.forEach(guardIOSAutofill);
   }
-  
-  // Apply guards to all address inputs on all devices to prevent autofill
-  const inputsToGuard = [elements.address, elements.routeStart, elements.routeEnd].filter(Boolean);
-  inputsToGuard.forEach(guardIOSAutofill);
+  // On non-iOS devices (Android, etc.), don't apply the guard to allow normal keyboard behavior
 }
 
 // Try to apply guards immediately if elements are available
