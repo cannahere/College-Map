@@ -1850,23 +1850,25 @@ function guardIOSAutofill(input) {
   if (originalInputMode) {
     input.dataset.originalInputMode = originalInputMode;
   }
-  // Set readonly and inputmode immediately to prevent autofill
-  // But remove them on first touch to allow keyboard
-  input.setAttribute('readonly', 'readonly');
+  // Don't set readonly - it prevents keyboard from appearing on iOS
+  // Instead, use inputmode='none' initially, then change to 'search' on interaction
   input.setAttribute('inputmode', 'none');
-  // Immediately set up a one-time release on any interaction
-  const immediateRelease = () => {
-    input.removeAttribute('readonly');
+  
+  // On first interaction, change inputmode to allow keyboard
+  const enableKeyboard = (event) => {
+    // Change inputmode to allow keyboard
     input.setAttribute('inputmode', input.dataset.originalInputMode || 'search');
-    input.removeEventListener('touchstart', immediateRelease, { capture: true });
-    input.removeEventListener('pointerdown', immediateRelease, { capture: true });
-    input.removeEventListener('mousedown', immediateRelease, { capture: true });
-    input.removeEventListener('focus', immediateRelease, { capture: true });
+    // Clean up listeners
+    input.removeEventListener('touchstart', enableKeyboard, { capture: true });
+    input.removeEventListener('pointerdown', enableKeyboard, { capture: true });
+    input.removeEventListener('mousedown', enableKeyboard, { capture: true });
+    input.removeEventListener('focus', enableKeyboard, { capture: true });
   };
-  input.addEventListener('touchstart', immediateRelease, { once: true, passive: false, capture: true });
-  input.addEventListener('pointerdown', immediateRelease, { once: true, capture: true });
-  input.addEventListener('mousedown', immediateRelease, { once: true, capture: true });
-  input.addEventListener('focus', immediateRelease, { once: true, capture: true });
+  // Use capture phase to fire early
+  input.addEventListener('touchstart', enableKeyboard, { once: true, passive: false, capture: true });
+  input.addEventListener('pointerdown', enableKeyboard, { once: true, passive: false, capture: true });
+  input.addEventListener('mousedown', enableKeyboard, { once: true, passive: false, capture: true });
+  input.addEventListener('focus', enableKeyboard, { once: true, capture: true });
   // Use autocomplete values that iOS respects better
   if (!input.getAttribute('autocomplete') || input.getAttribute('autocomplete') === 'off') {
     input.setAttribute('autocomplete', 'new-password');
@@ -1881,20 +1883,12 @@ function guardIOSAutofill(input) {
     if (event && typeof event.preventDefault === 'function') {
       event.preventDefault();
     }
-    // Remove readonly immediately and synchronously
-    input.removeAttribute('readonly');
+    // Ensure inputmode is set to allow keyboard
     const restoredMode = input.dataset.originalInputMode || 'search';
     input.setAttribute('inputmode', restoredMode);
-    // Force a reflow to ensure readonly is removed
-    void input.offsetHeight;
-    // Remove readonly again to be absolutely sure
-    input.removeAttribute('readonly');
-    // Small delay to ensure readonly is fully removed before focusing
+    // Force focus to ensure keyboard appears
     setTimeout(() => {
-      // Remove readonly one more time
-      input.removeAttribute('readonly');
       requestAnimationFrame(() => {
-        input.removeAttribute('readonly');
         if (document.activeElement !== input) {
           input.focus({ preventScroll: true });
         }
