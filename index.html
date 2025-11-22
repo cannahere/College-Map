@@ -374,8 +374,8 @@
     }
     .radius-circle {stroke:#2563eb;stroke-width:2;stroke-dasharray:5,5;fill:none;opacity:0.5;pointer-events:none}
     .address-autocomplete {position:relative;z-index:10;isolation:isolate}
-    .address-autocomplete.autocomplete-active {z-index:3000}
-    .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:1001;margin-top:0;pointer-events:auto;transform:translateZ(0);will-change:transform}
+    .address-autocomplete.autocomplete-active {z-index:8500}
+    .autocomplete-suggestions {display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1),0 8px 24px rgba(0,0,0,0.12);max-height:400px;overflow-y:auto;overflow-x:hidden;z-index:8500;margin-top:0;pointer-events:auto;transform:translateZ(0);will-change:transform}
     .autocomplete-suggestions.active {display:block;animation:fadeIn 0.15s ease-out}
     @keyframes fadeIn {from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)}}
     .autocomplete-item {padding:0;cursor:pointer;border-bottom:none;font-size:14px;transition:background-color 0.1s;min-height:48px;display:flex;flex-direction:row;align-items:center;position:relative;width:100%;pointer-events:auto;user-select:none;-webkit-user-select:none}
@@ -1646,7 +1646,7 @@
       <summary>Find Colleges Nearby</summary>
       <div class="filter-section-content">
         <div class="row row-nearby">
-          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="new-password" name="search-address" readonly data-autofill-guard="true" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
+          <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="new-password" name="search-address" data-autofill-guard="true" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
     <div class="pill"><label for="radius">Radius</label><input id="radius" type="number" min="0" step="10" value="30" style="width:90px"><select id="units"><option value="mi" selected>mi</option><option value="km">km</option></select><button id="geocodeBtn">Locate</button><button id="clearRadius" style="background:transparent;color:#0f172a;border:1px solid #e2e8f0;">Clear</button></div>
 </div>
 </div>
@@ -1851,8 +1851,22 @@ function guardIOSAutofill(input) {
     input.dataset.originalInputMode = originalInputMode;
   }
   // Set readonly and inputmode immediately to prevent autofill
+  // But remove them on first touch to allow keyboard
   input.setAttribute('readonly', 'readonly');
   input.setAttribute('inputmode', 'none');
+  // Immediately set up a one-time release on any interaction
+  const immediateRelease = () => {
+    input.removeAttribute('readonly');
+    input.setAttribute('inputmode', input.dataset.originalInputMode || 'search');
+    input.removeEventListener('touchstart', immediateRelease, { capture: true });
+    input.removeEventListener('pointerdown', immediateRelease, { capture: true });
+    input.removeEventListener('mousedown', immediateRelease, { capture: true });
+    input.removeEventListener('focus', immediateRelease, { capture: true });
+  };
+  input.addEventListener('touchstart', immediateRelease, { once: true, passive: false, capture: true });
+  input.addEventListener('pointerdown', immediateRelease, { once: true, capture: true });
+  input.addEventListener('mousedown', immediateRelease, { once: true, capture: true });
+  input.addEventListener('focus', immediateRelease, { once: true, capture: true });
   // Use autocomplete values that iOS respects better
   if (!input.getAttribute('autocomplete') || input.getAttribute('autocomplete') === 'off') {
     input.setAttribute('autocomplete', 'new-password');
@@ -1862,9 +1876,7 @@ function guardIOSAutofill(input) {
   input.dataset.iosGuardState = 'pending';
   
   const releaseGuard = (event) => {
-    if (input.dataset.iosGuardState !== 'pending') {
-      return;
-    }
+    // Always release, even if already released (in case of multiple taps)
     input.dataset.iosGuardState = 'released';
     if (event && typeof event.preventDefault === 'function') {
       event.preventDefault();
@@ -1875,9 +1887,14 @@ function guardIOSAutofill(input) {
     input.setAttribute('inputmode', restoredMode);
     // Force a reflow to ensure readonly is removed
     void input.offsetHeight;
+    // Remove readonly again to be absolutely sure
+    input.removeAttribute('readonly');
     // Small delay to ensure readonly is fully removed before focusing
     setTimeout(() => {
+      // Remove readonly one more time
+      input.removeAttribute('readonly');
       requestAnimationFrame(() => {
+        input.removeAttribute('readonly');
         if (document.activeElement !== input) {
           input.focus({ preventScroll: true });
         }
@@ -1886,7 +1903,7 @@ function guardIOSAutofill(input) {
           input.setSelectionRange(len, len);
         }
       });
-    }, 20);
+    }, 10);
   };
   
   const touchUnlock = (event) => {
@@ -1924,10 +1941,26 @@ function guardIOSAutofill(input) {
     releaseGuard(event);
   };
   
-  input.addEventListener('touchstart', touchUnlock, { once: true, passive: false });
-  input.addEventListener('pointerdown', pointerUnlock, { once: true });
-  input.addEventListener('focus', focusUnlock, { once: true });
-  input.addEventListener('click', clickUnlock, { once: true });
+  // Use capture phase and make sure events fire - remove once:true so they can fire multiple times
+  const addEventListeners = () => {
+    input.addEventListener('touchstart', touchUnlock, { passive: false, capture: true });
+    input.addEventListener('pointerdown', pointerUnlock, { capture: true });
+    input.addEventListener('focus', focusUnlock, { capture: true });
+    input.addEventListener('click', clickUnlock, { capture: true });
+    input.addEventListener('mousedown', (e) => {
+      releaseGuard(e);
+    }, { capture: true });
+  };
+  addEventListeners();
+  
+  // Re-add listeners if guard state is reset
+  const observer = new MutationObserver(() => {
+    if (input.dataset.iosGuardState === 'pending' && !input.hasAttribute('readonly')) {
+      // Guard was reset, re-add listeners
+      addEventListeners();
+    }
+  });
+  observer.observe(input, { attributes: true, attributeFilter: ['readonly', 'data-ios-guard-state'] });
 }
 
 // Apply autofill guard immediately if elements exist, or wait for DOMContentLoaded
