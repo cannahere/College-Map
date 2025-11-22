@@ -115,8 +115,26 @@
     body:has(.shared-map-banner.active) header.app-header {top:auto}
     .app-header {display:flex;align-items:flex-start;justify-content:flex-start;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(0,0,0,0.05);transition:padding 0.25s ease, min-height 0.25s ease, box-shadow 0.25s ease}
     .header-logo-tagline {display:flex;flex-direction:column;align-items:flex-start;gap:0}
-    .site-logo {height:64px;width:auto;object-fit:contain;transition:all 0.3s ease;margin-bottom:0}
+    .site-logo {height:64px;width:auto;object-fit:contain;transition:all 0.3s ease;margin-bottom:0;position: relative;z-index: 1}
     .tagline {font-family:Inter,sans-serif;font-size:14px;color:#6b7280;line-height:1.5;text-align:left;margin:0;margin-top:4px;margin-bottom:3px;margin-left:10px;font-weight:400;max-width:calc(100% - 10px)}
+    .beta-badge {
+      background: #2F80ED !important;
+      color: white !important;
+      font-size: 11px !important;
+      padding: 2px 6px !important;
+      border-radius: 6px !important;
+      margin-left: 6px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.5px !important;
+      display: inline-block !important;
+      position: relative !important;
+      z-index: 10000 !important;
+      vertical-align: middle !important;
+      line-height: 1 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      white-space: nowrap !important;
+    }
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
     @media (max-width:700px){
       .app-header{flex-direction:row;align-items:flex-start;text-align:left;padding:12px 16px;min-height:90px;}
@@ -1592,7 +1610,10 @@
     <div class="header-logo-tagline">
   <!-- Logo optimization: Ideal source image size ≈ 280×70px (4:1 ratio) for header usage at 70px height on desktop, 56px on mobile -->
   <!-- Using width/height attributes for layout stability and to prevent layout shift during load -->
-  <img src="us-college-map-logo.png" alt="U.S. College Map interactive tool for exploring colleges by type, region, and location" class="site-logo" width="280" height="70">
+  <div style="display: flex; align-items: center; position: relative;">
+    <img src="us-college-map-logo.png" alt="U.S. College Map interactive tool for exploring colleges by type, region, and location" class="site-logo" width="280" height="70" style="position: relative; z-index: 1;">
+    <span class="beta-badge" style="position: relative; z-index: 10000;">BETA</span>
+  </div>
       <h1 class="sr-only">U.S. College Map — Find Colleges Near You, Along Your Route, and Save Your List</h1>
       <p class="tagline">Planning campus visits? U.S. College Map helps you explore schools by type, region, or ranking,  and easily find colleges near any location or along any trip.</p>
     </div>
@@ -1604,7 +1625,7 @@
       <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
       <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
       <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
-      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">Ranking tiers (default)</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">School ranking tiers are for reference only*. Some tiers include extra schools to reflect variations across major lists.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
+      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">School Ranking</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">School ranking is for reference only*. Some ranking tiers include extra schools to reflect variations across major lists.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
       <!-- College name search temporarily hidden - functionality preserved for future use -->
       <div class="pill pill-search" style="display: none !important;"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
   </div>
@@ -6515,14 +6536,40 @@ function updateDropdownPlaceholders() {
   if (rankingSelect) {
     const rankingOption = rankingSelect.querySelector('option[value=""]');
     if (rankingOption) {
-      rankingOption.textContent = 'Ranking | No ranking filter';
+      rankingOption.textContent = 'School Ranking | No Selection';
     }
   }
 }
 
 // Ranking dropdown (static options)
-refreshDropdown('ranking', ['Top 25 national universities', 'Top 50 national universities', 'Top 10 liberal arts colleges', 'Top 20 liberal arts colleges'], 'Ranking tiers (default)');
+refreshDropdown('ranking', ['Top 25 national universities', 'Top 50 national universities', 'Top 10 liberal arts colleges', 'Top 20 liberal arts colleges'], 'School Ranking | No Selection');
 updateDropdownPlaceholders();
+
+// Handle ranking dropdown: show "School Ranking" in field when closed, "School Ranking | No Selection" in dropdown
+const rankingSelect = document.getElementById('ranking');
+if (rankingSelect) {
+  // Store original option text
+  const rankingOption = rankingSelect.querySelector('option[value=""]');
+  if (rankingOption) {
+    rankingOption.setAttribute('data-dropdown-text', 'School Ranking | No Selection');
+    
+    // When dropdown opens (mousedown/focus), show full text in option
+    rankingSelect.addEventListener('mousedown', () => {
+      if (rankingOption && rankingSelect.value === '') {
+        rankingOption.textContent = rankingOption.getAttribute('data-dropdown-text');
+      }
+    });
+    
+    // When dropdown closes (blur), if no selection, show shortened text in field
+    // Note: We can't change what shows in the closed field without custom select,
+    // but we ensure the dropdown option has the full text
+    rankingSelect.addEventListener('change', () => {
+      if (rankingSelect.value === '' && rankingOption) {
+        rankingOption.textContent = rankingOption.getAttribute('data-dropdown-text');
+      }
+    });
+  }
+}
 
 // Type dropdown (initialize with common types, will be updated when CSV loads)
 try {
