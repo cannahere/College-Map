@@ -483,8 +483,8 @@
     .filter-section-content {overflow:visible}
     .filter-section summary {font-weight:600;color:#0f172a;font-size:14px;padding:8px 12px;cursor:pointer;list-style:none;user-select:none;display:flex;align-items:center;gap:8px}
     .filter-section summary::-webkit-details-marker {display:none}
-    .filter-section summary::before {content:'▼';font-size:10px;transition:transform 0.2s;display:inline-block}
-    .filter-section[open] summary::before {transform:rotate(-90deg)}
+    .filter-section summary::before {content:'▶';font-size:10px;transition:transform 0.2s;display:inline-block}
+    .filter-section[open] summary::before {transform:rotate(90deg)}
     .filter-section summary:hover {background:#f1f5f9}
     .filter-section-content {padding:0 12px 8px;display:flex;flex-direction:column;gap:3px}
     .filter-section.active {box-shadow:0 4px 12px rgba(37,99,235,0.15),0 2px 4px rgba(0,0,0,0.1);border-left:4px solid #2563eb}
@@ -1082,7 +1082,7 @@
     pointer-events: auto;
     font-family: Inter, sans-serif;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 400;
   }
   .filter-chips:empty {
     display: none;
@@ -1099,6 +1099,7 @@
     color: #374151;
     white-space: nowrap;
     max-width: 200px;
+    font-size: 11px;
     animation: slideInFromRight 0.3s ease-out;
     transform-origin: right center;
     /* iOS hardware acceleration fixes */
@@ -1191,6 +1192,62 @@
   .filter-chip-close:hover {
     color: #374151;
   }
+  .filter-chip-clear-all {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #E5E7EB;
+    border-radius: 9999px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 4px 8px 4px 12px;
+    color: #374151;
+    white-space: nowrap;
+    max-width: 200px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+    font-size: 11px;
+    /* iOS hardware acceleration fixes */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+  .filter-chip-clear-all span:first-child {
+    flex: 1;
+    text-align: left;
+  }
+  .filter-chip-clear-all.filter-chip-new {
+    animation: slideInFromRight 0.3s ease-out;
+    transform-origin: right center;
+  }
+  .filter-chip-clear-all:hover {
+    background: rgba(249, 250, 251, 0.95);
+    border-color: #D1D5DB;
+  }
+  .filter-chip-clear-all:active {
+    background: rgba(243, 244, 246, 0.95);
+  }
+  .filter-chip-clear-all-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 18px;
+    flex-shrink: 0;
+    font-size: 18px;
+    line-height: 1;
+    color: #374151;
+    font-weight: 400;
+  }
+  .filter-chip-clear-all.slide-out {
+    animation: slideOutToRight 0.3s ease-in forwards;
+    -webkit-animation: slideOutToRight 0.3s ease-in forwards;
+  }
   @media (max-width: 700px) {
     .filter-chips {
       top: 58px;
@@ -1199,8 +1256,19 @@
     }
     .filter-chip {
       padding: 3px 6px 3px 10px;
-      font-size: 11px;
+      font-size: 10px;
       max-width: 180px;
+    }
+    .filter-chip-clear-all {
+      padding: 3px 6px 3px 10px;
+      font-size: 10px;
+      max-width: 180px;
+      gap: 4px;
+    }
+    .filter-chip-clear-all-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
     }
   }
     /* Saved Colleges Overlay */
@@ -4911,14 +4979,27 @@ function unsaveAllColleges() {
   
   closeUnsaveAllModal();
   updateSavedOverlay();
-  
-  // Re-render if saved-only mode is on
+
+  // If Saved Only was on, turn it off and revert UI/state
   if (savedOnlyMode) {
-    if (activeMode === 'route' && route.lastSearch) {
-      refilterCollegesAlongRoute();
-    } else {
-      render();
+    savedOnlyMode = false;
+    const savedControls = document.getElementById("saved-controls");
+    const savedOnlySection = document.getElementById("saved-only-section");
+    if (savedControls) {
+      savedControls.classList.remove("saved-only-active");
     }
+    if (savedOnlySection) {
+      savedOnlySection.classList.remove("saved-only-active");
+    }
+    const hint = document.getElementById('hint-no-saved-colleges');
+    if (hint) hint.classList.remove('active');
+  }
+  
+  // Re-render to reflect unsaved state with saved-only off
+  if (activeMode === 'route' && route.lastSearch) {
+    refilterCollegesAlongRoute();
+  } else {
+    render();
   }
 }
 
@@ -7277,7 +7358,7 @@ function updateFilterChips() {
   const chipsContainer = document.getElementById('filter-chips');
   if (!chipsContainer) return;
   
-  // Use event delegation for close buttons (handles both new and existing chips)
+  // Use event delegation for close buttons and clear all (handles both new and existing chips)
   if (!chipsContainer.dataset.delegationSetup) {
     chipsContainer.addEventListener('click', (e) => {
       if (e.target.classList.contains('filter-chip-close')) {
@@ -7289,6 +7370,12 @@ function updateFilterChips() {
           setTimeout(() => {
             clearFilter(filterType);
           }, 300);
+        }
+      } else {
+        const clearAllTarget = e.target.closest('.filter-chip-clear-all');
+        if (clearAllTarget) {
+          e.stopPropagation();
+          clearAllFilters();
         }
       }
     });
@@ -7335,7 +7422,12 @@ function updateFilterChips() {
   const newChipTypes = new Set(chips.map(chip => chip.type));
   
   // Remove chips that are no longer needed (with slide-out animation)
+  // Exclude "Clear All" pill from this logic - it's handled separately below
   existingChips.forEach(existingChip => {
+    // Skip the "Clear All" pill - it doesn't have dataset.filterType
+    if (existingChip.classList.contains('filter-chip-clear-all')) {
+      return;
+    }
     const chipType = existingChip.dataset.filterType;
     if (!newChipTypes.has(chipType)) {
       // Chip should be removed - animate out first
@@ -7378,6 +7470,98 @@ function updateFilterChips() {
       existingChip.classList.remove('slide-out');
     }
   });
+  
+  // Add or update "Clear All" pill when 2+ filters are active
+  // Always ensure it's at the bottom of all chips
+  // Don't remove/re-add it when filters change - just keep it visible and move it
+  const activeFilterCount = chips.length;
+  const existingClearAll = chipsContainer.querySelector('.filter-chip-clear-all');
+  
+  if (activeFilterCount >= 2) {
+    // Show or update "Clear All" pill - keep it visible, just ensure it's at bottom
+    if (!existingClearAll) {
+      const clearAllElement = document.createElement('div');
+      clearAllElement.className = 'filter-chip-clear-all filter-chip-new';
+      clearAllElement.innerHTML = '<span>Clear all</span><span class="filter-chip-clear-all-icon">↺</span>';
+      clearAllElement.setAttribute('role', 'button');
+      clearAllElement.setAttribute('tabindex', '0');
+      clearAllElement.setAttribute('aria-label', 'Clear all filters');
+      // Event delegation handles the click (set up above)
+      // Always append to end to ensure it's at the bottom
+      chipsContainer.appendChild(clearAllElement);
+      // Remove the animation class after animation completes
+      setTimeout(() => {
+        clearAllElement.classList.remove('filter-chip-new');
+      }, 300);
+    } else {
+      // Pill already exists - just ensure it's at the bottom and visible
+      // Remove any slide-out or animation classes
+      existingClearAll.classList.remove('slide-out', 'filter-chip-new');
+      // Move to bottom if it's not already there (this will smoothly move it down)
+      // Only move if it's not already the last child to avoid unnecessary DOM manipulation
+      if (existingClearAll.nextSibling || existingClearAll !== chipsContainer.lastElementChild) {
+        chipsContainer.appendChild(existingClearAll);
+      }
+    }
+  } else {
+    // Only remove "Clear All" pill when there are less than 2 filters
+    if (existingClearAll) {
+      existingClearAll.classList.add('slide-out');
+      setTimeout(() => {
+        if (existingClearAll.parentNode) {
+          existingClearAll.remove();
+        }
+      }, 300); // Match animation duration
+    }
+  }
+}
+
+// Function to clear all filters
+function clearAllFilters() {
+  const filterTypes = ['type', 'region', 'state', 'ranking'];
+  
+  // Clear each filter
+  filterTypes.forEach(filterType => {
+    const select = document.getElementById(filterType);
+    if (select) {
+      // Special handling for state filter due to autofill protection
+      if (filterType === 'state' && elements.state) {
+        // Temporarily disable autofill protection
+        const wasProtectionActive = stateProtectionActive;
+        stateProtectionActive = false;
+        
+        // Mark as user-initiated change to bypass autofill protection
+        isUserChangingState = true;
+        lastUserSelectedState = '';
+        elements.state.value = '';
+        
+        // Trigger change event to update map
+        const changeEvent = new Event('change', { bubbles: true });
+        elements.state.dispatchEvent(changeEvent);
+        
+        // Reset flags after a short delay to allow change handler to process
+        setTimeout(() => {
+          isUserChangingState = false;
+          stateProtectionActive = wasProtectionActive;
+        }, 100);
+      } else {
+        // For other filters, just clear and trigger change
+        select.value = '';
+        const changeEvent = new Event('change', { bubbles: true });
+        select.dispatchEvent(changeEvent);
+      }
+    }
+  });
+  
+  // Update filter chips after all filters are cleared
+  updateFilterChips();
+  
+  // Trigger render to update map
+  if (activeMode === 'route' && route.lastSearch) {
+    findCollegesAlongRoute();
+  } else {
+    render();
+  }
 }
 
 // Function to clear a specific filter
