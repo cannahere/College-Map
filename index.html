@@ -1922,118 +1922,48 @@ function guardIOSAutofill(input) {
   // Instead, use inputmode='none' initially, then change to 'search' on interaction
   input.setAttribute('inputmode', 'none');
   
-  // On EVERY interaction, change inputmode to allow keyboard
+  // Unified keyboard enable function - fires on EVERY interaction
   const enableKeyboard = (event) => {
-    // Change inputmode to allow keyboard - ensure it's set synchronously BEFORE browser processes
+    // Change inputmode to allow keyboard - set synchronously BEFORE browser processes
     const restoredMode = input.dataset.originalInputMode || 'search';
     // Set both attribute and property for maximum compatibility
     input.setAttribute('inputmode', restoredMode);
     if (input.inputMode !== undefined) {
       input.inputMode = restoredMode;
     }
-    // Force immediate update
+    // Force immediate reflow to ensure inputmode change is processed
     void input.offsetHeight;
-    // Also ensure focus happens to trigger keyboard
-    if (event && event.type !== 'focus') {
-      setTimeout(() => {
-        input.focus();
-      }, 0);
+    
+    // For touch/pointer events, ensure focus happens to trigger keyboard
+    // Use requestAnimationFrame for better timing with iOS keyboard
+    if (event && (event.type === 'touchstart' || event.type === 'pointerdown' || event.type === 'mousedown' || event.type === 'click')) {
+      // Prevent default only if needed to avoid interfering with autocomplete
+      if (event.type === 'touchstart' || event.type === 'pointerdown') {
+        // Don't prevent default - let normal focus behavior happen
+      }
+      // Use requestAnimationFrame to ensure inputmode is set before focus
+      requestAnimationFrame(() => {
+        if (document.activeElement !== input) {
+          input.focus({ preventScroll: true });
+        }
+      });
     }
   };
-  // Use capture phase to fire early - listeners stay active for EVERY tap
-  // Use passive: false to allow preventDefault if needed
-  // Do NOT remove listeners - they need to fire every time the field is tapped
-  input.addEventListener('touchstart', enableKeyboard, { passive: false, capture: true });
-  input.addEventListener('pointerdown', enableKeyboard, { passive: false, capture: true });
-  input.addEventListener('mousedown', enableKeyboard, { passive: false, capture: true });
+  
+  // Attach listeners in capture phase to fire early - these stay active for EVERY tap
+  // Use passive: false only where needed to allow preventDefault if necessary
+  input.addEventListener('touchstart', enableKeyboard, { passive: true, capture: true });
+  input.addEventListener('pointerdown', enableKeyboard, { passive: true, capture: true });
+  input.addEventListener('mousedown', enableKeyboard, { passive: true, capture: true });
   input.addEventListener('focus', enableKeyboard, { capture: true });
-  input.addEventListener('click', enableKeyboard, { passive: false, capture: true });
-  // Use autocomplete values that iOS respects better
+  input.addEventListener('click', enableKeyboard, { passive: true, capture: true });
+  
+  // Set autofill prevention attributes (keep existing autocomplete if set)
   if (!input.getAttribute('autocomplete') || input.getAttribute('autocomplete') === 'off') {
     input.setAttribute('autocomplete', 'new-password');
   }
   input.setAttribute('data-lpignore', 'true'); // LastPass ignore
   input.setAttribute('data-form-type', 'other'); // Prevent form autofill
-  input.dataset.iosGuardState = 'pending';
-  
-  const releaseGuard = (event) => {
-    // Always release, even if already released (in case of multiple taps)
-    input.dataset.iosGuardState = 'released';
-    if (event && typeof event.preventDefault === 'function') {
-      event.preventDefault();
-    }
-    // Ensure inputmode is set to allow keyboard
-    const restoredMode = input.dataset.originalInputMode || 'search';
-    input.setAttribute('inputmode', restoredMode);
-    // Force focus to ensure keyboard appears
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        if (document.activeElement !== input) {
-          input.focus({ preventScroll: true });
-        }
-        const len = input.value.length;
-        if (typeof input.setSelectionRange === 'function') {
-          input.setSelectionRange(len, len);
-        }
-      });
-    }, 10);
-  };
-  
-  const touchUnlock = (event) => {
-    input.removeEventListener('touchstart', touchUnlock);
-    input.removeEventListener('pointerdown', pointerUnlock);
-    input.removeEventListener('focus', focusUnlock);
-    input.removeEventListener('click', clickUnlock);
-    releaseGuard(event);
-  };
-  
-  const pointerUnlock = (event) => {
-    if (event.pointerType && event.pointerType !== 'touch') {
-      return;
-    }
-    input.removeEventListener('touchstart', touchUnlock);
-    input.removeEventListener('pointerdown', pointerUnlock);
-    input.removeEventListener('focus', focusUnlock);
-    input.removeEventListener('click', clickUnlock);
-    releaseGuard(event);
-  };
-  
-  const focusUnlock = () => {
-    input.removeEventListener('touchstart', touchUnlock);
-    input.removeEventListener('pointerdown', pointerUnlock);
-    input.removeEventListener('focus', focusUnlock);
-    input.removeEventListener('click', clickUnlock);
-    releaseGuard();
-  };
-  
-  const clickUnlock = (event) => {
-    input.removeEventListener('touchstart', touchUnlock);
-    input.removeEventListener('pointerdown', pointerUnlock);
-    input.removeEventListener('focus', focusUnlock);
-    input.removeEventListener('click', clickUnlock);
-    releaseGuard(event);
-  };
-  
-  // Use capture phase and make sure events fire - remove once:true so they can fire multiple times
-  const addEventListeners = () => {
-    input.addEventListener('touchstart', touchUnlock, { passive: false, capture: true });
-    input.addEventListener('pointerdown', pointerUnlock, { capture: true });
-    input.addEventListener('focus', focusUnlock, { capture: true });
-    input.addEventListener('click', clickUnlock, { capture: true });
-    input.addEventListener('mousedown', (e) => {
-      releaseGuard(e);
-    }, { capture: true });
-  };
-  addEventListeners();
-  
-  // Re-add listeners if guard state is reset
-  const observer = new MutationObserver(() => {
-    if (input.dataset.iosGuardState === 'pending' && !input.hasAttribute('readonly')) {
-      // Guard was reset, re-add listeners
-      addEventListeners();
-    }
-  });
-  observer.observe(input, { attributes: true, attributeFilter: ['readonly', 'data-ios-guard-state'] });
 }
 
 // Apply autofill guard immediately if elements exist, or wait for DOMContentLoaded
