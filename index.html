@@ -264,6 +264,15 @@
     .pill {display:flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 8px;border-radius:12px;font-size:12px}
     .pill label {color:#475569;font-weight:600;font-size:12px;min-width:60px}
     .pill input,.pill select,.pill button {border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;background:#fff;color:#0f172a;font-size:14px;flex:1;transition:border-color 0.2s,box-shadow 0.2s}
+    /* State dropdown divider */
+    .pill select option.state-divider {
+      background-color: #f3f4f6;
+      color: #6b7280;
+      font-weight: 500;
+      font-size: 12px;
+      padding: 8px;
+      cursor: default;
+    }
     .pill input:focus {outline:none;border-color:#4285f4;box-shadow:0 0 0 1px #4285f4}
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
     @media (min-width:701px){
@@ -818,7 +827,7 @@
     }
     /* Toast notification */
     .toast {
-      position: fixed;
+      position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, calc(-50% + 40px));
@@ -3152,6 +3161,81 @@ const REGION_MAP = {
   'Territories': ['PR','GU','VI','AS','MP']
 };
 
+// U.S. states and territories mapping
+const US_STATES = [
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
+  { code: "DC", name: "District of Columbia" }
+];
+
+const US_TERRITORIES = [
+  { code: "AS", name: "American Samoa" },
+  { code: "GU", name: "Guam" },
+  { code: "MP", name: "Northern Mariana Islands" },
+  { code: "PR", name: "Puerto Rico" },
+  { code: "VI", name: "U.S. Virgin Islands" },
+  { code: "FM", name: "Federated States of Micronesia" },
+  { code: "MH", name: "Marshall Islands" },
+  { code: "PW", name: "Palau" }
+];
+
+// Territories to hide from the state dropdown (but still support in data/filtering)
+const HIDDEN_TERRITORIES = ['GU', 'MP', 'FM', 'MH', 'PW'];
+
+// Helper: Create a lookup map from code to name (for backward compatibility)
+const STATE_NAME_MAP = {};
+[...US_STATES, ...US_TERRITORIES].forEach(item => {
+  STATE_NAME_MAP[item.code] = item.name;
+});
+
 // Calculate distance between two coordinates (Haversine formula)
 function calculateDistance(lat1, lon1, lat2, lon2, unit = 'mi') {
   const R = unit === 'mi' ? 3959 : 6371; // Earth radius in miles or km
@@ -4211,7 +4295,43 @@ function render(){
 
 function refreshDropdown(id, values, placeholder) {
   const select = document.getElementById(id);
-  select.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option>${v}</option>`).join('');
+  // Special handling for state dropdown: use codes as values but full names as labels
+  if (id === 'state') {
+    // Create sets of available state and territory codes from the data
+    const availableCodes = new Set(values);
+    
+    // Filter and sort states by name
+    const availableStates = US_STATES
+      .filter(state => availableCodes.has(state.code))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Filter and sort territories by name (excluding hidden territories)
+    const availableTerritories = US_TERRITORIES
+      .filter(territory => availableCodes.has(territory.code) && !HIDDEN_TERRITORIES.includes(territory.code))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Build HTML: placeholder, states, divider (if territories exist), territories
+    let html = `<option value="">${placeholder}</option>`;
+    
+    // Add states
+    availableStates.forEach(state => {
+      html += `<option value="${state.code}">${state.name}</option>`;
+    });
+    
+    // Add divider if there are territories
+    if (availableTerritories.length > 0) {
+      html += `<option value="" disabled class="state-divider">U.S. territories & associated states</option>`;
+    }
+    
+    // Add territories
+    availableTerritories.forEach(territory => {
+      html += `<option value="${territory.code}">${territory.name}</option>`;
+    });
+    
+    select.innerHTML = html;
+  } else {
+    select.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option>${v}</option>`).join('');
+  }
   // Ensure font-size is consistent after dropdown refresh (especially for mobile/tablet)
   const width = window.innerWidth || document.documentElement.clientWidth;
   const isMobile = width <= 700;
@@ -5020,11 +5140,14 @@ const toast = (() => {
   
   const init = () => {
     if (!toastElement) {
-      toastElement = document.createElement('div');
-      toastElement.className = 'toast';
-      toastElement.id = 'share-toast';
-      toastElement.innerHTML = '<div class="toast-message"></div>';
-      document.body.appendChild(toastElement);
+      const mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        toastElement = document.createElement('div');
+        toastElement.className = 'toast';
+        toastElement.id = 'share-toast';
+        toastElement.innerHTML = '<div class="toast-message"></div>';
+        mapContainer.appendChild(toastElement);
+      }
     }
     return toastElement;
   };
