@@ -1854,21 +1854,32 @@ function guardIOSAutofill(input) {
   // Instead, use inputmode='none' initially, then change to 'search' on interaction
   input.setAttribute('inputmode', 'none');
   
-  // On first interaction, change inputmode to allow keyboard
+  // On EVERY interaction, change inputmode to allow keyboard
   const enableKeyboard = (event) => {
-    // Change inputmode to allow keyboard
-    input.setAttribute('inputmode', input.dataset.originalInputMode || 'search');
-    // Clean up listeners
-    input.removeEventListener('touchstart', enableKeyboard, { capture: true });
-    input.removeEventListener('pointerdown', enableKeyboard, { capture: true });
-    input.removeEventListener('mousedown', enableKeyboard, { capture: true });
-    input.removeEventListener('focus', enableKeyboard, { capture: true });
+    // Change inputmode to allow keyboard - ensure it's set synchronously BEFORE browser processes
+    const restoredMode = input.dataset.originalInputMode || 'search';
+    // Set both attribute and property for maximum compatibility
+    input.setAttribute('inputmode', restoredMode);
+    if (input.inputMode !== undefined) {
+      input.inputMode = restoredMode;
+    }
+    // Force immediate update
+    void input.offsetHeight;
+    // Also ensure focus happens to trigger keyboard
+    if (event && event.type !== 'focus') {
+      setTimeout(() => {
+        input.focus();
+      }, 0);
+    }
   };
-  // Use capture phase to fire early
-  input.addEventListener('touchstart', enableKeyboard, { once: true, passive: false, capture: true });
-  input.addEventListener('pointerdown', enableKeyboard, { once: true, passive: false, capture: true });
-  input.addEventListener('mousedown', enableKeyboard, { once: true, passive: false, capture: true });
-  input.addEventListener('focus', enableKeyboard, { once: true, capture: true });
+  // Use capture phase to fire early - listeners stay active for EVERY tap
+  // Use passive: false to allow preventDefault if needed
+  // Do NOT remove listeners - they need to fire every time the field is tapped
+  input.addEventListener('touchstart', enableKeyboard, { passive: false, capture: true });
+  input.addEventListener('pointerdown', enableKeyboard, { passive: false, capture: true });
+  input.addEventListener('mousedown', enableKeyboard, { passive: false, capture: true });
+  input.addEventListener('focus', enableKeyboard, { capture: true });
+  input.addEventListener('click', enableKeyboard, { passive: false, capture: true });
   // Use autocomplete values that iOS respects better
   if (!input.getAttribute('autocomplete') || input.getAttribute('autocomplete') === 'off') {
     input.setAttribute('autocomplete', 'new-password');
