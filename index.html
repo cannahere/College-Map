@@ -2036,6 +2036,27 @@ document.addEventListener('DOMContentLoaded', () => {
     addHeaderInteractionListeners();
   }
   setupRouteHint();
+  
+  // Ensure map interactions are enabled on initial load
+  // Wait a bit for map to be fully ready
+  setTimeout(() => {
+    const savedOverlay = document.getElementById('saved-colleges-overlay');
+    if (!savedOverlay || !savedOverlay.classList.contains('active')) {
+      // If overlay is not open, ensure map is interactive
+      if (map && mapInteractionLock.locked) {
+        resumeMapInteractions();
+      } else if (map) {
+        // Explicitly enable all interactions to ensure map is interactive
+        if (map.dragging) map.dragging.enable();
+        if (map.scrollWheelZoom) map.scrollWheelZoom.enable();
+        if (map.doubleClickZoom) map.doubleClickZoom.enable();
+        if (map.boxZoom) map.boxZoom.enable();
+        if (map.keyboard) map.keyboard.enable();
+        if (map.touchZoom) map.touchZoom.enable();
+        if (map.tap && typeof map.tap.enable === 'function') map.tap.enable();
+      }
+    }
+  }, 300);
 });
 
 if (elements.addressSuggestions) elements.addressSuggestions.dataset.field = 'address';
@@ -2134,6 +2155,24 @@ map.whenReady(() => {
     if (!home && !lastNearbyFilters && mapViewState.nearby) {
       map.setView([mapViewState.nearby.center.lat, mapViewState.nearby.center.lng], mapViewState.nearby.zoom);
       captureMapView('nearby');
+    }
+    // Ensure map interactions are enabled on initial load
+    // Check if saved overlay is not open (if it is, interactions should be frozen)
+    const savedOverlay = document.getElementById('saved-colleges-overlay');
+    if (!savedOverlay || !savedOverlay.classList.contains('active')) {
+      // If overlay is not open, ensure map is interactive
+      if (mapInteractionLock.locked) {
+        resumeMapInteractions();
+      } else {
+        // Explicitly enable all interactions to ensure map is interactive
+        if (map.dragging) map.dragging.enable();
+        if (map.scrollWheelZoom) map.scrollWheelZoom.enable();
+        if (map.doubleClickZoom) map.doubleClickZoom.enable();
+        if (map.boxZoom) map.boxZoom.enable();
+        if (map.keyboard) map.keyboard.enable();
+        if (map.touchZoom) map.touchZoom.enable();
+        if (map.tap && typeof map.tap.enable === 'function') map.tap.enable();
+      }
     }
   }, 150);
 });
@@ -6277,20 +6316,39 @@ function findCollegesAlongRoute() {
   homeLayer.clearLayers();
   radiusLayer.clearLayers();
   
+  // Validate route coordinates
+  if (isNaN(route.start.lat) || isNaN(route.start.lon) || isNaN(route.end.lat) || isNaN(route.end.lon)) {
+    console.error('Invalid route coordinates:', { start: route.start, end: route.end });
+    showError('Invalid route coordinates. Please check your addresses.');
+    if (elements.loading) elements.loading.classList.remove('active');
+    isProcessingRoute = false;
+    return;
+  }
+  
   // Get actual driving route using OSRM (Open Source Routing Machine)
   // Format: lon,lat (OSRM uses lon,lat order)
   const startCoords = `${route.start.lon},${route.start.lat}`;
   const endCoords = `${route.end.lon},${route.end.lat}`;
   const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startCoords};${endCoords}?overview=full&geometries=geojson`;
   
-  fetch(osrmUrl)
+  // Add timeout to fetch request
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  
+  fetch(osrmUrl, { signal: controller.signal })
     .then(r => {
+      clearTimeout(timeoutId);
       if (!r.ok) throw new Error(`Routing failed: ${r.status}`);
       return r.json();
     })
     .then(data => {
-      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+      if (!data || data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
         throw new Error('No route found');
+      }
+      
+      // Validate route geometry
+      if (!data.routes[0].geometry || !data.routes[0].geometry.coordinates || data.routes[0].geometry.coordinates.length === 0) {
+        throw new Error('Invalid route geometry');
       }
       
       const routeGeometry = data.routes[0].geometry.coordinates;
@@ -6482,7 +6540,18 @@ function findCollegesAlongRoute() {
       isProcessingRoute = false;
     })
     .catch(error => {
+      clearTimeout(timeoutId);
       console.error('Route calculation error:', error);
+      
+      // Ensure loading indicator is hidden
+      if (elements.loading) elements.loading.classList.remove('active');
+      
+      // Reset processing flag (will be set again at end of fallback)
+      
+      // If it's an abort error (timeout), show specific message but still use fallback
+      if (error.name === 'AbortError') {
+        showError('Route calculation timed out. Showing approximate results.');
+      }
       // Fallback to straight line if routing fails
       const fallbackRouteCoords = [
         [route.start.lat, route.start.lon],
@@ -6619,7 +6688,10 @@ function findCollegesAlongRoute() {
         end: route.end ? { ...route.end } : null
       };
       
-      showError('Could not calculate driving route. Showing approximate results.');
+      // Only show general error if it wasn't a timeout (timeout message already shown)
+      if (error.name !== 'AbortError') {
+        showError('Could not calculate driving route. Showing approximate results.');
+      }
       
       isProcessingRoute = false;
     });
