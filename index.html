@@ -364,6 +364,8 @@
     .error {display:none;background:#fee;color:#c33;padding:12px;border-radius:8px;margin:12px;border:1px solid #fcc}
     .error.active {display:block}
     .site-footer {background:#fff;border-top:1px solid #e2e8f0;padding:10px 16px;font-size:12px;color:#94A3B8;text-align:center}
+    .site-footer a {color:#2563eb;text-decoration:none;transition:color 0.2s}
+    .site-footer a:hover {color:#1d4ed8;text-decoration:underline}
     .feedback-button {position:fixed;bottom:18px;right:18px;background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:Inter,sans-serif;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,0.3);z-index:1000;transition:all 0.2s ease}
     .feedback-button:hover {background:#1d4ed8;box-shadow:0 6px 16px rgba(37,99,235,0.4);transform:translateY(-2px)}
     .feedback-button.hidden {display:none}
@@ -500,6 +502,9 @@
     .filter-section.active summary {background:#f0f7ff}
     .about-map {max-width:1100px;margin:16px auto 24px;font-size:13px;color:#475569;background:#f8fafc;border-radius:12px;padding:10px 16px 14px;border:1px solid #e2e8f0}
     .about-map-title {font-weight:600;color:#0f172a;font-size:15px;margin:0 0 12px 0;text-align:center;padding-bottom:12px;border-bottom:2px solid #fff}
+    .about-map-video {margin:16px 0 20px 0;max-width:100%}
+    .about-map-video-wrapper {position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .about-map-video-wrapper iframe {position:absolute;top:0;left:0;width:100%;height:100%;border:0}
     .info-snippets {display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:14px;padding-top:8px}
     .snippet h2 {font-size:14px;font-weight:600;margin-bottom:4px;color:#1e293b;display:flex;align-items:center;gap:4px}
     .snippet h2 .star-icon {font-size:0.85em;line-height:1;display:inline-flex;align-items:center;margin-top:0}
@@ -1866,6 +1871,11 @@
   
   <section class="about-map">
     <h2 class="about-map-title">About This Map</h2>
+    <div class="about-map-video">
+      <div class="about-map-video-wrapper">
+        <iframe src="https://www.youtube.com/embed/caAXVrA2Klw" title="U.S. College Map Introduction" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
     <div class="info-snippets" aria-label="College visit planning resources">
       <div class="snippet">
         <h2><span class="star-icon">⭐</span> Explore and find colleges by region</h2>
@@ -1881,10 +1891,10 @@
       </div>
     </div>
   </section>
-  <p class="site-disclaimer">*Ranking tiers on this site are for general reference only and are not official rankings. They reflect schools that commonly appear near the top of well-known national lists but are not based on any single ranking system. Some tiers include additional schools to account for natural year-to-year differences across sources. Families and students should use these tiers as a starting point for exploration and always research colleges directly to determine personal fit.</p>
+  <p class="site-disclaimer"><strong>Disclaimer:</strong><br><br>* School ranking on U.S. College Map are for general reference only and are not official rankings. They reflect schools that commonly appear near the top of well-known national lists, but they are not based on any single ranking system. Some tiers include additional schools to account for natural year-to-year differences across sources.<br><br>** School information provided on this site is also for general reference and may be incomplete or out of date. Details such as tuition, enrollment, and selectivity can change at any time. Students and families should always verify the latest information directly on each college's official website when making decisions.</p>
   </main>
 </div>
-<footer class="site-footer">© 2025 U.S. College Map</footer>
+<footer class="site-footer">© 2025 U.S. College Map | <a href="mailto:contact@uscollegemap.org">Contact Us</a></footer>
 
 <script>
 const localMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -3621,14 +3631,21 @@ function addRouteCollegeMarker(college, distanceText, units) {
         </button>
       </div>` : '';
 
+    // Style distance text to be blue and bold (only for route popups)
+    let styledDistanceText = distanceText || '';
+    if (styledDistanceText) {
+      // Match pattern like "Distance from route: 5.2 mi" or "Approx. distance from route: 5.2 mi"
+      styledDistanceText = styledDistanceText.replace(/(\d+\.?\d*)\s*(mi|km)/g, '<span style="color: #2563eb; font-weight: bold;">$1 $2</span>');
+    }
+    
     const popupContent = `
       <div style="font-size:12px;line-height:1.4">
         <b>${college.name}</b><br>
-        ${college.state} · ${(college.type||'Unknown')}${distanceText || ''}<br>
+        ${college.state} · ${(college.type||'Unknown')}${styledDistanceText}<br>
         ${college.control ? college.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
         Enrollment: ${college.enrollment || 'N/A'}<br>
         Tuition: ${tuition}<br>
-        ${college.url ? `<a href="https://${college.url.replace(/^https?:\/\//,'')}" target="_blank">${college.url}</a>` : ''}
+        ${college.url ? `<div style="border-top: 1px solid #e2e8f0; margin: 8px 0; padding-top: 8px;">For official, up-to-date info:<br><a href="https://${college.url.replace(/^https?:\/\//,'')}" target="_blank">${college.url}</a></div>` : ''}
         ${saveButtonHtml}
       </div>`;
 
@@ -3987,7 +4004,7 @@ function render(){
         ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
         Enrollment: ${c.enrollment || 'N/A'}<br>
         Tuition: ${tuition}<br>
-        ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+        ${c.url ? `<div style="border-top: 1px solid #e2e8f0; margin: 8px 0; padding-top: 8px;">For official, up-to-date info:<br><a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a></div>` : ''}
               ${saveButtonHtml}
       </div>`;
 
@@ -4190,6 +4207,13 @@ function render(){
         distanceText = `<br>Distance: ${distance.toFixed(1)} ${unitsVal}`;
       }
       
+      // Style distance text to be blue and bold (for nearby popups)
+      let styledDistanceText = distanceText || '';
+      if (styledDistanceText) {
+        // Match pattern like "Distance: 5.2 mi"
+        styledDistanceText = styledDistanceText.replace(/(\d+\.?\d*)\s*(mi|km)/g, '<span style="color: #2563eb; font-weight: bold;">$1 $2</span>');
+      }
+      
     const saveButtonHtml = c.college_id ? `
       <div class="popup-save-row">
         <button type="button" class="popup-save-btn" data-college-id="${c.college_id}">
@@ -4201,11 +4225,11 @@ function render(){
     const popupContent = `
       <div style="font-size:12px;line-height:1.4">
         <b>${c.name}</b><br>
-          ${c.state} · ${(c.type||'Unknown')}${distanceText}<br>
+          ${c.state} · ${(c.type||'Unknown')}${styledDistanceText}<br>
         ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
         Enrollment: ${c.enrollment || 'N/A'}<br>
         Tuition: ${tuition}<br>
-        ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+        ${c.url ? `<div style="border-top: 1px solid #e2e8f0; margin: 8px 0; padding-top: 8px;">For official, up-to-date info:<br><a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a></div>` : ''}
         ${saveButtonHtml}
       </div>`;
 
@@ -7110,7 +7134,7 @@ if (elements.clearRoute) {
               ${c.control ? c.control + ' | ' : ''}Acceptance Rate: ${acceptance}<br>
               Enrollment: ${c.enrollment || 'N/A'}<br>
               Tuition: ${tuition}<br>
-              ${c.url ? `<a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
+              ${c.url ? `For official, up-to-date info:<br><a href="https://${c.url.replace(/^https?:\/\//,'')}" target="_blank">${c.url}</a>` : ''}
               ${saveButtonHtml}
             </div>`;
           
