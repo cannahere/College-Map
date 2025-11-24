@@ -1873,7 +1873,7 @@
     <h2 class="about-map-title">About This Map</h2>
     <div class="about-map-video">
       <div class="about-map-video-wrapper">
-        <iframe src="https://www.youtube.com/embed/caAXVrA2Klw" title="U.S. College Map Introduction" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="intro-video-iframe" src="https://www.youtube.com/embed/caAXVrA2Klw" title="U.S. College Map Introduction" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
     <div class="info-snippets" aria-label="College visit planning resources">
@@ -1894,7 +1894,7 @@
   <p class="site-disclaimer"><strong>Disclaimer:</strong><br><br>* School ranking on U.S. College Map are for general reference only and are not official rankings. They reflect schools that commonly appear near the top of well-known national lists, but they are not based on any single ranking system. Some tiers include additional schools to account for natural year-to-year differences across sources.<br><br>** School information provided on this site is also for general reference and may be incomplete or out of date. Details such as tuition, enrollment, and selectivity can change at any time. Students and families should always verify the latest information directly on each college's official website when making decisions.</p>
   </main>
 </div>
-<footer class="site-footer">© 2025 U.S. College Map | <a href="mailto:contact@uscollegemap.org">Contact Us</a></footer>
+<footer class="site-footer">© 2025 U.S. College Map | <a href="mailto:contact@uscollegemap.org" id="contact-email-link">Contact Us</a></footer>
 
 <script>
 const localMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -2046,6 +2046,34 @@ document.addEventListener('DOMContentLoaded', () => {
     addHeaderInteractionListeners();
   }
   setupRouteHint();
+  
+  // Track contact email link click
+  const contactLink = document.getElementById('contact-email-link');
+  if (contactLink) {
+    contactLink.addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_contact_clicked');
+      }
+    });
+  }
+  
+  // Track YouTube video interaction
+  const videoIframe = document.getElementById('intro-video-iframe');
+  if (videoIframe) {
+    // Track when user clicks on the video iframe (indicates intent to watch)
+    videoIframe.addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_intro_video_interacted');
+      }
+    });
+    
+    // Also track when iframe receives focus (user interacting with video)
+    videoIframe.addEventListener('focus', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'feature_intro_video_interacted');
+      }
+    }, { once: true }); // Only track once per page load
+  }
   
   // Ensure map interactions are enabled on initial load
   // Wait a bit for map to be fully ready
