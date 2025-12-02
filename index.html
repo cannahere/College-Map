@@ -322,6 +322,47 @@
     .map-tip-bubble-text {font-size:0.8125rem;line-height:1.4;color:#0f172a;flex:1}
     .map-tip-bubble-close {background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;line-height:1;padding:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.2s;margin-left:4px}
     .map-tip-bubble-close:hover {color:#64748b}
+    /* Glowing effect for blue dot when tip bubble is shown */
+    @keyframes blueDotGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 20px rgba(0, 255, 255, 1)) drop-shadow(0 0 35px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 50px rgba(0, 255, 255, 0.8)) drop-shadow(0 0 70px rgba(0, 255, 255, 0.6));
+        opacity: 1;
+      }
+      50% {
+        filter: drop-shadow(0 0 30px rgba(0, 255, 255, 1)) drop-shadow(0 0 50px rgba(0, 255, 255, 1)) drop-shadow(0 0 70px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 100px rgba(0, 255, 255, 0.7));
+        opacity: 1;
+      }
+    }
+    .blue-dot-glow {
+      animation: blueDotGlow 1s ease-in-out infinite;
+      z-index: 2000 !important;
+    }
+    /* Pulsing ring around the glowing dot */
+    .blue-dot-glow-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid rgba(0, 255, 255, 0.6);
+      pointer-events: none;
+      z-index: 1999;
+      animation: pulseRing 1s ease-in-out infinite;
+    }
+    @keyframes pulseRing {
+      0% {
+        transform: scale(1);
+        opacity: 0.6;
+        border-width: 3px;
+      }
+      50% {
+        transform: scale(2.5);
+        opacity: 0.25;
+        border-width: 2px;
+      }
+      100% {
+        transform: scale(3);
+        opacity: 0;
+        border-width: 1px;
+      }
+    }
     @media (max-width:700px) {
       .map-tip-bubble {max-width:calc(100vw - 24px);width:clamp(180px, calc(100vw - 24px), 280px);font-size:0.75rem;padding:8px 10px;box-sizing:border-box}
       .map-tip-bubble-icon {font-size:12px}
@@ -665,6 +706,29 @@
       background: #bbf7d0;
       color: #15803d;
     }
+    /* Animation for marker transition from blue dot to green icon - balloon grow effect */
+    .marker-save-transition {
+      animation: markerSaveTransition 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+      transform-origin: center bottom !important;
+    }
+    .marker-save-transition img {
+      animation: markerSaveTransition 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+      transform-origin: center bottom !important;
+    }
+    @keyframes markerSaveTransition {
+      0% {
+        opacity: 0 !important;
+        transform: scale(0) !important;
+      }
+      60% {
+        opacity: 1 !important;
+        transform: scale(1.2) !important;
+      }
+      100% {
+        opacity: 1 !important;
+        transform: scale(1) !important;
+      }
+    }
     /* Ensure Leaflet popups appear above everything, including header and logo */
     .leaflet-popup-pane {
       z-index: 10000 !important;
@@ -962,6 +1026,32 @@
       height: 22px;
       flex-shrink: 0;
     }
+    .saved-count-x {
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 400;
+      color: #64D85B;
+      white-space: nowrap;
+      margin-left: 0.1px;
+      margin-right: 0.1px;
+      display: none;
+    }
+    .saved-count-x:not(:empty) {
+      display: inline;
+    }
+    .saved-count {
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 600;
+      color: #64D85B;
+      white-space: nowrap;
+      margin-left: 0.1px;
+      margin-right: 4px;
+      display: none;
+    }
+    .saved-count:not(:empty) {
+      display: inline;
+    }
     .saved-text {
       font-size: 12px;
       line-height: 1;
@@ -1036,6 +1126,11 @@
         width: 20px;
         height: 20px;
       }
+      .saved-count {
+        font-size: 11px;
+        margin-left: 1px;
+        margin-right: 3px;
+      }
       .saved-toggle-track {
         width: 28px;
         height: 16px;
@@ -1073,6 +1168,16 @@
       .saved-only-divider {
         right: 22px;
         height: 18px;
+      }
+      .saved-count-x {
+        font-size: 11px;
+        margin-left: 0.1px;
+        margin-right: 0.1px;
+      }
+      .saved-count {
+        font-size: 11px;
+        margin-left: 0.1px;
+        margin-right: 3px;
       }
       .saved-share-icon {
         right: 3px;
@@ -1793,6 +1898,8 @@
           <path fill="#64D85B" d="M128 0C74 0 32 42 32 96C32 166 128 256 128 256C128 256 224 166 224 96C224 42 182 0 128 0Z"/>
           <path fill="#FFFFFF" d="M128 32L147 86H200L159 118L175 170L128 139L81 170L97 118L56 86H109L128 32Z"/>
         </svg>
+        <span class="saved-count-x" id="saved-pill-count-x"></span>
+        <span class="saved-count" id="saved-pill-count"></span>
         <span class="saved-pill"><span class="saved-text">My Saved List</span></span>
       </div>
       <div class="saved-controls-divider"></div>
@@ -2022,8 +2129,47 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize saved search
   initSavedSearch();
   
+  // Initialize saved pill count
+  updateSavedPillCount();
+  
   // Apply autofill guards again in case elements weren't ready before
   applyAutofillGuards();
+  
+  // Add double-click/double-tap to select all text in address fields
+  const addressFields = [elements.address, elements.routeStart, elements.routeEnd].filter(Boolean);
+  
+  addressFields.forEach(input => {
+    if (!input) return;
+    
+    // Double-click handler (desktop and some mobile browsers)
+    input.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      input.select();
+    });
+    
+    // Double-tap handler for mobile devices
+    let lastTapTime = 0;
+    let tapTimeout = null;
+    
+    input.addEventListener('touchend', (e) => {
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastTapTime;
+      
+      if (timeDiff < 300 && timeDiff > 0) {
+        // Double tap detected
+        e.preventDefault();
+        clearTimeout(tapTimeout);
+        input.select();
+        lastTapTime = 0;
+      } else {
+        // Single tap - wait to see if it becomes a double tap
+        lastTapTime = currentTime;
+        tapTimeout = setTimeout(() => {
+          lastTapTime = 0;
+        }, 300);
+      }
+    });
+  });
   
   // Position ranking dropdown on DOM ready (will be called again after it's defined and after CSV loads)
   setTimeout(() => {
@@ -3149,6 +3295,9 @@ map.on('popupopen', (event) => {
       // Immediately update button visual state (user action, so update synchronously)
       updatePopupSaveButton(button, collegeId);
       
+      // Immediately update pill count
+      updateSavedPillCount();
+      
       // Update marker icon
       const marker = markersByCollegeId[collegeId];
       if (marker) {
@@ -3159,6 +3308,10 @@ map.on('popupopen', (event) => {
         const popupContent = popup ? popup.getContent() : '';
         const tooltipContent = tooltip ? tooltip.getContent() : '';
         const wasPopupOpen = popup && marker.isPopupOpen();
+        
+        // Check if transitioning from blue dot to green icon (saving)
+        const wasBlueDot = marker instanceof L.CircleMarker;
+        const isTransitioningToSaved = wasBlueDot && isSaved;
         
         // Remove old marker
         marker.remove();
@@ -3186,6 +3339,34 @@ map.on('popupopen', (event) => {
         if (tooltipContent) newMarker.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
         newMarker.addTo(markersLayer);
         markersByCollegeId[collegeId] = newMarker;
+        
+        // Add transition animation when changing from blue dot to green icon
+        if (isTransitioningToSaved) {
+          // Small delay to ensure marker is fully rendered in DOM
+          setTimeout(() => {
+            const markerElement = newMarker.getElement();
+            if (markerElement) {
+              // Add animation class to marker container
+              markerElement.classList.add('marker-save-transition');
+              
+              // Also target the icon image directly
+              const iconImage = markerElement.querySelector('img');
+              if (iconImage) {
+                iconImage.classList.add('marker-save-transition');
+              }
+              
+              // Remove animation class after animation completes
+              setTimeout(() => {
+                if (markerElement) {
+                  markerElement.classList.remove('marker-save-transition');
+                  if (iconImage) {
+                    iconImage.classList.remove('marker-save-transition');
+                  }
+                }
+              }, 500);
+            }
+          }, 10);
+        }
         
         // Reopen popup if it was open before
         if (wasPopupOpen) {
@@ -3830,25 +4011,7 @@ function refilterCollegesAlongRoute() {
     sampledRoute.push(routeCoords[routeCoords.length - 1]);
   }
   
-  // Filter colleges by distance to route
-  const filtered = colleges.filter(c => {
-    let minDistance = Infinity;
-    for (let i = 0; i < sampledRoute.length - 1; i++) {
-      const segmentStart = sampledRoute[i];
-      const segmentEnd = sampledRoute[i + 1];
-      const dist = distanceToLineSegment(
-        c.lat, c.lon,
-        segmentStart[0], segmentStart[1],
-        segmentEnd[0], segmentEnd[1],
-        units
-      );
-      minDistance = Math.min(minDistance, dist);
-      if (minDistance <= maxDistance) break;
-    }
-    return minDistance <= maxDistance;
-  });
-  
-  // Apply other filters
+  // Apply other filters first (cheaper checks before distance calculation)
   const typeVal = elements.type ? elements.type.value.trim() : '';
   const regionVal = elements.region ? elements.region.value.trim() : '';
   const stateVal = elements.state ? elements.state.value.trim() : '';
@@ -3857,7 +4020,8 @@ function refilterCollegesAlongRoute() {
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
   
-  const finalFiltered = filtered.filter(c => {
+  // Pre-filter by other criteria before expensive distance calculations
+  const preFiltered = colleges.filter(c => {
     if (typeVal && (c.type || c.tier) !== typeVal) return false;
     if (regionVal) {
       const regionStates = REGION_MAP[regionVal] || [];
@@ -3874,23 +4038,30 @@ function refilterCollegesAlongRoute() {
     return true;
   });
   
-  const routeEntries = finalFiltered.map(c => {
-    let distanceText = '';
+  // Filter by distance to route and cache the distance value
+  const routeEntries = preFiltered.map(c => {
     let minRouteDist = Infinity;
     for (let i = 0; i < sampledRoute.length - 1; i++) {
+      const segmentStart = sampledRoute[i];
+      const segmentEnd = sampledRoute[i + 1];
       const dist = distanceToLineSegment(
         c.lat, c.lon,
-        sampledRoute[i][0], sampledRoute[i][1],
-        sampledRoute[i + 1][0], sampledRoute[i + 1][1],
+        segmentStart[0], segmentStart[1],
+        segmentEnd[0], segmentEnd[1],
         units
       );
       minRouteDist = Math.min(minRouteDist, dist);
+      if (minRouteDist <= maxDistance) break; // Early exit optimization
     }
-    if (minRouteDist < Infinity) {
-      distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
-    }
-    return { college: c, distanceText };
-  });
+    return { college: c, distance: minRouteDist };
+  }).filter(item => item.distance <= maxDistance) // Filter by distance
+    .map(item => {
+      // Create distance text only for items that passed the filter
+      const distanceText = item.distance < Infinity 
+        ? `<br>Distance from route: ${item.distance.toFixed(1)} ${units}`
+        : '';
+      return { college: item.college, distanceText };
+    });
   
   const visibleRouteEntries = savedOnlyMode
     ? routeEntries.filter(item => SavedStore.isSaved(item.college.college_id))
@@ -4114,6 +4285,7 @@ function render(){
   const isDefaultNearbyState = !home && !regionVal && !stateVal && !typeVal && !rankingVal && !searchVal;
   const isSearchOnlyFilter = !!searchVal && !home && !regionVal && !stateVal && !typeVal && !rankingVal;
 
+  // Pre-filter by cheaper criteria first, then calculate distance only for matching colleges
   let filtered = colleges.filter(c => {
     // Region filter
     const regionMatch = !regionVal || (REGION_MAP[regionVal] || []).includes(c.state);
@@ -4136,54 +4308,31 @@ function render(){
     // Search filter
     if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
     
-    // Radius filter (if home location is set)
-    if (home) {
-      // If radius is 0, use 0.5 instead
-      const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
-      const distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
-      if (distance > effectiveRadius) return false;
-    }
-    
     return true;
   });
   
+  // Cache distance calculations for nearby mode
+  const distanceCache = new Map();
+  if (home) {
+    const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
+    filtered = filtered.filter(c => {
+      // Calculate and cache distance
+      const cacheKey = `${c.lat.toFixed(4)}_${c.lon.toFixed(4)}`;
+      let distance = distanceCache.get(cacheKey);
+      if (distance === undefined) {
+        distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
+        distanceCache.set(cacheKey, distance);
+      }
+      return distance <= effectiveRadius;
+    });
+  }
+  
   // Apply saved-only filter if enabled
   if (savedOnlyMode) {
-    const beforeCount = filtered.length;
-    console.log(`[render] Applying saved-only filter. Before: ${beforeCount} colleges. isSharedView: ${isSharedView}, sharedViewIds size: ${sharedViewIds ? sharedViewIds.size : 'null'}`);
-    
-    if (isSharedView && sharedViewIds) {
-      // Debug: Show sample IDs from both sets for comparison
-      const sampleCollegeIds = filtered.slice(0, 5).map(c => ({ id: c.college_id, name: c.name }));
-      const sampleSharedIds = Array.from(sharedViewIds).slice(0, 5);
-      console.log(`[render] Sample college IDs from filtered (first 5):`, sampleCollegeIds);
-      console.log(`[render] Sample IDs from sharedViewIds (first 5):`, sampleSharedIds);
-      
-      // Check if any IDs match
-      let matchCount = 0;
-      filtered.slice(0, 10).forEach(c => {
-        const normalizedId = String(c.college_id || '').trim();
-        if (sharedViewIds.has(normalizedId)) {
-          matchCount++;
-          if (matchCount <= 3) {
-            console.log(`[render] ✓ Match found: "${c.name}" (ID: "${normalizedId}")`);
-          }
-        }
-      });
-      console.log(`[render] Found ${matchCount} matches in first 10 colleges`);
-    }
-    
     filtered = filtered.filter(c => {
       const isSaved = SavedStore.isSaved(c.college_id);
       return isSaved;
     });
-    console.log(`[render] After saved-only filter: ${filtered.length} colleges will be displayed`);
-    
-    if (filtered.length === 0 && isSharedView && sharedViewIds && sharedViewIds.size > 0) {
-      console.error(`[render] WARNING: No colleges matched after filtering! sharedViewIds has ${sharedViewIds.size} IDs but 0 colleges matched.`);
-      console.error(`[render] This suggests an ID format mismatch. Sample shared IDs:`, Array.from(sharedViewIds).slice(0, 3));
-      console.error(`[render] Sample college IDs:`, colleges.slice(0, 3).map(c => c.college_id));
-    }
     
     // Edge case: Show message if no saved colleges match filters
     if (filtered.length === 0) {
@@ -4196,8 +4345,6 @@ function render(){
         console.log("No saved colleges match your current filters or route.");
       }
     }
-  } else {
-    console.log(`[render] savedOnlyMode is false, showing all colleges`);
   }
 
   // Draw radius circle if home is set (use 0.5 if radius is 0)
@@ -4214,8 +4361,6 @@ function render(){
     }).addTo(radiusLayer);
   }
 
-  console.log(`Rendering ${filtered.length} colleges (activeMode: ${activeMode}, home: ${home ? 'set' : 'null'})`);
-  
   const nearbyBounds = filtered.length > 1 ? L.latLngBounds([]) : null;
   filtered.forEach(c => {
     try {
@@ -4228,10 +4373,15 @@ function render(){
     const tuition = c.tuition ? (c.tuition.toString().includes('$') ? c.tuition : `$${Number(c.tuition).toLocaleString()}`) : 'N/A';
     const acceptance = c.acceptance ? (c.acceptance.toString().includes('%') ? c.acceptance : `${parseFloat(c.acceptance).toFixed(1)}%`) : 'N/A';
       
-      // Calculate distance if home is set
+      // Calculate distance if home is set (use cached value if available)
       let distanceText = '';
       if (home) {
-        const distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
+        const cacheKey = `${c.lat.toFixed(4)}_${c.lon.toFixed(4)}`;
+        let distance = distanceCache.get(cacheKey);
+        if (distance === undefined) {
+          distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
+          distanceCache.set(cacheKey, distance);
+        }
         distanceText = `<br>Distance: ${distance.toFixed(1)} ${unitsVal}`;
       }
       
@@ -4272,7 +4422,6 @@ function render(){
   });
 
   if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
-  console.log(`Added ${filtered.length} markers to map`);
   
   // Show tip bubble when blue dots first appear (first-time users only)
   // Check if we have any blue dots (unsaved markers) and haven't shown the tip yet
@@ -4581,6 +4730,25 @@ function clearHintAutoHide(type) {
 }
 
 
+// Store glow ring data for position updates
+let glowRingData = null;
+let glowRingUpdateHandler = null;
+let blueDotClickHandlers = [];
+
+/**
+ * Update glow ring position when map moves or zooms
+ */
+function updateGlowRingPosition() {
+  if (!glowRingData || !map) return;
+  const { ring, markerLatLng, markerLayer } = glowRingData;
+  if (!ring || !markerLatLng || !markerLayer) return;
+  
+  const markerPoint = map.latLngToContainerPoint(markerLatLng);
+  const radius = (markerLayer.options && markerLayer.options.radius) || 5;
+  ring.style.left = (markerPoint.x - (radius + 5)) + 'px';
+  ring.style.top = (markerPoint.y - (radius + 5)) + 'px';
+}
+
 /**
  * Show the map tip bubble pointing to a blue dot near the center
  * Only shows for first-time users when blue dots first appear
@@ -4599,28 +4767,65 @@ function showMapTip() {
     return;
   }
   
-  // Find a blue dot (unsaved marker) near the center of the map
+  // Find a blue dot (unsaved marker) near the center of the map that's not blocked
   const mapCenter = map.getCenter();
-  let closestBlueDot = null;
-  let closestDistance = Infinity;
+  const mapContainer = map.getContainer();
+  if (!mapContainer) return; // Safety check
   
+  let closestBlueDot = null;
+  let closestBlueDotLayer = null;
+  let closestDistance = Infinity;
+  const candidateDots = [];
+  
+  // First pass: collect all blue dots near center
   markersLayer.eachLayer((layer) => {
     // Check if this is a blue dot (circleMarker, not a saved marker with icon)
     if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
       const markerLatLng = layer.getLatLng();
       const distance = mapCenter.distanceTo(markerLatLng);
-      
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestBlueDot = markerLatLng;
-      }
+      candidateDots.push({ layer, latlng: markerLatLng, distance });
     }
   });
   
+  // Sort by distance and find one that's not too close to others
+  candidateDots.sort((a, b) => a.distance - b.distance);
+  
+  // Find a dot that's isolated (not too close to other dots)
+  for (let i = 0; i < Math.min(10, candidateDots.length); i++) {
+    const candidate = candidateDots[i];
+    let isIsolated = true;
+    const candidatePoint = map.latLngToContainerPoint(candidate.latlng);
+    
+    // Check if there are other dots very close to this one (within 30px)
+    for (let j = 0; j < candidateDots.length; j++) {
+      if (i !== j) {
+        const otherPoint = map.latLngToContainerPoint(candidateDots[j].latlng);
+        const pixelDistance = Math.sqrt(
+          Math.pow(candidatePoint.x - otherPoint.x, 2) + 
+          Math.pow(candidatePoint.y - otherPoint.y, 2)
+        );
+        if (pixelDistance < 30) {
+          isIsolated = false;
+          break;
+        }
+      }
+    }
+    
+    if (isIsolated || i === 0) {
+      closestBlueDot = candidate.latlng;
+      closestBlueDotLayer = candidate.layer;
+      closestDistance = candidate.distance;
+      break;
+    }
+  }
+  
   // If no blue dot found, don't show the tip
-  if (!closestBlueDot) {
+  if (!closestBlueDot || !closestBlueDotLayer) {
     return;
   }
+  
+  // Bring the marker to the front so it's not blocked
+  closestBlueDotLayer.bringToFront();
   
   // Convert marker position to pixel coordinates
   const markerPoint = map.latLngToContainerPoint(closestBlueDot);
@@ -4632,6 +4837,54 @@ function showMapTip() {
   tipBubble.style.left = `${markerPoint.x}px`;
   tipBubble.style.transform = 'translateX(-50%)';
   tipBubble.style.right = 'auto';
+  
+  // Add glowing effect to the blue dot (no scaling, just glow)
+  // For Leaflet CircleMarker, use _path (SVG path element) instead of getElement()
+  const markerElement = closestBlueDotLayer._path || closestBlueDotLayer.getElement();
+  if (markerElement) {
+    markerElement.classList.add('blue-dot-glow');
+    // Also add inline style for stronger effect with neon blue (#00FFFF)
+    markerElement.style.filter = 'drop-shadow(0 0 25px rgba(0, 255, 255, 1)) drop-shadow(0 0 40px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 60px rgba(0, 255, 255, 0.8)) drop-shadow(0 0 80px rgba(0, 255, 255, 0.6))';
+    
+    // Add pulsing ring around the dot
+    const ring = document.createElement('div');
+    ring.className = 'blue-dot-glow-ring';
+    const radius = (closestBlueDotLayer.options && closestBlueDotLayer.options.radius) || 5; // Safety check with default
+    ring.style.width = (radius * 2 + 10) + 'px';
+    ring.style.height = (radius * 2 + 10) + 'px';
+    ring.style.left = (markerPoint.x - (radius + 5)) + 'px';
+    ring.style.top = (markerPoint.y - (radius + 5)) + 'px';
+    ring.setAttribute('data-glow-ring', 'true');
+    
+    if (mapContainer) {
+      mapContainer.appendChild(ring);
+      
+      // Store ring data for position updates
+      glowRingData = {
+        ring: ring,
+        markerLatLng: closestBlueDot,
+        markerLayer: closestBlueDotLayer
+      };
+      
+      // Add event listeners to update ring position on map move/zoom
+      glowRingUpdateHandler = updateGlowRingPosition;
+      map.on('move', glowRingUpdateHandler);
+      map.on('zoom', glowRingUpdateHandler);
+    }
+  }
+  
+  // Add click handlers to all blue dots to dismiss tip when clicked
+  blueDotClickHandlers = [];
+  markersLayer.eachLayer((layer) => {
+    // Check if this is a blue dot (circleMarker, not a saved marker with icon)
+    if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
+      const clickHandler = function() {
+        dismissMapTip();
+      };
+      layer.on('click', clickHandler);
+      blueDotClickHandlers.push({ layer, handler: clickHandler });
+    }
+  });
   
   // Show the tip bubble
   tipBubble.classList.add('active');
@@ -4650,6 +4903,36 @@ function dismissMapTip() {
   localStorage.setItem('ucm_seenTapDotHint', '1');
   const tipBubble = document.getElementById('map-tip-bubble');
   if (tipBubble) tipBubble.classList.remove('active');
+  
+  // Remove glowing effect from blue dot
+  const glowingDots = document.querySelectorAll('.blue-dot-glow');
+  glowingDots.forEach(dot => {
+    dot.classList.remove('blue-dot-glow');
+    dot.style.filter = ''; // Remove inline filter style
+    dot.style.transform = ''; // Remove transform
+  });
+  
+  // Remove pulsing rings
+  const rings = document.querySelectorAll('[data-glow-ring="true"]');
+  rings.forEach(ring => ring.remove());
+  
+  // Remove map event listeners for ring position updates
+  if (map && glowRingUpdateHandler) {
+    map.off('move', glowRingUpdateHandler);
+    map.off('zoom', glowRingUpdateHandler);
+    glowRingUpdateHandler = null;
+  }
+  
+  // Remove click handlers from blue dots
+  blueDotClickHandlers.forEach(({ layer, handler }) => {
+    if (layer && layer.off) {
+      layer.off('click', handler);
+    }
+  });
+  blueDotClickHandlers = [];
+  
+  // Clear glow ring data
+  glowRingData = null;
 }
 
 // Saved controls functions
@@ -4747,6 +5030,28 @@ function updateSavedOverlay() {
           </div>
         `;
       }).join('');
+    }
+  }
+  
+  // Update pill count indicator
+  updateSavedPillCount();
+}
+
+/**
+ * Update the saved count indicator in the "My Saved List" pill
+ */
+function updateSavedPillCount() {
+  const savedIds = SavedStore.getAll();
+  const pillCountXEl = document.getElementById('saved-pill-count-x');
+  const pillCountEl = document.getElementById('saved-pill-count');
+  
+  if (pillCountXEl && pillCountEl) {
+    if (savedIds.length > 0) {
+      pillCountXEl.textContent = 'x';
+      pillCountEl.textContent = savedIds.length;
+    } else {
+      pillCountXEl.textContent = '';
+      pillCountEl.textContent = '';
     }
   }
 }
@@ -6454,45 +6759,7 @@ function findCollegesAlongRoute() {
       const polylineBounds = L.latLngBounds(routeCoords);
       let routeBounds = L.latLngBounds(routeCoords);
       
-      // Filter colleges along the route using perpendicular distance
-      // Sample route points to improve performance (check every 10th point for long routes)
-      const sampleRate = routeCoords.length > 100 ? 10 : 1;
-      const sampledRoute = [];
-      for (let i = 0; i < routeCoords.length; i += sampleRate) {
-        sampledRoute.push(routeCoords[i]);
-      }
-      // Always include the last point
-      if (sampledRoute[sampledRoute.length - 1] !== routeCoords[routeCoords.length - 1]) {
-        sampledRoute.push(routeCoords[routeCoords.length - 1]);
-      }
-      
-      const filtered = colleges.filter(c => {
-        // Check distance to each segment of the sampled route
-        let minDistance = Infinity;
-        
-        for (let i = 0; i < sampledRoute.length - 1; i++) {
-          const segmentStart = sampledRoute[i];
-          const segmentEnd = sampledRoute[i + 1];
-          
-          const dist = distanceToLineSegment(
-            c.lat, c.lon,
-            segmentStart[0], segmentStart[1],
-            segmentEnd[0], segmentEnd[1],
-            units
-          );
-          
-          minDistance = Math.min(minDistance, dist);
-          
-          // Early exit if we're already within range
-          if (minDistance <= maxDistance) {
-            break;
-          }
-        }
-        
-        return minDistance <= maxDistance;
-      });
-      
-      // Apply other filters (type, region, state, ranking, search)
+      // Apply cheaper filters first (type, region, state, ranking, search) before expensive distance calculations
       const typeVal = elements.type ? elements.type.value.trim() : '';
       const regionVal = elements.region ? elements.region.value.trim() : '';
       const stateVal = elements.state ? elements.state.value.trim() : '';
@@ -6501,7 +6768,9 @@ function findCollegesAlongRoute() {
       const mobileSearch = document.getElementById('search-mobile');
       const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
       const filtersSnapshot = { typeVal, regionVal, stateVal, rankingVal, searchVal, maxDistance, units };
-      const finalFiltered = filtered.filter(c => {
+      
+      // Pre-filter by other criteria before expensive distance calculations
+      const preFiltered = colleges.filter(c => {
         // Type filter - check both type and tier fields
         if (typeVal && (c.type || c.tier) !== typeVal) return false;
         // Region filter - use REGION_MAP to check if state is in region
@@ -6523,23 +6792,50 @@ function findCollegesAlongRoute() {
         return true;
       });
       
-      const allRouteColleges = finalFiltered.map(c => {
-        let distanceText = '';
+      // Sample route points to improve performance (check every 10th point for long routes)
+      const sampleRate = routeCoords.length > 100 ? 10 : 1;
+      const sampledRoute = [];
+      for (let i = 0; i < routeCoords.length; i += sampleRate) {
+        sampledRoute.push(routeCoords[i]);
+      }
+      // Always include the last point
+      if (sampledRoute[sampledRoute.length - 1] !== routeCoords[routeCoords.length - 1]) {
+        sampledRoute.push(routeCoords[routeCoords.length - 1]);
+      }
+      
+      // Filter by distance to route and cache the distance value (avoid double calculation)
+      const allRouteColleges = preFiltered.map(c => {
+        // Check distance to each segment of the sampled route
         let minRouteDist = Infinity;
+        
         for (let i = 0; i < sampledRoute.length - 1; i++) {
+          const segmentStart = sampledRoute[i];
+          const segmentEnd = sampledRoute[i + 1];
+          
           const dist = distanceToLineSegment(
             c.lat, c.lon,
-            sampledRoute[i][0], sampledRoute[i][1],
-            sampledRoute[i + 1][0], sampledRoute[i + 1][1],
+            segmentStart[0], segmentStart[1],
+            segmentEnd[0], segmentEnd[1],
             units
           );
+          
           minRouteDist = Math.min(minRouteDist, dist);
+          
+          // Early exit if we're already within range
+          if (minRouteDist <= maxDistance) {
+            break;
+          }
         }
-        if (minRouteDist < Infinity) {
-          distanceText = `<br>Distance from route: ${minRouteDist.toFixed(1)} ${units}`;
-        }
-        return { college: c, distanceText };
-      });
+        
+        return { college: c, distance: minRouteDist };
+      }).filter(item => item.distance <= maxDistance) // Filter by distance
+        .map(item => {
+          // Create distance text only for items that passed the filter
+          const distanceText = item.distance < Infinity 
+            ? `<br>Distance from route: ${item.distance.toFixed(1)} ${units}`
+            : '';
+          return { college: item.college, distanceText };
+        });
       allRouteColleges.forEach(item => {
         routeBounds.extend([item.college.lat, item.college.lon]);
       });
