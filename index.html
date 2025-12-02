@@ -3959,8 +3959,26 @@ function restoreRouteFromCache(cache, options = {}) {
   );
 
   if (!options.preserveView) {
-    if (cache.bounds && cache.bounds.isValid()) {
-      map.fitBounds(cache.bounds.pad(0.15));
+    let boundsToUse = cache.bounds;
+    
+    // If saved-only mode is ON, recalculate bounds based on visible colleges
+    if (savedOnlyMode && cache.colleges && cache.colleges.length > 0) {
+      const visibleColleges = cache.colleges.filter(item => 
+        SavedStore.isSaved(item.college.college_id)
+      );
+      if (visibleColleges.length > 0) {
+        const visibleBounds = L.latLngBounds(cache.routeCoords);
+        visibleColleges.forEach(item => {
+          visibleBounds.extend([item.college.lat, item.college.lon]);
+        });
+        if (visibleBounds.isValid()) {
+          boundsToUse = visibleBounds;
+        }
+      }
+    }
+    
+    if (boundsToUse && boundsToUse.isValid()) {
+      map.fitBounds(boundsToUse.pad(0.15));
     } else if (cache.routeCoords && cache.routeCoords.length) {
       map.fitBounds(L.latLngBounds(cache.routeCoords), { padding: [50, 50] });
     }
@@ -4080,12 +4098,16 @@ function refilterCollegesAlongRoute() {
   markersLayer.clearLayers();
   Object.keys(markersByCollegeId).forEach(key => delete markersByCollegeId[key]);
   
+  // Calculate bounds for ALL colleges (for caching/restoration)
   const routeBounds = L.latLngBounds(routeCoords);
   routeEntries.forEach(item => {
     routeBounds.extend([item.college.lat, item.college.lon]);
   });
   
+  // Calculate bounds for VISIBLE colleges (for map focus)
+  const visibleRouteBounds = L.latLngBounds(routeCoords);
   visibleRouteEntries.forEach(item => {
+    visibleRouteBounds.extend([item.college.lat, item.college.lon]);
     addRouteCollegeMarker(item.college, item.distanceText, units);
   });
   
@@ -4094,8 +4116,23 @@ function refilterCollegesAlongRoute() {
   
   route.lastResult.colleges = routeEntries;
   route.lastResult.filters = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+  
+  // Store ALL colleges bounds (for caching/restoration)
   if (routeBounds.isValid()) {
     route.lastResult.bounds = routeBounds;
+  }
+  
+  // Map focus logic: use visible bounds for map focus
+  if (visibleRouteBounds.isValid()) {
+    if (visibleRouteEntries.length > 0) {
+      map.fitBounds(visibleRouteBounds.pad(0.15));
+    } else {
+      // If no visible colleges, fit to route polyline only
+      const polylineBounds = L.latLngBounds(routeCoords);
+      if (polylineBounds.isValid()) {
+        map.fitBounds(polylineBounds.pad(0.15));
+      }
+    }
   }
 }
 
@@ -4178,6 +4215,11 @@ function render(){
         }
       }
       
+      // Calculate bounds for map focus (same logic as nearby mode)
+      const routeFilterBounds = filtered.length > 1 ? L.latLngBounds([]) : null;
+      const isDefaultRouteState = !regionVal && !stateVal && !typeVal && !rankingVal && !searchVal;
+      const isSearchOnlyFilter = !!searchVal && !regionVal && !stateVal && !typeVal && !rankingVal;
+      
       // Render filtered colleges
       filtered.forEach(c => {
         try {
@@ -4209,6 +4251,9 @@ function render(){
 
           const marker = createCollegeMarker(c, popupContent, c.college_id);
           marker.addTo(markersLayer);
+          if (routeFilterBounds) {
+            routeFilterBounds.extend(marker.getLatLng());
+          }
         } catch (e) {
           console.error(`Error creating marker for ${c.name}:`, e);
         }
@@ -4238,6 +4283,74 @@ function render(){
       
       // Update map hints for route mode (no route search yet)
       updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
+      
+      // Map focus logic (same as nearby mode when no route is set)
+      // Special handling for Territories region - zoom out to show global view
+      if (regionVal === 'Territories') {
+        if (filtered.length === 0) {
+          // No results, show global view that includes all US territories
+          map.setView([10, -170], 2);
+        } else if (filtered.length === 1) {
+          // Single college, zoom to it
+          map.setView([filtered[0].lat, filtered[0].lon], 8);
+        } else if (routeFilterBounds && routeFilterBounds.isValid()) {
+          // Multiple colleges - fit bounds with padding, no mainland constraint
+          const paddedBounds = routeFilterBounds.pad(0.2);
+          map.fitBounds(paddedBounds);
+        } else {
+          // Fallback: global view centered on Pacific
+          map.setView([10, -170], 2);
+        }
+      } else if (isDefaultRouteState || isSearchOnlyFilter) {
+        // When no filters are active, restore to default US view
+        const defaultView = getInitialNearbyView();
+        map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+        // Update mapViewState to reflect the default view
+        mapViewState.nearby = { ...defaultView };
+        captureMapView('nearby');
+      } else if (filtered.length === 0) {
+        // No results - restore default US view
+        map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
+      } else if (filtered.length === 1) {
+        // Single college - zoom to it
+        map.setView([filtered[0].lat, filtered[0].lon], 8);
+      } else if (routeFilterBounds && routeFilterBounds.isValid()) {
+        // Multiple colleges - fit bounds with padding and mainland constraint
+        const paddedBounds = routeFilterBounds.pad(0.15);
+        let constrainedBounds = paddedBounds;
+        if (stateVal) {
+          // Check if all filtered colleges are in the same state, and if that state is outside mainland
+          const allSameState = filtered.every(c => c.state === stateVal);
+          if (allSameState) {
+            // Check if this state's colleges are outside mainland bounds
+            const boundsSouth = routeFilterBounds.getSouth();
+            const boundsWest = routeFilterBounds.getWest();
+            const boundsNorth = routeFilterBounds.getNorth();
+            const boundsEast = routeFilterBounds.getEast();
+            const isOutsideMainland = 
+              boundsSouth < US_MAINLAND_VIEW.getSouth() ||
+              boundsWest < US_MAINLAND_VIEW.getWest() ||
+              boundsNorth > US_MAINLAND_VIEW.getNorth() ||
+              boundsEast > US_MAINLAND_VIEW.getEast();
+            // If explicitly selected state is outside mainland, don't clamp
+            if (isOutsideMainland) {
+              constrainedBounds = paddedBounds;
+            } else {
+              constrainedBounds = clampBoundsToMainland(paddedBounds);
+            }
+          } else {
+            // Mixed states - apply clamping
+            constrainedBounds = clampBoundsToMainland(paddedBounds);
+          }
+        } else {
+          // No state filter - apply clamping to prevent showing empty ocean
+          constrainedBounds = clampBoundsToMainland(paddedBounds);
+        }
+        map.fitBounds(constrainedBounds);
+      } else {
+        // Fallback: restore default US view
+        map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
+      }
     }
     return;
   }
@@ -4685,8 +4798,12 @@ function dismissMapHint(type) {
     if (savedOnlyMode) {
       savedOnlyMode = false;
       const savedControls = document.getElementById("saved-controls");
+      const savedOnlySection = document.getElementById("saved-only-section");
       if (savedControls) {
         savedControls.classList.remove("saved-only-active");
+      }
+      if (savedOnlySection) {
+        savedOnlySection.classList.remove("saved-only-active");
       }
       // Re-render map without saved-only filter
       if (activeMode === 'route' && route.lastSearch) {
@@ -6638,6 +6755,14 @@ function findCollegesAlongRoute() {
   }
   
   console.log('Starting route search...', { start: route.start, end: route.end });
+  
+  // Check if colleges data is loaded
+  if (!colleges || colleges.length === 0) {
+    showError('College data is still loading. Please wait a moment and try again.');
+    console.log('Colleges data not loaded yet');
+    return;
+  }
+  
   isProcessingRoute = true;
   
   // Parse maxDistance - handle 0 correctly (don't use || operator as 0 is falsy)
@@ -6836,6 +6961,7 @@ function findCollegesAlongRoute() {
             : '';
           return { college: item.college, distanceText };
         });
+      // Calculate bounds for ALL colleges (for caching/restoration)
       allRouteColleges.forEach(item => {
         routeBounds.extend([item.college.lat, item.college.lon]);
       });
@@ -6843,6 +6969,12 @@ function findCollegesAlongRoute() {
       const visibleRouteColleges = savedOnlyMode
         ? allRouteColleges.filter(item => SavedStore.isSaved(item.college.college_id))
         : allRouteColleges;
+      
+      // Calculate bounds for VISIBLE colleges (for map focus)
+      const visibleRouteBounds = L.latLngBounds(routeCoords);
+      visibleRouteColleges.forEach(item => {
+        visibleRouteBounds.extend([item.college.lat, item.college.lon]);
+      });
       
       if (visibleRouteColleges.length === 0 && savedOnlyMode) {
         const savedCount = SavedStore.getAll().length;
@@ -6867,15 +6999,14 @@ function findCollegesAlongRoute() {
       // Update map hints for route mode
       updateMapHints(visibleRouteColleges.length, typeVal, regionVal, stateVal, searchVal);
       
-      // Store route visualization for restoration
-      if (routeBounds.isValid()) {
-        if (visibleRouteColleges.length > 0) {
-          map.fitBounds(routeBounds.pad(0.15));
-        } else {
-          map.fitBounds(polylineBounds.pad(0.15));
-        }
+      // Map focus logic: use visible bounds for map focus
+      if (visibleRouteColleges.length > 0 && visibleRouteBounds.isValid()) {
+        map.fitBounds(visibleRouteBounds.pad(0.15));
+      } else if (polylineBounds.isValid()) {
+        map.fitBounds(polylineBounds.pad(0.15));
       }
 
+      // Store ALL colleges bounds (for caching/restoration)
       route.lastResult = {
         bounds: routeBounds.isValid() ? routeBounds : polylineBounds,
         routeCoords,
@@ -6891,20 +7022,27 @@ function findCollegesAlongRoute() {
       clearTimeout(timeoutId);
       console.error('Route calculation error:', error);
       
-      // Ensure loading indicator is hidden
-      if (elements.loading) elements.loading.classList.remove('active');
-      
-      // Reset processing flag (will be set again at end of fallback)
-      
       // If it's an abort error (timeout), show specific message but still use fallback
       if (error.name === 'AbortError') {
         showError('Route calculation timed out. Showing approximate results.');
       }
-      // Fallback to straight line if routing fails
-      const fallbackRouteCoords = [
-        [route.start.lat, route.start.lon],
-        [route.end.lat, route.end.lon]
-      ];
+      
+      // Wrap fallback processing in try-catch to ensure loading is always cleared
+      try {
+        // Check if colleges data is available for fallback
+        if (!colleges || colleges.length === 0) {
+          console.error('Colleges data not available for fallback');
+          showError('College data is not loaded. Please refresh the page and try again.');
+          if (elements.loading) elements.loading.classList.remove('active');
+          isProcessingRoute = false;
+          return;
+        }
+        
+        // Fallback to straight line if routing fails
+        const fallbackRouteCoords = [
+          [route.start.lat, route.start.lon],
+          [route.end.lat, route.end.lon]
+        ];
       // Draw fallback route with ribbon effect
       const zoom = map ? map.getZoom() : 5;
       const routeWeights = calculateRouteLineWeights(zoom);
@@ -7036,11 +7174,21 @@ function findCollegesAlongRoute() {
         end: route.end ? { ...route.end } : null
       };
       
-      // Only show general error if it wasn't a timeout (timeout message already shown)
-      if (error.name !== 'AbortError') {
-        showError('Could not calculate driving route. Showing approximate results.');
+        // Only show general error if it wasn't a timeout (timeout message already shown)
+        if (error.name !== 'AbortError') {
+          showError('Could not calculate driving route. Showing approximate results.');
+        }
+      } catch (fallbackError) {
+        // If fallback processing fails, ensure loading is cleared and flag is reset
+        console.error('Fallback processing error:', fallbackError);
+        showError('Error processing route. Please try again.');
+        if (elements.loading) elements.loading.classList.remove('active');
+        isProcessingRoute = false;
+        return;
       }
       
+      // Ensure loading indicator is cleared and flag is reset after fallback completes
+      if (elements.loading) elements.loading.classList.remove('active');
       isProcessingRoute = false;
     });
 }
@@ -7433,6 +7581,11 @@ if (elements.clearRoute) {
         return true;
       });
       
+      // Calculate bounds for map focus (same logic as nearby mode)
+      const routeFilterBounds = filtered.length > 1 ? L.latLngBounds([]) : null;
+      const isDefaultRouteState = !regionVal && !stateVal && !typeVal && !searchVal;
+      const isSearchOnlyFilter = !!searchVal && !regionVal && !stateVal && !typeVal;
+      
       // Render filtered colleges
       filtered.forEach(c => {
         try {
@@ -7464,6 +7617,9 @@ if (elements.clearRoute) {
           
           const marker = createCollegeMarker(c, popupContent, c.college_id);
           marker.addTo(markersLayer);
+          if (routeFilterBounds) {
+            routeFilterBounds.extend(marker.getLatLng());
+          }
         } catch (e) {
           console.error(`Error creating marker for ${c.name}:`, e);
         }
@@ -7474,7 +7630,73 @@ if (elements.clearRoute) {
       // Update map hints after clearing route
       updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
       
-      map.setView([39.5, -98.35], 4);
+      // Map focus logic (same as nearby mode when route is cleared)
+      // Special handling for Territories region - zoom out to show global view
+      if (regionVal === 'Territories') {
+        if (filtered.length === 0) {
+          // No results, show global view that includes all US territories
+          map.setView([10, -170], 2);
+        } else if (filtered.length === 1) {
+          // Single college, zoom to it
+          map.setView([filtered[0].lat, filtered[0].lon], 8);
+        } else if (routeFilterBounds && routeFilterBounds.isValid()) {
+          // Multiple colleges - fit bounds with padding, no mainland constraint
+          const paddedBounds = routeFilterBounds.pad(0.2);
+          map.fitBounds(paddedBounds);
+        } else {
+          // Fallback: global view centered on Pacific
+          map.setView([10, -170], 2);
+        }
+      } else if (isDefaultRouteState || isSearchOnlyFilter) {
+        // When no filters are active, restore to default US view
+        const defaultView = getInitialNearbyView();
+        map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+        // Update mapViewState to reflect the default view
+        mapViewState.nearby = { ...defaultView };
+        captureMapView('nearby');
+      } else if (filtered.length === 0) {
+        // No results - restore default US view
+        map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
+      } else if (filtered.length === 1) {
+        // Single college - zoom to it
+        map.setView([filtered[0].lat, filtered[0].lon], 8);
+      } else if (routeFilterBounds && routeFilterBounds.isValid()) {
+        // Multiple colleges - fit bounds with padding and mainland constraint
+        const paddedBounds = routeFilterBounds.pad(0.15);
+        let constrainedBounds = paddedBounds;
+        if (stateVal) {
+          // Check if all filtered colleges are in the same state, and if that state is outside mainland
+          const allSameState = filtered.every(c => c.state === stateVal);
+          if (allSameState) {
+            // Check if this state's colleges are outside mainland bounds
+            const boundsSouth = routeFilterBounds.getSouth();
+            const boundsWest = routeFilterBounds.getWest();
+            const boundsNorth = routeFilterBounds.getNorth();
+            const boundsEast = routeFilterBounds.getEast();
+            const isOutsideMainland = 
+              boundsSouth < US_MAINLAND_VIEW.getSouth() ||
+              boundsWest < US_MAINLAND_VIEW.getWest() ||
+              boundsNorth > US_MAINLAND_VIEW.getNorth() ||
+              boundsEast > US_MAINLAND_VIEW.getEast();
+            // If explicitly selected state is outside mainland, don't clamp
+            if (isOutsideMainland) {
+              constrainedBounds = paddedBounds;
+            } else {
+              constrainedBounds = clampBoundsToMainland(paddedBounds);
+            }
+          } else {
+            // Mixed states - apply clamping
+            constrainedBounds = clampBoundsToMainland(paddedBounds);
+          }
+        } else {
+          // No state filter - apply clamping to prevent showing empty ocean
+          constrainedBounds = clampBoundsToMainland(paddedBounds);
+        }
+        map.fitBounds(constrainedBounds);
+      } else {
+        // Fallback: restore default US view
+        map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
+      }
     }
   };
 }
