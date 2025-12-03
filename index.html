@@ -1936,9 +1936,11 @@
       align-items: center;
       justify-content: center;
       font-family: Inter, sans-serif;
+      touch-action: none;
     }
     .route-planner-overlay.active {
       display: flex;
+      touch-action: auto;
     }
     .route-planner-modal {
       background: #ffffff;
@@ -1950,6 +1952,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      touch-action: pan-y;
     }
     .route-planner-header {
       display: flex;
@@ -2020,7 +2023,11 @@
     .route-planner-content {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 20px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
     .route-planner-section {
       margin-bottom: 24px;
@@ -2138,9 +2145,11 @@
       align-items: center;
       justify-content: center;
       font-family: Inter, sans-serif;
+      touch-action: none;
     }
     .share-overlay.active {
       display: flex;
+      touch-action: auto;
     }
     .share-modal {
       background: #ffffff;
@@ -2152,6 +2161,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      touch-action: pan-y;
     }
     .share-header {
       display: flex;
@@ -2213,7 +2223,11 @@
     .share-content {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 20px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
     .share-section {
       margin-bottom: 24px;
@@ -7061,6 +7075,9 @@ function planRouteWithSavedColleges() {
   // Show overlay
   overlay.classList.add('active');
   
+  // Freeze map interactions to prevent map from scrolling/zooming when overlay is open
+  freezeMapInteractions();
+  
   // Prevent body scroll when overlay is open
   document.body.style.overflow = 'hidden';
   
@@ -7244,9 +7261,18 @@ function openRouteInGoogleMaps() {
   
   // Build Google Maps URL
   // Format: https://www.google.com/maps/dir/?api=1&origin=...&destination=...&waypoints=...|...
-  const origin = `${route.start.lat},${route.start.lon}`;
-  const destination = `${route.end.lat},${route.end.lon}`;
-  const waypoints = sortedCheckedColleges.map(c => `${c.lat},${c.lon}`).join('|');
+  // Use addresses/place names for waypoints to show proper addresses on mobile (not dropped pins)
+  const origin = route.start.description || `${route.start.lat},${route.start.lon}`;
+  const destination = route.end.description || `${route.end.lat},${route.end.lon}`;
+  
+  // Use college name + state for waypoints (Google Maps will geocode and show addresses)
+  // Format: "College Name, State" - this makes Google Maps show proper addresses on mobile
+  const waypoints = sortedCheckedColleges.map(c => {
+    const collegeName = (c.name || 'College').trim();
+    const state = (c.state || '').trim();
+    // Use "College Name, State" format for better geocoding and address display
+    return state ? `${collegeName}, ${state}` : collegeName;
+  }).join('|');
   
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&waypoints=${encodeURIComponent(waypoints)}`;
   
@@ -7386,6 +7412,9 @@ function openShareOverlay() {
   
   // Show overlay
   overlay.classList.add('active');
+  
+  // Freeze map interactions to prevent map from scrolling/zooming when overlay is open
+  freezeMapInteractions();
   
   // Prevent body scroll when overlay is open
   document.body.style.overflow = 'hidden';
