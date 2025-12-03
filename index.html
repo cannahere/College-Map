@@ -1996,7 +1996,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 600px;
+      table-layout: fixed;
     }
     /* Expand table to full width in compare mode */
     .saved-compare-view .saved-compare-table-wrapper {
@@ -2028,12 +2028,20 @@
     }
     .saved-compare-table th:first-child {
       min-width: 120px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .saved-compare-table th:not(:first-child),
+    .saved-compare-table td:not(:first-child) {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .saved-compare-table td {
       padding: 12px;
       border-bottom: 1px solid #F3F4F6;
       color: #374151;
       vertical-align: top;
+      white-space: nowrap;
     }
     .saved-compare-table tr:last-child td {
       border-bottom: none;
@@ -2041,6 +2049,11 @@
     .saved-compare-table .saved-compare-label {
       font-weight: 500;
       color: #64748b;
+    }
+    /* Allow type of school to wrap to two lines */
+    .saved-compare-table tbody tr:first-child td.saved-compare-value {
+      white-space: normal;
+      line-height: 1.4;
     }
     .saved-compare-table .saved-compare-value {
       color: #0f172a;
@@ -6576,10 +6589,19 @@ function updateCompareTable() {
     return;
   }
   
+  // Set minimum column widths - responsive for mobile and desktop
+  // Mobile: show 2-2.5 schools, Desktop: smaller columns
+  const isMobile = window.innerWidth <= 768;
+  const attributeColWidth = isMobile ? '110px' : '120px';
+  const collegeColMinWidth = isMobile ? 130 : 140;
+  
+  // Calculate table width based on number of colleges
+  const tableWidth = (isMobile ? 110 : 120) + (colleges.length * collegeColMinWidth);
+  
   // Build table header with college names
-  let html = '<thead><tr><th>Attribute</th>';
+  let html = `<thead><tr><th style="width: ${attributeColWidth}; min-width: ${attributeColWidth};">Attribute</th>`;
   colleges.forEach(college => {
-    html += `<th>${escapeHtml(college.name)}</th>`;
+    html += `<th style="min-width: ${collegeColMinWidth}px; width: ${collegeColMinWidth}px;">${escapeHtml(college.name)}</th>`;
   });
   html += '</tr></thead><tbody>';
   
@@ -6605,10 +6627,10 @@ function updateCompareTable() {
   
   attributes.forEach(attr => {
     html += '<tr>';
-    html += `<td class="saved-compare-label">${escapeHtml(attr.label)}</td>`;
+    html += `<td class="saved-compare-label" style="width: ${attributeColWidth}; min-width: ${attributeColWidth};">${escapeHtml(attr.label)}</td>`;
     
     colleges.forEach(college => {
-      html += '<td class="saved-compare-value">';
+      html += `<td class="saved-compare-value" style="min-width: ${collegeColMinWidth}px; width: ${collegeColMinWidth}px;">`;
       
       if (attr.isAction) {
         // Unsave button
@@ -6637,6 +6659,10 @@ function updateCompareTable() {
   
   html += '</tbody>';
   tableEl.innerHTML = html;
+  
+  // Set table width to accommodate all columns with minimum widths
+  tableEl.style.width = `${tableWidth}px`;
+  tableEl.style.minWidth = `${tableWidth}px`;
 }
 
 /**
