@@ -876,7 +876,7 @@
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
-      transition: stroke 0.2s, transform 0.2s ease;
+      transition: stroke 0.2s;
     }
     .saved-navigation-tooltip {
       position: absolute;
@@ -2125,6 +2125,226 @@
       text-align: center;
       color: #64748b;
     }
+    /* Share Overlay Styles */
+    .share-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 8500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-family: Inter, sans-serif;
+    }
+    .share-overlay.active {
+      display: flex;
+    }
+    .share-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .share-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      border-bottom: 1px solid #E5E7EB;
+      flex-shrink: 0;
+      background: #ffffff;
+    }
+    .share-title-section {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .share-icon-wrapper {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+    }
+    .share-icon {
+      width: 24px;
+      height: 24px;
+      fill: #1d4ed8;
+    }
+    .share-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+    .share-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .share-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #94a3b8;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .share-close:hover {
+      color: #64748b;
+    }
+    .share-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .share-section {
+      margin-bottom: 24px;
+    }
+    .share-section:last-child {
+      margin-bottom: 0;
+    }
+    .share-summary {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+    .share-preview {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+    .share-preview-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .share-preview-item {
+      font-size: 14px;
+      color: #0f172a;
+      padding: 4px 0;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .share-preview-checkmark {
+      color: #0f172a;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .share-preview-label {
+      font-size: 12px;
+      color: #64748b;
+      font-style: italic;
+      margin-left: 4px;
+    }
+    .share-summary-number {
+      font-weight: 600;
+      color: #2563eb;
+    }
+    .share-preview-more {
+      font-size: 14px;
+      color: #64748b;
+      font-style: italic;
+      margin-top: 4px;
+      padding-left: 24px; /* Align with college name (checkmark width ~16px + gap 8px) */
+    }
+    .share-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .share-primary-btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-family: Inter, sans-serif;
+    }
+    .share-primary-btn:hover {
+      background: #1d4ed8;
+    }
+    .share-primary-btn:active {
+      background: #1e40af;
+    }
+    .share-primary-btn.copied {
+      background: #16a34a;
+    }
+    .share-primary-btn.copied:hover {
+      background: #15803d;
+    }
+    .share-explanation {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .share-secondary-btn {
+      background: transparent;
+      color: #64748b;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: Inter, sans-serif;
+    }
+    .share-secondary-btn:hover {
+      background: #F9FAFB;
+      border-color: #CBD5E1;
+      color: #475569;
+    }
+    @media (max-width: 768px) {
+      .share-modal {
+        width: 95%;
+        max-height: 85vh;
+      }
+      .share-header {
+        padding: 16px;
+      }
+      .share-content {
+        padding: 16px;
+      }
+      .share-section {
+        margin-bottom: 20px;
+      }
+    }
+    .route-planner-empty-state {
+      padding: 32px 20px;
+      text-align: center;
+      color: #64748b;
+    }
     .route-planner-empty-state-text {
       font-size: 13px;
       line-height: 1.5;
@@ -2446,6 +2666,49 @@
           <button class="route-planner-cancel-btn" onclick="closeRoutePlanner()">Cancel</button>
         </div>
       </div>
+      </div>
+    </div>
+    <!-- Share Overlay Modal -->
+    <div id="share-overlay" class="share-overlay" onclick="handleShareOverlayBackdropClick(event)">
+      <div class="share-modal" onclick="event.stopPropagation()">
+        <div class="share-header">
+          <div class="share-title-section">
+            <div class="share-icon-wrapper">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="share-icon">
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="share-title">Share Your Saved Colleges</h2>
+              <p class="share-subtitle">Create a link to share this map of your saved colleges.</p>
+            </div>
+          </div>
+          <button class="share-close" onclick="closeShareOverlay()" aria-label="Close share overlay">×</button>
+        </div>
+        <div class="share-content">
+          <!-- Summary Section -->
+          <div class="share-section">
+            <div class="share-summary" id="share-summary">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <!-- Preview Section -->
+          <div class="share-section">
+            <div class="share-preview" id="share-preview">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <!-- Actions Section -->
+          <div class="share-section share-actions">
+            <p class="share-explanation">Anyone with the link can view this map, but they can't edit your saved list.</p>
+            <button id="share-copy-btn" class="share-primary-btn" onclick="handleShareCopyClick()">
+              Copy Share Link
+            </button>
+            <button class="share-secondary-btn" onclick="closeShareOverlay()">Close</button>
+          </div>
+        </div>
       </div>
     </div>
     <!-- Unsave All Confirmation Modal -->
@@ -7093,6 +7356,241 @@ async function handleSavedShareClick(event) {
     shareIcon.addEventListener('mouseleave', handleMouseLeave);
   }
   
+  // Check if user has saved colleges
+  const savedIds = SavedStore.getAll();
+  if (savedIds.length === 0) {
+    // Should not reach here due to UI safeguards, but handle gracefully
+    return;
+  }
+  
+  // Open share overlay
+  openShareOverlay();
+}
+
+// Share Overlay Functions
+function openShareOverlay() {
+  const overlay = document.getElementById('share-overlay');
+  if (!overlay) {
+    console.error('Share overlay not found');
+    return;
+  }
+  
+  // Check if user has saved colleges
+  const savedIds = SavedStore.getAll();
+  if (savedIds.length === 0) {
+    return; // Should not reach here, but handle gracefully
+  }
+  
+  // Populate overlay with current data
+  populateShareOverlay();
+  
+  // Show overlay
+  overlay.classList.add('active');
+  
+  // Prevent body scroll when overlay is open
+  document.body.style.overflow = 'hidden';
+  
+  // Close saved list if open
+  const savedOverlay = document.getElementById('saved-colleges-overlay');
+  if (savedOverlay && savedOverlay.classList.contains('active')) {
+    closeSavedListPanel();
+  }
+  
+  // Add keyboard listener for Esc key
+  document.addEventListener('keydown', handleShareOverlayKeydown);
+}
+
+function closeShareOverlay() {
+  const overlay = document.getElementById('share-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+  }
+  document.body.style.overflow = '';
+  resumeMapInteractions();
+  
+  // Remove keyboard listener
+  document.removeEventListener('keydown', handleShareOverlayKeydown);
+  
+  // Reset copy button state
+  const copyBtn = document.getElementById('share-copy-btn');
+  if (copyBtn) {
+    copyBtn.classList.remove('copied');
+    copyBtn.textContent = 'Copy Share Link';
+  }
+}
+
+function handleShareOverlayKeydown(event) {
+  if (event.key === 'Escape') {
+    const overlay = document.getElementById('share-overlay');
+    if (overlay && overlay.classList.contains('active')) {
+      closeShareOverlay();
+    }
+  }
+}
+
+function handleShareOverlayBackdropClick(event) {
+  // Close overlay if clicking on the backdrop (not on the content)
+  if (event.target.id === 'share-overlay') {
+    closeShareOverlay();
+  }
+}
+
+function populateShareOverlay() {
+  const savedIds = SavedStore.getAll();
+  const totalSaved = savedIds.length;
+  const allSavedColleges = savedIds.map(id => collegesById[id]).filter(c => c);
+  
+  // Calculate context-relevant saved colleges
+  let contextSavedColleges = [];
+  let contextSaved = 0;
+  let contextLabel = '';
+  
+  // Get current filter values
+  const desktopSearch = document.getElementById('search');
+  const mobileSearch = document.getElementById('search-mobile');
+  const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+  const typeVal = document.getElementById('type')?.value || '';
+  const regionVal = document.getElementById('region')?.value || '';
+  const stateVal = document.getElementById('state')?.value || '';
+  const rankingVal = document.getElementById('ranking')?.value || '';
+  
+  if (activeMode === 'nearby' && home) {
+    // Get radius and units
+    const radiusEl = document.getElementById('radius');
+    const unitsEl = document.getElementById('units');
+    const radiusVal = parseFloat(radiusEl?.value || '30');
+    const unitsVal = unitsEl?.value || 'mi';
+    const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
+    
+    // Filter saved colleges by distance and filters
+    contextSavedColleges = allSavedColleges
+      .filter(c => {
+        // Apply filters
+        if (typeVal && (c.type || c.tier) !== typeVal) return false;
+        if (regionVal) {
+          const regionStates = REGION_MAP[regionVal] || [];
+          if (!regionStates.includes(c.state)) return false;
+        }
+        if (stateVal && c.state !== stateVal) return false;
+        if (rankingVal) {
+          if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+          if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+          if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+          if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+        }
+        if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+        
+        // Filter by distance
+        const distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
+        return distance <= effectiveRadius;
+      })
+      .map(c => {
+        const distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
+        return { college: c, distance, isContext: true };
+      })
+      .sort((a, b) => a.distance - b.distance);
+    
+    contextSaved = contextSavedColleges.length;
+    contextLabel = 'nearby';
+  } else if (activeMode === 'route' && route.start && route.end && route.lastResult && route.lastResult.colleges) {
+    // Get route colleges that are saved
+    const routeColleges = route.lastResult.colleges.filter(item => {
+      const collegeId = item.college ? item.college.college_id : item.college_id;
+      return collegeId && SavedStore.isSaved(collegeId);
+    });
+    
+    // Get route distance filter
+    const routeMaxDistanceEl = document.getElementById('routeMaxDistance');
+    const routeUnitsEl = document.getElementById('routeUnits');
+    const units = routeUnitsEl?.value || 'mi';
+    
+    // Extract distance from route for each college
+    contextSavedColleges = routeColleges
+      .map(item => {
+        const college = item.college || item;
+        // Extract distance from distanceText if available
+        let distance = 0;
+        if (item.distanceText) {
+          const match = item.distanceText.match(/(\d+\.?\d*)\s*(mi|km)/i);
+          if (match) {
+            distance = parseFloat(match[1]);
+          }
+        }
+        // If no distanceText, calculate distance from route start
+        if (distance === 0 && route.start) {
+          distance = calculateDistance(route.start.lat, route.start.lon, college.lat, college.lon, units);
+        }
+        return { college, distance, isContext: true };
+      })
+      .sort((a, b) => a.distance - b.distance);
+    
+    contextSaved = contextSavedColleges.length;
+    contextLabel = 'along the route';
+  }
+  
+  // Get other saved colleges (not in context)
+  const contextCollegeIds = new Set(contextSavedColleges.map(item => item.college.college_id));
+  const otherSavedColleges = allSavedColleges
+    .filter(c => !contextCollegeIds.has(c.college_id))
+    .map(c => ({ college: c, distance: 0, isContext: false }));
+  
+  // Populate summary section
+  const summaryEl = document.getElementById('share-summary');
+  if (summaryEl) {
+    let summaryText = '';
+    
+    if (activeMode === 'nearby' && home) {
+      if (contextSaved === totalSaved) {
+        summaryText = `<span class="share-summary-number">${totalSaved}</span> saved ${totalSaved === 1 ? 'college' : 'colleges'} in total. All are in this area.`;
+      } else {
+        summaryText = `<span class="share-summary-number">${totalSaved}</span> saved ${totalSaved === 1 ? 'college' : 'colleges'} in total, <span class="share-summary-number">${contextSaved}</span> in this area.`;
+      }
+    } else if (activeMode === 'route' && route.start && route.end) {
+      if (contextSaved === totalSaved) {
+        summaryText = `<span class="share-summary-number">${totalSaved}</span> saved ${totalSaved === 1 ? 'college' : 'colleges'} in total. All are along this route.`;
+      } else {
+        summaryText = `<span class="share-summary-number">${totalSaved}</span> saved ${totalSaved === 1 ? 'college' : 'colleges'} in total, <span class="share-summary-number">${contextSaved}</span> along this route.`;
+      }
+    } else {
+      summaryText = `<span class="share-summary-number">${totalSaved}</span> saved ${totalSaved === 1 ? 'college' : 'colleges'} in total.`;
+    }
+    
+    summaryEl.innerHTML = summaryText;
+  }
+  
+  // Populate preview section
+  const previewEl = document.getElementById('share-preview');
+  if (previewEl) {
+    if (allSavedColleges.length === 0) {
+      previewEl.innerHTML = '<div class="share-preview-item">No colleges to share.</div>';
+    } else {
+      // Combine context-relevant colleges first, then others
+      const allPreviewColleges = [...contextSavedColleges, ...otherSavedColleges];
+      const previewCount = Math.min(5, allPreviewColleges.length);
+      const previewColleges = allPreviewColleges.slice(0, previewCount);
+      const remainingCount = allPreviewColleges.length - previewCount;
+      
+      let previewHTML = '<ul class="share-preview-list">';
+      previewColleges.forEach(item => {
+        const collegeName = escapeHtml(item.college.name);
+        const label = item.isContext ? `<span class="share-preview-label">(${contextLabel})</span>` : '';
+        previewHTML += `<li class="share-preview-item"><span class="share-preview-checkmark">✓</span>${collegeName}${label}</li>`;
+      });
+      previewHTML += '</ul>';
+      
+      if (remainingCount > 0) {
+        previewHTML += `<div class="share-preview-more">+${remainingCount} more</div>`;
+      }
+      
+      previewEl.innerHTML = previewHTML;
+    }
+  }
+}
+
+async function handleShareCopyClick() {
+  const copyBtn = document.getElementById('share-copy-btn');
+  if (!copyBtn) return;
+  
   // Generate share URL
   const shareUrl = generateShareURL();
   
@@ -7110,10 +7608,17 @@ async function handleSavedShareClick(event) {
   const copied = await copyToClipboard(shareUrl);
   
   if (copied) {
-    // Show success toast
-    toast.show('Link copied — share this map of your saved colleges.', 4000);
+    // Update button state
+    copyBtn.classList.add('copied');
+    copyBtn.textContent = 'Link copied ✓';
+    
+    // Reset after 1.5 seconds
+    setTimeout(() => {
+      copyBtn.classList.remove('copied');
+      copyBtn.textContent = 'Copy Share Link';
+    }, 1500);
   }
-  // If copy fails, silently do nothing (as per MVP requirements)
+  // If copy fails, silently do nothing (as per requirements)
 }
 
 function isLocalStorageAvailable() {
@@ -8371,6 +8876,9 @@ function findCollegesAlongRoute() {
       
       // Check if saved-only mode should be turned OFF after filter change
       checkAndHandleNoVisibleSavedColleges();
+      
+      // Update navigation icon visibility after route search completes
+      updateNavigationIconVisibility();
     })
     .catch(error => {
       clearTimeout(timeoutId);
