@@ -304,6 +304,23 @@
     .legend {position:absolute;bottom:14px;left:14px;padding:0;border:none;font-size:11px;font-weight:500;color:#0f172a;text-shadow:none;z-index:1800;background:none;border-radius:0;line-height:1;text-align:left;transform:none}
     .map-hint-bubble {position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.98);padding:10px 12px;border-radius:12px;box-shadow:0 8px 20px rgba(15,23,42,0.18);font-size:0.75rem;max-width:260px;width:clamp(180px, calc(100vw - 32px), 260px);display:none;z-index:8500;pointer-events:auto;font-family:Inter,sans-serif;border:1px solid rgba(226,232,240,0.8)}
     .map-hint-bubble.active {display:block;animation:fadeIn 0.2s ease-out}
+    /* Teaching moment hint positioned near the toggle */
+    #hint-saved-only-teaching {
+      top: 60px;
+      right: 12px;
+      left: auto;
+      max-width: 240px;
+      width: clamp(200px, calc(100vw - 32px), 240px);
+    }
+    @media (max-width: 700px) {
+      #hint-saved-only-teaching {
+        top: 58px;
+        right: 12px;
+        left: 12px;
+        width: calc(100vw - 24px);
+        max-width: calc(100vw - 24px);
+      }
+    }
     .map-hint-bubble-header {display:flex;align-items:center;gap:8px;margin-bottom:6px}
     .map-hint-bubble-icon {font-size:16px;line-height:1;flex-shrink:0}
     .map-hint-bubble-close {background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;line-height:1;padding:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.2s;margin-left:auto;margin-top:-2px;margin-right:-4px}
@@ -706,6 +723,24 @@
       background: #bbf7d0;
       color: #15803d;
     }
+    /* Celebration animation when college is saved */
+    @keyframes savedPop {
+      0% {
+        transform: scale(1);
+        background: #dcfce7;
+      }
+      50% {
+        transform: scale(1.06);
+        background: #bbf7d0;
+      }
+      100% {
+        transform: scale(1);
+        background: #dcfce7;
+      }
+    }
+    .popup-save-btn.saved-pop {
+      animation: savedPop 200ms ease-out;
+    }
     /* Animation for marker transition from blue dot to green icon - balloon grow effect */
     .marker-save-transition {
       animation: markerSaveTransition 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
@@ -758,6 +793,9 @@
       gap: 4px;
     }
     /* Lower z-index for saved-controls when overlay is active so pill appears behind overlay */
+    body:has(.route-planner-overlay.active) .saved-controls {
+      z-index: 1;
+    }
     body:has(.saved-colleges-overlay.active) .saved-controls {
       z-index: 2500;
     }
@@ -775,6 +813,10 @@
     .saved-only-section.saved-only-active {
       padding-right: 36px;
     }
+    /* Expand pill when navigation icon is visible */
+    .saved-only-section.saved-only-active:has(.saved-navigation-icon.visible) {
+      padding-right: 64px;
+    }
     .saved-only-main {
       display: flex;
       align-items: center;
@@ -786,19 +828,99 @@
     }
     .saved-only-divider {
       position: absolute;
-      right: 28px;
+      right: 30px; /* Default position: between "Map Saved Only" and share icon (when navigation icon is hidden) */
       width: 1px;
       height: 20px;
       background: #E5E7EB;
       opacity: 0;
-      transform: translateX(8px);
-      transition: opacity 0.15s ease, transform 0.15s ease;
       pointer-events: none;
       flex-shrink: 0;
+      transition: opacity 0.15s ease, right 0.15s ease;
     }
     .saved-only-section.saved-only-active .saved-only-divider {
       opacity: 1;
+    }
+    /* Adjust divider position when navigation icon is visible - move it to the left of navigation icon */
+    .saved-only-section.saved-only-active:has(.saved-navigation-icon.visible) .saved-only-divider {
+      right: 59px;
+    }
+    .saved-navigation-icon {
+      position: absolute;
+      right: 28px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 0.15s ease, transform 0.15s ease, right 0.15s ease;
+      pointer-events: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    /* Show navigation icon when visible class is added AND saved-only section is active */
+    /* Position navigation icon at right: 28px when visible */
+    .saved-only-section.saved-only-active .saved-navigation-icon.visible {
+      opacity: 1;
       transform: translateX(0);
+      pointer-events: auto;
+      right: 28px;
+    }
+    .saved-navigation-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: #1d4ed8;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s, transform 0.2s ease;
+    }
+    .saved-navigation-tooltip {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: linear-gradient(180deg, rgba(255, 249, 219, 0.98), rgba(255, 243, 191, 0.98));
+      color: #0f172a;
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+      border: 1px solid rgba(234, 179, 8, 0.5);
+      font-size: 0.75rem;
+      font-family: Inter, sans-serif;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+      transform: translateY(-4px);
+      z-index: 7000 !important;
+      display: none;
+    }
+    .saved-navigation-icon:hover .saved-navigation-tooltip {
+      opacity: 1;
+      transform: translateY(0);
+      display: block;
+    }
+    .saved-navigation-tooltip::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 10px;
+      border-width: 0 6px 6px 6px;
+      border-style: solid;
+      border-color: transparent transparent rgba(255, 243, 191, 0.98) transparent;
+      filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.15));
+    }
+    .saved-navigation-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -7px;
+      right: 9px;
+      border-width: 0 7px 7px 7px;
+      border-style: solid;
+      border-color: transparent transparent rgba(234, 179, 8, 0.5) transparent;
     }
     .saved-share-icon {
       position: absolute;
@@ -851,6 +973,7 @@
       display: none;
     }
     .saved-share-icon:hover .saved-share-tooltip {
+      opacity: 1;
       transform: translateY(0);
     }
     .saved-share-tooltip::after {
@@ -874,6 +997,16 @@
     }
     /* Tooltip and hover effects only on desktop (hover-capable devices) */
     @media (hover: hover) and (pointer: fine) {
+      .saved-navigation-icon:hover svg {
+        stroke: #1e40af;
+      }
+      .saved-navigation-tooltip {
+        display: block;
+      }
+      .saved-navigation-icon:hover .saved-navigation-tooltip {
+        opacity: 1;
+        transform: translateY(0);
+      }
       .saved-share-icon:hover svg {
         stroke: #1e40af;
       }
@@ -1030,11 +1163,12 @@
       font-size: 12px;
       line-height: 1;
       font-weight: 400;
-      color: #64D85B;
+      color: #374151;
       white-space: nowrap;
       margin-left: 0.1px;
       margin-right: 0.1px;
       display: none;
+      align-self: center;
     }
     .saved-count-x:not(:empty) {
       display: inline;
@@ -1048,6 +1182,7 @@
       margin-left: 0.1px;
       margin-right: 4px;
       display: none;
+      align-self: center;
     }
     .saved-count:not(:empty) {
       display: inline;
@@ -1107,8 +1242,12 @@
         padding-right: 32px;
       }
       .saved-only-divider {
-        right: 24px;
+        right: 28px; /* Default: between "Map Saved Only" and share icon */
         height: 20px;
+      }
+      /* When navigation icon is visible on tablet */
+      .saved-only-section.saved-only-active:has(.saved-navigation-icon.visible) .saved-only-divider {
+        right: 57px;
       }
       .saved-share-icon {
         right: 3px;
@@ -1127,9 +1266,12 @@
         height: 20px;
       }
       .saved-count {
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 1px;
         margin-right: 3px;
+      }
+      .saved-count-x {
+        font-size: 12px;
       }
       .saved-toggle-track {
         width: 28px;
@@ -1166,16 +1308,20 @@
         padding-right: 30px;
       }
       .saved-only-divider {
-        right: 22px;
+        right: 26px; /* Default: between "Map Saved Only" and share icon */
         height: 18px;
       }
+      /* When navigation icon is visible on mobile */
+      .saved-only-section.saved-only-active:has(.saved-navigation-icon.visible) .saved-only-divider {
+        right: 55px;
+      }
       .saved-count-x {
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 0.1px;
         margin-right: 0.1px;
       }
       .saved-count {
-        font-size: 11px;
+        font-size: 12px;
         margin-left: 0.1px;
         margin-right: 3px;
       }
@@ -1777,7 +1923,277 @@
       background: #b91c1c;
       border-color: #b91c1c;
     }
+    /* Route Planner Modal */
+    .route-planner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 8500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-family: Inter, sans-serif;
+    }
+    .route-planner-overlay.active {
+      display: flex;
+    }
+    .route-planner-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .route-planner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      border-bottom: 1px solid #E5E7EB;
+      flex-shrink: 0;
+      background: #ffffff;
+    }
+    .route-planner-title-section {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .route-planner-icon-wrapper {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+    }
+    .route-planner-icon {
+      width: 24px;
+      height: 24px;
+      stroke: #1d4ed8;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .route-planner-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+    .route-planner-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .route-planner-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+    }
+    .route-planner-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #94a3b8;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .route-planner-close:hover {
+      color: #64748b;
+    }
+    .route-planner-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .route-planner-section {
+      margin-bottom: 24px;
+    }
+    .route-summary {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    .route-summary-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .route-summary-item:last-child {
+      margin-bottom: 0;
+    }
+    .route-summary-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      min-width: 45px;
+    }
+    .route-summary-value {
+      font-size: 14px;
+      color: #0f172a;
+      flex: 1;
+    }
+    .route-summary-arrow {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 18px;
+      padding: 6px 0;
+    }
+    .route-planner-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 4px 0;
+    }
+    .route-planner-count-number {
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+    .route-planner-section-subtitle {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0 0 12px 0;
+    }
+    .route-planner-colleges-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .route-planner-college-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .route-planner-college-item:hover {
+      border-color: #CBD5E1;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .route-planner-college-checkbox {
+      margin-top: 2px;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+    .route-planner-college-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .route-planner-college-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 3px 0;
+    }
+    .route-planner-college-details {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0 0 1px 0;
+    }
+    .route-planner-college-distance {
+      font-size: 12px;
+      color: #2563eb;
+      font-weight: 500;
+      margin: 0;
+    }
+    .route-planner-empty-state {
+      padding: 32px 20px;
+      text-align: center;
+      color: #64748b;
+    }
+    .route-planner-empty-state-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .route-planner-actions {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #E5E7EB;
+    }
+    .route-planner-error {
+      font-size: 12px;
+      color: #dc2626;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      border-radius: 6px;
+    }
+    .route-planner-primary-btn {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: #2563eb;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+    .route-planner-primary-btn:hover:not(:disabled) {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+    }
+    .route-planner-primary-btn:disabled {
+      background: #CBD5E1;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .route-planner-cancel-btn {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      background: transparent;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .route-planner-cancel-btn:hover {
+      background: #F9FAFB;
+      border-color: #CBD5E1;
+    }
     @media (max-width: 700px) {
+      .route-planner-overlay {
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        box-shadow: none;
+      }
       .saved-colleges-overlay {
         width: 100%;
         height: 100%;
@@ -1877,10 +2293,19 @@
     <div class="map-hint-bubble" id="hint-no-saved-colleges" role="alert">
       <div class="map-hint-bubble-header">
         <span class="map-hint-bubble-icon">📌</span>
-        <div class="map-hint-bubble-title">No saved colleges yet.</div>
+        <div class="map-hint-bubble-title">No saved colleges</div>
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noSavedColleges')">×</button>
       </div>
       <div class="map-hint-bubble-body">Go to "My Saved List" or tap a college on the map and press "Save" to add a school.</div>
+    </div>
+    <!-- Teaching moment hint for Map Saved Only toggle (one-time) -->
+    <div class="map-hint-bubble" id="hint-saved-only-teaching" role="alert" style="display: none;">
+      <div class="map-hint-bubble-header">
+        <span class="map-hint-bubble-icon">💡</span>
+        <div class="map-hint-bubble-title">Map Saved Only</div>
+        <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissSavedOnlyTeachingHint()">×</button>
+      </div>
+      <div class="map-hint-bubble-body">Turn this ON to show only your saved colleges on the map.</div>
     </div>
     <!-- Helper tip bubble - appears once per session -->
     <div class="map-tip-bubble" id="map-tip-bubble" role="alert">
@@ -1913,6 +2338,14 @@
           <span class="saved-text">Map Saved Only</span>
         </div>
         <div class="saved-only-divider"></div>
+        <div class="saved-navigation-icon" id="saved-navigation-icon" onclick="planRouteWithSavedColleges()">
+          <div class="saved-navigation-tooltip">Plan driving route</div>
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6L9 4L15 6L21 4V18L15 20L9 18L3 20V6Z" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 4V18M15 6V20" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 6L9 4L15 6M3 20L9 18L15 20" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div class="saved-share-icon" id="saved-share-icon" onclick="handleSavedShareClick(event)">
           <div class="saved-share-tooltip">Share this saved map</div>
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1959,6 +2392,60 @@
             <!-- Will be populated by JavaScript -->
           </div>
         </div>
+      </div>
+    </div>
+    <!-- Route Planner Modal -->
+    <div id="route-planner-overlay" class="route-planner-overlay" onclick="handleRoutePlannerBackdropClick(event)">
+      <div class="route-planner-modal" onclick="event.stopPropagation()">
+        <div class="route-planner-header">
+        <div class="route-planner-title-section">
+          <div class="route-planner-icon-wrapper">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="route-planner-icon">
+              <path d="M3 6L9 4L15 6L21 4V18L15 20L9 18L3 20V6Z" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 4V18M15 6V20" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 6L9 4L15 6M3 20L9 18L15 20" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="route-planner-title">Driving Route Planning</h2>
+            <p class="route-planner-subtitle">Review the trip with your saved colleges below and your route is ready to open in Google Maps.</p>
+          </div>
+        </div>
+        <button class="route-planner-close" onclick="closeRoutePlanner()" aria-label="Close route planner">×</button>
+      </div>
+        <div class="route-planner-content">
+        <!-- Section A: Route Summary -->
+        <div class="route-planner-section">
+          <div class="route-summary">
+            <div class="route-summary-item">
+              <span class="route-summary-label">From:</span>
+              <span class="route-summary-value" id="route-planner-from">-</span>
+            </div>
+            <div class="route-summary-item">
+              <span class="route-summary-label">To:</span>
+              <span class="route-summary-value" id="route-planner-to">-</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Section B: Saved Colleges on Route -->
+        <div class="route-planner-section">
+          <h3 class="route-planner-section-title" id="route-planner-colleges-title">College stops on this route</h3>
+          <p class="route-planner-section-subtitle">Uncheck any colleges you don't want to include.</p>
+          <div id="route-planner-colleges-list" class="route-planner-colleges-list">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+        
+        <!-- Section C: Actions -->
+        <div class="route-planner-section route-planner-actions">
+          <div id="route-planner-error" class="route-planner-error" style="display: none;">Select at least one college stop to see a route.</div>
+          <button id="route-planner-google-maps-btn" class="route-planner-primary-btn" onclick="openRouteInGoogleMaps()">
+            See Route in Google Maps
+          </button>
+          <button class="route-planner-cancel-btn" onclick="closeRoutePlanner()">Cancel</button>
+        </div>
+      </div>
       </div>
     </div>
     <!-- Unsave All Confirmation Modal -->
@@ -2132,6 +2619,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize saved pill count
   updateSavedPillCount();
   
+  // Initialize navigation icon visibility
+  updateNavigationIconVisibility();
+  
+  // Check for teaching moment on page load (if user already has 2+ saved colleges)
+  checkAndShowSavedOnlyTeachingMoment();
+  
   // Apply autofill guards again in case elements weren't ready before
   applyAutofillGuards();
   
@@ -2220,6 +2713,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, { once: true }); // Only track once per page load
   }
+  
+  // Initial update of navigation icon visibility
+  updateNavigationIconVisibility();
   
   // Ensure map interactions are enabled on initial load
   // Wait a bit for map to be fully ready
@@ -3227,11 +3723,17 @@ function updatePopupSaveButton(button, collegeId) {
   const label = cached.label;
   const isSaved = SavedStore.isSaved(collegeId);
   
+  // Detect transition from unsaved to saved for celebration animation
+  const wasSaved = button.classList.contains('saved');
+  const isTransitioningToSaved = !wasSaved && isSaved;
+  
   // Update button class
   if (isSaved) {
     button.classList.add('saved');
   } else {
     button.classList.remove('saved');
+    // Remove animation class if unsaving
+    button.classList.remove('saved-pop');
   }
   
   // Update icon and label
@@ -3240,6 +3742,20 @@ function updatePopupSaveButton(button, collegeId) {
   }
   if (label) {
     label.textContent = isSaved ? 'Saved' : 'Save';
+  }
+  
+  // Trigger celebration animation when transitioning to saved
+  if (isTransitioningToSaved) {
+    // Remove any existing animation class first
+    button.classList.remove('saved-pop');
+    // Force reflow to ensure class removal is processed
+    void button.offsetWidth;
+    // Add animation class
+    button.classList.add('saved-pop');
+    // Remove animation class after animation completes (200ms)
+    setTimeout(() => {
+      button.classList.remove('saved-pop');
+    }, 200);
   }
 }
 
@@ -3289,14 +3805,74 @@ map.on('popupopen', (event) => {
       ev.preventDefault();
       ev.stopPropagation();
       
+      // Get saved count before toggle to detect 1→2 transition
+      const savedCountBefore = SavedStore.getAll().length;
+      
       // Toggle saved state
       SavedStore.toggle(collegeId);
+      
+      // Rule 3: Check if SavedStore becomes empty while saved-only is ON
+      const savedIdsAfter = SavedStore.getAll();
+      if (savedIdsAfter.length === 0 && savedOnlyMode) {
+        // Auto-turn OFF toggle
+        savedOnlyMode = false;
+        const savedControls = document.getElementById("saved-controls");
+        const savedOnlySection = document.getElementById("saved-only-section");
+        if (savedControls) {
+          savedControls.classList.remove("saved-only-active");
+        }
+        if (savedOnlySection) {
+          savedOnlySection.classList.remove("saved-only-active");
+        }
+        
+        // Show hint
+        const hint = document.getElementById('hint-no-saved-colleges');
+        if (hint) {
+          const hintBody = hint.querySelector('.map-hint-bubble-body');
+          if (hintBody) {
+            hintBody.textContent = "No saved colleges left on the map — Map Saved Only has been turned off.";
+          }
+        }
+        showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+      } else if (savedIdsAfter.length > 0 && savedOnlyMode) {
+        // Rule 4: Check if last visible saved college was removed (even if other saved colleges exist elsewhere)
+        if (!hasQualifyingSavedColleges()) {
+          // Auto-turn OFF toggle
+          savedOnlyMode = false;
+          const savedControls = document.getElementById("saved-controls");
+          const savedOnlySection = document.getElementById("saved-only-section");
+          if (savedControls) {
+            savedControls.classList.remove("saved-only-active");
+          }
+          if (savedOnlySection) {
+            savedOnlySection.classList.remove("saved-only-active");
+          }
+          
+          // Show hint
+          const hint = document.getElementById('hint-no-saved-colleges');
+          if (hint) {
+            const hintBody = hint.querySelector('.map-hint-bubble-body');
+            if (hintBody) {
+              hintBody.textContent = "No saved colleges visible on the map — Map Saved Only has been turned off.";
+            }
+          }
+          showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+        }
+      }
       
       // Immediately update button visual state (user action, so update synchronously)
       updatePopupSaveButton(button, collegeId);
       
       // Immediately update pill count
       updateSavedPillCount();
+      
+      // Check for teaching moment (1→2 transition)
+      if (savedCountBefore === 1 && savedIdsAfter.length === 2) {
+        checkAndShowSavedOnlyTeachingMoment();
+      }
+      
+      // Update navigation icon visibility when college is saved/unsaved
+      updateNavigationIconVisibility();
       
       // Update marker icon
       const marker = markersByCollegeId[collegeId];
@@ -3371,6 +3947,22 @@ map.on('popupopen', (event) => {
         // Reopen popup if it was open before
         if (wasPopupOpen) {
           newMarker.openPopup();
+        }
+      }
+      
+      // Re-render if saved-only mode is still ON (or if it was turned OFF, re-render without saved-only filter)
+      if (savedOnlyMode) {
+        if (activeMode === 'route' && route.lastSearch) {
+          refilterCollegesAlongRoute();
+        } else {
+          render();
+        }
+      } else if (savedIdsAfter.length === 0 || (savedIdsAfter.length > 0 && !hasQualifyingSavedColleges())) {
+        // Re-render if toggle was turned OFF (either by Rule 3 or Rule 4)
+        if (activeMode === 'route' && route.lastSearch) {
+          refilterCollegesAlongRoute();
+        } else {
+          render();
         }
       }
     });
@@ -4019,16 +4611,6 @@ function refilterCollegesAlongRoute() {
   const maxDistance = maxDistanceInput === 0 ? 0.5 : maxDistanceInput;
   const units = elements.routeUnits ? elements.routeUnits.value : 'mi';
   
-  // Sample route points for performance
-  const sampleRate = routeCoords.length > 100 ? 10 : 1;
-  const sampledRoute = [];
-  for (let i = 0; i < routeCoords.length; i += sampleRate) {
-    sampledRoute.push(routeCoords[i]);
-  }
-  if (sampledRoute[sampledRoute.length - 1] !== routeCoords[routeCoords.length - 1]) {
-    sampledRoute.push(routeCoords[routeCoords.length - 1]);
-  }
-  
   // Apply other filters first (cheaper checks before distance calculation)
   const typeVal = elements.type ? elements.type.value.trim() : '';
   const regionVal = elements.region ? elements.region.value.trim() : '';
@@ -4038,48 +4620,97 @@ function refilterCollegesAlongRoute() {
   const mobileSearch = document.getElementById('search-mobile');
   const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
   
-  // Pre-filter by other criteria before expensive distance calculations
-  const preFiltered = colleges.filter(c => {
-    if (typeVal && (c.type || c.tier) !== typeVal) return false;
-    if (regionVal) {
-      const regionStates = REGION_MAP[regionVal] || [];
-      if (!regionStates.includes(c.state)) return false;
-    }
-    if (stateVal && c.state !== stateVal) return false;
-    if (rankingVal) {
-      if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
-      if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
-      if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
-      if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
-    }
-    if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
-    return true;
-  });
+  // Build current filter object for comparison (normalize values for accurate comparison)
+  const currentFilters = {
+    typeVal: typeVal || '',
+    regionVal: regionVal || '',
+    stateVal: stateVal || '',
+    rankingVal: rankingVal || '',
+    searchVal: searchVal || '',
+    maxDistance: maxDistance,
+    units: units || 'mi'
+  };
   
-  // Filter by distance to route and cache the distance value
-  const routeEntries = preFiltered.map(c => {
-    let minRouteDist = Infinity;
-    for (let i = 0; i < sampledRoute.length - 1; i++) {
-      const segmentStart = sampledRoute[i];
-      const segmentEnd = sampledRoute[i + 1];
-      const dist = distanceToLineSegment(
-        c.lat, c.lon,
-        segmentStart[0], segmentStart[1],
-        segmentEnd[0], segmentEnd[1],
-        units
-      );
-      minRouteDist = Math.min(minRouteDist, dist);
-      if (minRouteDist <= maxDistance) break; // Early exit optimization
+  // Check if filters match cached filters (excluding savedOnlyMode which is not stored in cache)
+  const cachedFilters = cache.filters || {};
+  const filtersMatch = 
+    (currentFilters.typeVal === (cachedFilters.typeVal || '')) &&
+    (currentFilters.regionVal === (cachedFilters.regionVal || '')) &&
+    (currentFilters.stateVal === (cachedFilters.stateVal || '')) &&
+    (currentFilters.rankingVal === (cachedFilters.rankingVal || '')) &&
+    (currentFilters.searchVal === (cachedFilters.searchVal || '')) &&
+    (Math.abs(currentFilters.maxDistance - (cachedFilters.maxDistance || 30)) < 0.001) && // Use epsilon for float comparison
+    (currentFilters.units === (cachedFilters.units || 'mi'));
+  
+  let routeEntries;
+  
+  // Optimization: If filters match, reuse cached colleges (skip expensive distance calculations)
+  if (filtersMatch && cache.colleges && Array.isArray(cache.colleges) && cache.colleges.length > 0) {
+    // Reuse cached route entries - only need to apply saved-only filter
+    routeEntries = cache.colleges;
+  } else {
+    // Filters changed or no cache - recalculate distances
+    // Sample route points for performance (check every 3rd point for long routes)
+    const sampleRate = routeCoords.length > 100 ? 3 : 1;
+    const sampledRoute = [];
+    for (let i = 0; i < routeCoords.length; i += sampleRate) {
+      sampledRoute.push(routeCoords[i]);
     }
-    return { college: c, distance: minRouteDist };
-  }).filter(item => item.distance <= maxDistance) // Filter by distance
-    .map(item => {
-      // Create distance text only for items that passed the filter
-      const distanceText = item.distance < Infinity 
-        ? `<br>Distance from route: ${item.distance.toFixed(1)} ${units}`
-        : '';
-      return { college: item.college, distanceText };
+    if (sampledRoute[sampledRoute.length - 1] !== routeCoords[routeCoords.length - 1]) {
+      sampledRoute.push(routeCoords[routeCoords.length - 1]);
+    }
+    
+    // Pre-filter by other criteria before expensive distance calculations
+    const preFiltered = colleges.filter(c => {
+      if (typeVal && (c.type || c.tier) !== typeVal) return false;
+      if (regionVal) {
+        const regionStates = REGION_MAP[regionVal] || [];
+        if (!regionStates.includes(c.state)) return false;
+      }
+      if (stateVal && c.state !== stateVal) return false;
+      if (rankingVal) {
+        if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+        if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+        if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+        if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+      }
+      if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+      return true;
     });
+    
+    // Filter by distance to route - always calculate true minimum across all segments for accurate display
+    routeEntries = preFiltered.map(c => {
+      let minRouteDist = Infinity;
+      
+      // Check all segments to find the true minimum distance (no early exit for accuracy)
+      for (let i = 0; i < sampledRoute.length - 1; i++) {
+        const segmentStart = sampledRoute[i];
+        const segmentEnd = sampledRoute[i + 1];
+        const dist = distanceToLineSegment(
+          c.lat, c.lon,
+          segmentStart[0], segmentStart[1],
+          segmentEnd[0], segmentEnd[1],
+          units
+        );
+        
+        // Always track true minimum across all segments for accurate display
+        minRouteDist = Math.min(minRouteDist, dist);
+      }
+      
+      return { college: c, distance: minRouteDist };
+    }).filter(item => item.distance <= maxDistance) // Filter by true minimum distance
+      .map(item => {
+        // Create distance text using the true minimum distance
+        const distanceText = item.distance < Infinity 
+          ? `<br>Distance from route: ${item.distance.toFixed(1)} ${units}`
+          : '';
+        return { college: item.college, distanceText };
+      });
+    
+    // Update cache with new results
+    route.lastResult.colleges = routeEntries;
+    route.lastResult.filters = currentFilters;
+  }
   
   const visibleRouteEntries = savedOnlyMode
     ? routeEntries.filter(item => SavedStore.isSaved(item.college.college_id))
@@ -4114,8 +4745,7 @@ function refilterCollegesAlongRoute() {
   if (elements.count) elements.count.textContent = visibleRouteEntries.length;
   updateMapHints(visibleRouteEntries.length, typeVal, regionVal, stateVal, searchVal);
   
-  route.lastResult.colleges = routeEntries;
-  route.lastResult.filters = { typeVal, regionVal, stateVal, searchVal, maxDistance, units };
+  // Note: Cache is already updated in the else block above when recalculating
   
   // Store ALL colleges bounds (for caching/restoration)
   if (routeBounds.isValid()) {
@@ -4134,6 +4764,12 @@ function refilterCollegesAlongRoute() {
       }
     }
   }
+  
+  // Update navigation icon visibility after refiltering
+  updateNavigationIconVisibility();
+  
+  // Check if saved-only mode should be turned OFF after filter change
+  checkAndHandleNoVisibleSavedColleges();
 }
 
 /**
@@ -4793,7 +5429,14 @@ function dismissMapHint(type) {
     clearHintAutoHide('noResults');
   } else if (type === 'noSavedColleges') {
     const hint = document.getElementById('hint-no-saved-colleges');
-    if (hint) hint.classList.remove('active');
+    if (hint) {
+      hint.classList.remove('active');
+      // Clear timeout
+      if (mapHintTimeouts.noSavedColleges) {
+        clearTimeout(mapHintTimeouts.noSavedColleges);
+        mapHintTimeouts.noSavedColleges = null;
+      }
+    }
     // Automatically turn off Saved Only toggle and restore previous state
     if (savedOnlyMode) {
       savedOnlyMode = false;
@@ -4844,6 +5487,38 @@ function clearHintAutoHide(type) {
     clearTimeout(mapHintTimeouts[type]);
     mapHintTimeouts[type] = null;
   }
+}
+
+// Teaching moment: Show hint when user reaches 2 saved colleges for the first time
+function checkAndShowSavedOnlyTeachingMoment() {
+  // Check if already shown
+  const hasShown = localStorage.getItem('ucm_savedOnlyTeachingShown') === '1';
+  if (hasShown) {
+    return;
+  }
+  
+  // Check if user has exactly 2 saved colleges
+  const savedIds = SavedStore.getAll();
+  if (savedIds.length === 2) {
+    // Show hint with auto-dismiss (closes any other active hints)
+    showHintWithAutoDismiss('hint-saved-only-teaching', 6500);
+    // Mark as shown in localStorage
+    localStorage.setItem('ucm_savedOnlyTeachingShown', '1');
+  }
+}
+
+function dismissSavedOnlyTeachingHint() {
+  const hint = document.getElementById('hint-saved-only-teaching');
+  if (hint) {
+    hint.classList.remove('active');
+  }
+  // Clear timeout
+  if (mapHintTimeouts.savedOnlyTeaching) {
+    clearTimeout(mapHintTimeouts.savedOnlyTeaching);
+    mapHintTimeouts.savedOnlyTeaching = null;
+  }
+  // Mark as dismissed in localStorage
+  localStorage.setItem('ucm_savedOnlyTeachingShown', '1');
 }
 
 
@@ -5057,8 +5732,45 @@ let savedSearchTimeout = null;
 let savedSearchResults = [];
 const mapHintTimeouts = {
   tooMany: null,
-  noResults: null
+  noResults: null,
+  noSavedColleges: null,
+  savedOnlyTeaching: null
 };
+
+// Helper function to show a hint with auto-dismiss and close any other active hints
+function showHintWithAutoDismiss(hintId, duration = 6500) {
+  // Close all other active hints first
+  const allHints = document.querySelectorAll('.map-hint-bubble.active');
+  allHints.forEach(hint => {
+    if (hint.id !== hintId) {
+      hint.classList.remove('active');
+      // Clear any existing timeout for this hint
+      const hintType = hint.id.replace('hint-', '').replace(/-/g, '');
+      if (mapHintTimeouts[hintType]) {
+        clearTimeout(mapHintTimeouts[hintType]);
+        mapHintTimeouts[hintType] = null;
+      }
+    }
+  });
+  
+  // Show the new hint
+  const hint = document.getElementById(hintId);
+  if (hint) {
+    hint.classList.add('active');
+    
+    // Clear any existing timeout for this hint
+    const hintType = hintId.replace('hint-', '').replace(/-/g, '');
+    if (mapHintTimeouts[hintType]) {
+      clearTimeout(mapHintTimeouts[hintType]);
+    }
+    
+    // Set auto-dismiss timeout
+    mapHintTimeouts[hintType] = setTimeout(() => {
+      hint.classList.remove('active');
+      mapHintTimeouts[hintType] = null;
+    }, duration);
+  }
+}
 const HINT_MAX_VIEWS = 3;
 let routeHintShown = sessionStorage.getItem(ROUTE_HINT_KEY) === '1';
 let routeHintUserInteracted = false;
@@ -5463,11 +6175,76 @@ function unsaveCollegeFromOverlay(collegeId) {
   }
   
   const finalize = () => {
+    // Get saved count before toggle to detect 1→2 transition
+    const savedCountBefore = SavedStore.getAll().length;
+    
     SavedStore.toggle(collegeId);
     updateMarkerIcon(collegeId);
     updateSavedOverlay();
     
+    // Rule 3: Check if SavedStore becomes empty while saved-only is ON
+    const savedIdsAfter = SavedStore.getAll();
+    if (savedIdsAfter.length === 0 && savedOnlyMode) {
+      // Auto-turn OFF toggle
+      savedOnlyMode = false;
+      const savedControls = document.getElementById("saved-controls");
+      const savedOnlySection = document.getElementById("saved-only-section");
+      if (savedControls) {
+        savedControls.classList.remove("saved-only-active");
+      }
+      if (savedOnlySection) {
+        savedOnlySection.classList.remove("saved-only-active");
+      }
+      
+      // Show hint
+      const hint = document.getElementById('hint-no-saved-colleges');
+      if (hint) {
+        const hintBody = hint.querySelector('.map-hint-bubble-body');
+        if (hintBody) {
+          hintBody.textContent = "No saved colleges left on the map — Map Saved Only has been turned off.";
+        }
+      }
+      showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+    } else if (savedIdsAfter.length > 0 && savedOnlyMode) {
+      // Rule 4: Check if last visible saved college was removed (even if other saved colleges exist elsewhere)
+      if (!hasQualifyingSavedColleges()) {
+        // Auto-turn OFF toggle
+        savedOnlyMode = false;
+        const savedControls = document.getElementById("saved-controls");
+        const savedOnlySection = document.getElementById("saved-only-section");
+        if (savedControls) {
+          savedControls.classList.remove("saved-only-active");
+        }
+        if (savedOnlySection) {
+          savedOnlySection.classList.remove("saved-only-active");
+        }
+        
+        // Show hint
+        const hint = document.getElementById('hint-no-saved-colleges');
+        if (hint) {
+          const hintBody = hint.querySelector('.map-hint-bubble-body');
+          if (hintBody) {
+            hintBody.textContent = "No saved colleges visible on the map — Map Saved Only has been turned off.";
+          }
+        }
+        showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+      }
+    }
+    
+    // Check for teaching moment (1→2 transition)
+    if (savedCountBefore === 1 && savedIdsAfter.length === 2) {
+      checkAndShowSavedOnlyTeachingMoment();
+    }
+    
+    // Re-render if saved-only mode is still ON (or if it was turned OFF, re-render without saved-only filter)
     if (savedOnlyMode) {
+      if (activeMode === 'route' && route.lastSearch) {
+        refilterCollegesAlongRoute();
+      } else {
+        render();
+      }
+    } else if (savedIdsAfter.length === 0 || (savedIdsAfter.length > 0 && !hasQualifyingSavedColleges())) {
+      // Re-render if toggle was turned OFF (either by Rule 3 or Rule 4)
       if (activeMode === 'route' && route.lastSearch) {
         refilterCollegesAlongRoute();
       } else {
@@ -5543,8 +6320,8 @@ function unsaveAllColleges() {
   closeUnsaveAllModal();
   updateSavedOverlay();
 
-  // If Saved Only was on, turn it off and revert UI/state
-  if (savedOnlyMode) {
+  // Rule 3: If Saved Only was on and SavedStore is now empty, turn it off and show hint
+  if (savedOnlyMode && SavedStore.getAll().length === 0) {
     savedOnlyMode = false;
     const savedControls = document.getElementById("saved-controls");
     const savedOnlySection = document.getElementById("saved-only-section");
@@ -5554,8 +6331,16 @@ function unsaveAllColleges() {
     if (savedOnlySection) {
       savedOnlySection.classList.remove("saved-only-active");
     }
+    
+    // Show hint
     const hint = document.getElementById('hint-no-saved-colleges');
-    if (hint) hint.classList.remove('active');
+    if (hint) {
+      const hintBody = hint.querySelector('.map-hint-bubble-body');
+      if (hintBody) {
+        hintBody.textContent = "No saved colleges left on the map — Map Saved Only has been turned off.";
+      }
+    }
+    showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
   }
   
   // Re-render to reflect unsaved state with saved-only off
@@ -5568,7 +6353,202 @@ function unsaveAllColleges() {
 
 // savedOnlyMode is declared earlier in the file (near line 2262) for early initialization
 // let savedOnlyMode = false;
+// Helper function to check and handle when no visible saved colleges remain after filter changes
+// NOTE: This hint shows every time (no view count limit) when filters exclude all saved colleges
+function checkAndHandleNoVisibleSavedColleges() {
+  // Only check if saved-only mode is ON
+  if (!savedOnlyMode) {
+    return;
+  }
+  
+  // Check if any saved colleges match current filters
+  if (!hasQualifyingSavedColleges()) {
+    // Auto-turn OFF toggle
+    savedOnlyMode = false;
+    const savedControls = document.getElementById("saved-controls");
+    const savedOnlySection = document.getElementById("saved-only-section");
+    if (savedControls) {
+      savedControls.classList.remove("saved-only-active");
+    }
+    if (savedOnlySection) {
+      savedOnlySection.classList.remove("saved-only-active");
+    }
+    
+    // Prepare hint message
+    const hint = document.getElementById('hint-no-saved-colleges');
+    if (hint) {
+      const hintBody = hint.querySelector('.map-hint-bubble-body');
+      if (hintBody) {
+        hintBody.textContent = "No saved colleges match your current filters — Map Saved Only has been turned off.";
+      }
+    }
+    
+    // Re-render map without saved-only filter first
+    if (activeMode === 'route' && route.lastSearch) {
+      refilterCollegesAlongRoute();
+    } else {
+      render();
+    }
+    
+    // Show hint AFTER render completes to ensure it's visible
+    // Use requestAnimationFrame to ensure DOM updates are complete
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (hint) {
+          // Clear any existing timeout to ensure hint shows
+          const hintType = 'noSavedColleges';
+          if (mapHintTimeouts[hintType]) {
+            clearTimeout(mapHintTimeouts[hintType]);
+            mapHintTimeouts[hintType] = null;
+          }
+          
+          // Show the hint (no view count limit - shows every time)
+          showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+        }
+      }, 100);
+    });
+  }
+}
+
+// Helper function to check if any saved colleges are qualifying (visible given current filters/context)
+function hasQualifyingSavedColleges() {
+  const savedIds = SavedStore.getAll();
+  if (savedIds.length === 0) {
+    return false;
+  }
+  
+  // Check based on active mode
+  if (activeMode === 'nearby' && home) {
+    // Get current filter values
+    const desktopSearch = document.getElementById('search');
+    const mobileSearch = document.getElementById('search-mobile');
+    const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+    const typeVal = document.getElementById('type')?.value || '';
+    const regionVal = document.getElementById('region')?.value || '';
+    const stateVal = document.getElementById('state')?.value || '';
+    const rankingVal = document.getElementById('ranking')?.value || '';
+    const radiusVal = parseFloat(document.getElementById('radius-slider')?.value || '30');
+    const unitsVal = document.getElementById('units-toggle')?.dataset.units || 'mi';
+    
+    // Pre-filter by cheaper criteria first (same logic as render function)
+    let filtered = colleges.filter(c => {
+      // Region filter
+      const regionMatch = !regionVal || (REGION_MAP[regionVal] || []).includes(c.state);
+      if (!regionMatch) return false;
+      
+      // State filter
+      if (stateVal && c.state !== stateVal) return false;
+      
+      // Type filter
+      if (typeVal && (c.type || c.tier) !== typeVal) return false;
+      
+      // Ranking filter
+      if (rankingVal) {
+        if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+        if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+        if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+        if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+      }
+      
+      // Search filter
+      if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+      
+      return true;
+    });
+    
+    // Filter by distance to home
+    const effectiveRadius = radiusVal === 0 ? 0.5 : radiusVal;
+    filtered = filtered.filter(c => {
+      const distance = calculateDistance(home.lat, home.lon, c.lat, c.lon, unitsVal);
+      return distance <= effectiveRadius;
+    });
+    
+    // Check if any filtered colleges are saved
+    return filtered.some(c => SavedStore.isSaved(c.college_id));
+  } else if (activeMode === 'route' && route.lastResult && route.lastResult.colleges) {
+    // Check if any colleges in route result are saved
+    return route.lastResult.colleges.some(item => SavedStore.isSaved(item.college.college_id));
+  } else {
+    // Explore mode or other cases - check filters but no distance/route restrictions
+    // Get current filter values
+    const desktopSearch = document.getElementById('search');
+    const mobileSearch = document.getElementById('search-mobile');
+    const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
+    const typeVal = document.getElementById('type')?.value || '';
+    const regionVal = document.getElementById('region')?.value || '';
+    const stateVal = document.getElementById('state')?.value || '';
+    const rankingVal = document.getElementById('ranking')?.value || '';
+    
+    // Pre-filter by cheaper criteria first (same logic as render function)
+    let filtered = colleges.filter(c => {
+      // Region filter
+      const regionMatch = !regionVal || (REGION_MAP[regionVal] || []).includes(c.state);
+      if (!regionMatch) return false;
+      
+      // State filter
+      if (stateVal && c.state !== stateVal) return false;
+      
+      // Type filter
+      if (typeVal && (c.type || c.tier) !== typeVal) return false;
+      
+      // Ranking filter
+      if (rankingVal) {
+        if (rankingVal === 'Top 25 national universities' && c.top25_univ !== '1') return false;
+        if (rankingVal === 'Top 50 national universities' && c.top50_univ !== '1') return false;
+        if (rankingVal === 'Top 10 liberal arts colleges' && c.top10_lac !== '1') return false;
+        if (rankingVal === 'Top 20 liberal arts colleges' && c.top20_lac !== '1') return false;
+      }
+      
+      // Search filter
+      if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+      
+      return true;
+    });
+    
+    // Check if any filtered colleges are saved
+    return filtered.some(c => SavedStore.isSaved(c.college_id));
+  }
+}
+
 function toggleSavedOnly() {
+  // Rule 2: Check BEFORE turning toggle ON if there are qualifying saved colleges
+  const willBeOn = !savedOnlyMode;
+  if (willBeOn) {
+    const savedIds = SavedStore.getAll();
+    
+    // Rule 1: No saved colleges at all
+    if (savedIds.length === 0) {
+      const hint = document.getElementById('hint-no-saved-colleges');
+      if (hint) {
+        const hintBody = hint.querySelector('.map-hint-bubble-body');
+        if (hintBody) {
+          hintBody.textContent = "You haven't saved any colleges yet. Tap a college to save it, then turn this on to see only your saved schools.";
+        }
+      }
+      showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+      return; // Don't turn toggle ON
+    }
+    
+    // Rule 2: Check if any saved colleges are qualifying (visible given current filters/context)
+    if (!hasQualifyingSavedColleges()) {
+      const hint = document.getElementById('hint-no-saved-colleges');
+      if (hint) {
+        const hintBody = hint.querySelector('.map-hint-bubble-body');
+        if (hintBody) {
+          if (activeMode === 'nearby') {
+            hintBody.textContent = "None of your saved colleges are within this distance.";
+          } else if (activeMode === 'route') {
+            hintBody.textContent = "None of your saved colleges are close to this route.";
+          } else {
+            hintBody.textContent = "None of your saved colleges match your current filters.";
+          }
+        }
+      }
+      showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+      return; // Don't turn toggle ON
+    }
+  }
+  
   savedOnlyMode = !savedOnlyMode;
   const savedControls = document.getElementById("saved-controls");
   const savedOnlySection = document.getElementById("saved-only-section");
@@ -5584,43 +6564,49 @@ function toggleSavedOnly() {
     gtag('event', 'feature_saved_only_toggled');
   }
   
-  // Check if Saved Only is turned ON and there are no saved colleges
+  // Check if Saved Only is turned ON and there are no saved colleges (legacy check, should not trigger now)
   if (savedOnlyMode) {
     const savedIds = SavedStore.getAll();
     if (savedIds.length === 0) {
-      // Show notice that there are no saved colleges yet
+      // Update hint message for Scenario 1
       const hint = document.getElementById('hint-no-saved-colleges');
       if (hint) {
-        hint.classList.add('active');
-        // Auto-dismiss after 8 seconds and turn off toggle
-        setTimeout(() => {
-          if (hint) {
-            hint.classList.remove('active');
-            // Automatically turn off Saved Only toggle and restore previous state
-            if (savedOnlyMode) {
-              savedOnlyMode = false;
-              const savedControls = document.getElementById("saved-controls");
-              const savedOnlySection = document.getElementById("saved-only-section");
-              if (savedControls) {
-                savedControls.classList.remove("saved-only-active");
-              }
-              if (savedOnlySection) {
-                savedOnlySection.classList.remove("saved-only-active");
-              }
-              // Re-render map without saved-only filter
-              if (activeMode === 'route' && route.lastSearch) {
-                refilterCollegesAlongRoute();
-              } else {
-                render();
-              }
-            }
-          }
-        }, 8000);
+        const hintBody = hint.querySelector('.map-hint-bubble-body');
+        if (hintBody) {
+          hintBody.textContent = "You haven't saved any colleges yet. Tap a college to save it, then turn this on to see only your saved schools.";
+        }
+      }
+      
+      // Show hint with auto-dismiss (closes any other active hints)
+      showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
+      
+      // Immediately turn off toggle (no delay)
+      savedOnlyMode = false;
+      const savedControls = document.getElementById("saved-controls");
+      const savedOnlySection = document.getElementById("saved-only-section");
+      if (savedControls) {
+        savedControls.classList.remove("saved-only-active");
+      }
+      if (savedOnlySection) {
+        savedOnlySection.classList.remove("saved-only-active");
+      }
+      // Re-render map without saved-only filter
+      if (activeMode === 'route' && route.lastSearch) {
+        refilterCollegesAlongRoute();
+      } else {
+        render();
       }
     } else {
       // Hide the notice if it was showing
       const hint = document.getElementById('hint-no-saved-colleges');
-      if (hint) hint.classList.remove('active');
+      if (hint) {
+        hint.classList.remove('active');
+        // Clear timeout
+        if (mapHintTimeouts.noSavedColleges) {
+          clearTimeout(mapHintTimeouts.noSavedColleges);
+          mapHintTimeouts.noSavedColleges = null;
+        }
+      }
     }
   } else {
     // Hide the notice when Saved Only is turned OFF
@@ -5642,6 +6628,11 @@ function toggleSavedOnly() {
     } else {
       render();
     }
+    // Update navigation icon visibility after toggle
+    updateNavigationIconVisibility();
+    
+    // Check if saved-only mode should be turned OFF after filter change
+    checkAndHandleNoVisibleSavedColleges();
   });
 }
 
@@ -5773,6 +6764,319 @@ async function copyToClipboard(text) {
 }
 
 // Share icon click handler
+// Placeholder function for navigation icon click - to be implemented later
+// Route Planner Overlay Functions
+function planRouteWithSavedColleges() {
+  const overlay = document.getElementById('route-planner-overlay');
+  if (!overlay) {
+    console.error('Route planner overlay not found');
+    return;
+  }
+  
+  // Check if we have route data
+  if (!route.start || !route.end || !route.lastResult || !route.lastResult.colleges) {
+    console.error('Route data not available');
+    showError('Please search for a route first before planning with saved colleges.');
+    return;
+  }
+  
+  // Get saved colleges on the route
+  const savedCollegesOnRoute = route.lastResult.colleges.filter(item => {
+    const collegeId = item.college ? item.college.college_id : item.college_id;
+    return collegeId && SavedStore.isSaved(collegeId);
+  });
+  
+  if (savedCollegesOnRoute.length === 0) {
+    console.log('No saved colleges on this route');
+    showError('No saved colleges found on this route. Save some colleges first.');
+    return;
+  }
+  
+  // Populate overlay
+  populateRoutePlannerOverlay(savedCollegesOnRoute);
+  
+  // Show overlay
+  overlay.classList.add('active');
+  
+  // Prevent body scroll when overlay is open
+  document.body.style.overflow = 'hidden';
+  
+  // Close saved list if open
+  const savedOverlay = document.getElementById('saved-colleges-overlay');
+  if (savedOverlay && savedOverlay.classList.contains('active')) {
+    closeSavedListPanel();
+  }
+}
+
+function closeRoutePlanner() {
+  const overlay = document.getElementById('route-planner-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+  }
+  document.body.style.overflow = '';
+  resumeMapInteractions();
+}
+
+function handleRoutePlannerBackdropClick(event) {
+  // Close overlay if clicking on the backdrop (not on the content)
+  if (event.target.id === 'route-planner-overlay') {
+    closeRoutePlanner();
+  }
+}
+
+function populateRoutePlannerOverlay(savedCollegesOnRoute) {
+  // Update route summary
+  const fromEl = document.getElementById('route-planner-from');
+  const toEl = document.getElementById('route-planner-to');
+  
+  if (fromEl && route.start) {
+    fromEl.textContent = route.start.description || `${route.start.lat}, ${route.start.lon}`;
+  }
+  if (toEl && route.end) {
+    toEl.textContent = route.end.description || `${route.end.lat}, ${route.end.lon}`;
+  }
+  
+  // Populate colleges list
+  const listEl = document.getElementById('route-planner-colleges-list');
+  if (!listEl) return;
+  
+  if (savedCollegesOnRoute.length === 0) {
+    listEl.innerHTML = `
+      <div class="route-planner-empty-state">
+        <p class="route-planner-empty-state-text">
+          No saved colleges on this route yet. Tap a blue dot to save schools, then open this planner again.
+        </p>
+      </div>
+    `;
+    // Update count to show 0
+    updateRoutePlannerCount();
+    return;
+  }
+  
+  // Sort colleges by distance from starting address (closest to furthest)
+  // This helps Google Maps plan an efficient route starting from the origin
+  const units = route.lastResult?.filters?.units || 'mi';
+  const startLat = route.start.lat;
+  const startLon = route.start.lon;
+  
+  const sortedColleges = savedCollegesOnRoute.map(item => {
+    const college = item.college || item;
+    const distanceFromStart = calculateDistance(startLat, startLon, college.lat, college.lon, units);
+    return { ...item, distanceFromStart };
+  }).sort((a, b) => a.distanceFromStart - b.distanceFromStart);
+  
+  listEl.innerHTML = sortedColleges.map((item, index) => {
+    const college = item.college || item;
+    const collegeId = college.college_id;
+    const distanceText = item.distanceText || '';
+    
+    // Extract distance number from distanceText (e.g., "Distance from route: 5.2 mi" -> "5.2 mi")
+    let distanceDisplay = '';
+    if (distanceText) {
+      const match = distanceText.match(/(\d+\.?\d*)\s*(mi|km)/i);
+      if (match) {
+        distanceDisplay = `${match[1]} ${match[2]} off route`;
+      }
+    }
+    
+    const typeDisplay = college.type || 'Unknown';
+    
+    return `
+      <div class="route-planner-college-item">
+        <input 
+          type="checkbox" 
+          class="route-planner-college-checkbox" 
+          id="route-college-${collegeId}"
+          data-college-id="${collegeId}"
+          checked
+          onchange="updateRoutePlannerButtonState()"
+        >
+        <div class="route-planner-college-info">
+          <div class="route-planner-college-name">${escapeHtml(college.name || 'Unknown')}</div>
+          <div class="route-planner-college-details">${escapeHtml(college.state || '')} · ${escapeHtml(typeDisplay)}</div>
+          ${distanceDisplay ? `<div class="route-planner-college-distance">${distanceDisplay}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  // Update button state and count
+  updateRoutePlannerButtonState();
+}
+
+function updateRoutePlannerCount() {
+  const checkboxes = document.querySelectorAll('.route-planner-college-checkbox:checked');
+  const titleEl = document.getElementById('route-planner-colleges-title');
+  const count = checkboxes.length;
+  
+  if (titleEl) {
+    let text;
+    if (count === 0) {
+      text = '0 college stops on this route';
+    } else if (count === 1) {
+      text = '<span class="route-planner-count-number">1</span> college stop on this route';
+    } else {
+      text = `<span class="route-planner-count-number">${count}</span> college stops on this route`;
+    }
+    titleEl.innerHTML = text;
+  }
+}
+
+function updateRoutePlannerButtonState() {
+  const checkboxes = document.querySelectorAll('.route-planner-college-checkbox:checked');
+  const button = document.getElementById('route-planner-google-maps-btn');
+  const errorEl = document.getElementById('route-planner-error');
+  
+  const hasChecked = checkboxes.length > 0;
+  
+  if (button) {
+    button.disabled = !hasChecked;
+  }
+  
+  if (errorEl) {
+    errorEl.style.display = hasChecked ? 'none' : 'block';
+  }
+  
+  // Update the count in the header
+  updateRoutePlannerCount();
+}
+
+function openRouteInGoogleMaps() {
+  const checkboxes = document.querySelectorAll('.route-planner-college-checkbox:checked');
+  
+  if (checkboxes.length === 0) {
+    return;
+  }
+  
+  if (!route.start || !route.end) {
+    showError('Route start or end is missing.');
+    return;
+  }
+  
+  // Get checked colleges in order (checkboxes are already in sorted order from DOM)
+  const checkedColleges = Array.from(checkboxes).map(cb => {
+    const collegeId = cb.getAttribute('data-college-id');
+    // Find the college from route.lastResult.colleges
+    const routeItem = route.lastResult.colleges.find(item => {
+      const id = item.college ? item.college.college_id : item.college_id;
+      return id === collegeId;
+    });
+    return routeItem ? (routeItem.college || routeItem) : null;
+  }).filter(Boolean);
+  
+  if (checkedColleges.length === 0) {
+    return;
+  }
+  
+  // Sort by distance from start to ensure efficient route planning
+  // (Checkboxes are already in sorted order, but this ensures correctness)
+  const units = route.lastResult?.filters?.units || 'mi';
+  const startLat = route.start.lat;
+  const startLon = route.start.lon;
+  const sortedCheckedColleges = checkedColleges.map(c => ({
+    college: c,
+    distanceFromStart: calculateDistance(startLat, startLon, c.lat, c.lon, units)
+  })).sort((a, b) => a.distanceFromStart - b.distanceFromStart)
+    .map(item => item.college);
+  
+  // Build Google Maps URL
+  // Format: https://www.google.com/maps/dir/?api=1&origin=...&destination=...&waypoints=...|...
+  const origin = `${route.start.lat},${route.start.lon}`;
+  const destination = `${route.end.lat},${route.end.lon}`;
+  const waypoints = sortedCheckedColleges.map(c => `${c.lat},${c.lon}`).join('|');
+  
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&waypoints=${encodeURIComponent(waypoints)}`;
+  
+  // Open in new tab
+  window.open(googleMapsUrl, '_blank');
+  
+  // Track GA event
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'route_planner_google_maps_opened', {
+      'event_category': 'Route Planner',
+      'event_label': `${checkedColleges.length} stops`
+    });
+  }
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Update navigation icon visibility based on route mode and saved colleges
+function updateNavigationIconVisibility() {
+  const navIcon = document.getElementById('saved-navigation-icon');
+  const divider = document.querySelector('.saved-only-divider');
+  if (!navIcon) {
+    console.log('[updateNavigationIconVisibility] Icon element not found');
+    return;
+  }
+  
+  // Show icon only when:
+  // 1. In route mode (route section is open)
+  // 2. Route has active start and end addresses
+  // 3. Route has been searched and has results
+  // 4. Saved-only mode is active
+  // 5. Route has saved colleges along it
+  const isRouteMode = activeMode === 'route';
+  const hasActiveRoute = route.start && route.end && route.lastResult && route.lastResult.colleges && route.lastResult.colleges.length > 0;
+  let hasSavedCollegesOnRoute = false;
+  
+  if (hasActiveRoute) {
+    // Check if any colleges in the route result are saved
+    hasSavedCollegesOnRoute = route.lastResult.colleges.some(item => {
+      const collegeId = item.college ? item.college.college_id : item.college_id;
+      return collegeId && SavedStore.isSaved(collegeId);
+    });
+  }
+  
+  const shouldShow = isRouteMode && hasActiveRoute && savedOnlyMode && hasSavedCollegesOnRoute;
+  
+  console.log('[updateNavigationIconVisibility]', {
+    isRouteMode,
+    hasActiveRoute,
+    savedOnlyMode,
+    hasSavedCollegesOnRoute,
+    shouldShow,
+    routeCollegesCount: route.lastResult?.colleges?.length || 0
+  });
+  
+  if (shouldShow) {
+    navIcon.classList.add('visible');
+    // Position divider to the left of navigation icon
+    if (divider) {
+      // Desktop: 59px, Tablet: 57px, Mobile: 55px
+      const isMobile = window.innerWidth <= 700;
+      const isTablet = window.innerWidth <= 1024 && window.innerWidth > 700;
+      if (isMobile) {
+        divider.style.setProperty('right', '55px', 'important');
+      } else if (isTablet) {
+        divider.style.setProperty('right', '57px', 'important');
+      } else {
+        divider.style.setProperty('right', '59px', 'important');
+      }
+    }
+  } else {
+    navIcon.classList.remove('visible');
+    // Position divider between "Map Saved Only" and share icon
+    if (divider) {
+      // Desktop: 30px, Tablet: 28px, Mobile: 26px
+      const isMobile = window.innerWidth <= 700;
+      const isTablet = window.innerWidth <= 1024 && window.innerWidth > 700;
+      if (isMobile) {
+        divider.style.setProperty('right', '26px', 'important');
+      } else if (isTablet) {
+        divider.style.setProperty('right', '28px', 'important');
+      } else {
+        divider.style.setProperty('right', '30px', 'important');
+      }
+    }
+  }
+}
+
 async function handleSavedShareClick(event) {
   event.stopPropagation();
   
@@ -6694,35 +7998,85 @@ function distanceToLineSegment(pointLat, pointLon, lineStartLat, lineStartLon, l
   const dBP = calculateDistance(lineEndLat, lineEndLon, pointLat, pointLon, units);
   const dAB = calculateDistance(lineStartLat, lineStartLon, lineEndLat, lineEndLon, units);
   
+  // If the point is exactly at one of the endpoints, return 0
+  if (dAP < 0.001) return 0;
+  if (dBP < 0.001) return 0;
+  
   // If the line segment is very short, return distance to nearest endpoint
   if (dAB < 0.01) {
     return Math.min(dAP, dBP);
   }
   
-  // Use the law of cosines to find the angle at point A
-  // cos(angle) = (a² + c² - b²) / (2ac)
-  // where a = dAP, b = dBP, c = dAB
-  const cosAngle = (dAP * dAP + dAB * dAB - dBP * dBP) / (2 * dAP * dAB);
+  // Convert to radians for spherical calculations
+  const toRad = Math.PI / 180;
+  const R = units === 'mi' ? 3959 : 6371;
   
-  // Clamp cosAngle to [-1, 1] to avoid NaN from acos
-  const clampedCos = Math.max(-1, Math.min(1, cosAngle));
-  const angle = Math.acos(clampedCos);
+  const latA = lineStartLat * toRad;
+  const lonA = lineStartLon * toRad;
+  const latB = lineEndLat * toRad;
+  const lonB = lineEndLon * toRad;
+  const latP = pointLat * toRad;
+  const lonP = pointLon * toRad;
   
-  // Calculate perpendicular distance using sine
-  // distance = dAP * sin(angle)
-  const perpendicularDist = dAP * Math.sin(angle);
+  // Calculate angular distances (in radians)
+  const angularAP = dAP / R;
+  const angularAB = dAB / R;
+  const angularBP = dBP / R;
   
-  // Check if the perpendicular point is within the segment
-  // If angle > 90 degrees, the perpendicular is beyond point A
-  // If the distance along AB from A is > dAB, it's beyond point B
-  const distAlongAB = dAP * Math.cos(angle);
+  // Calculate bearings using atan2 for numerical stability
+  // Bearing from A to B
+  const dLonAB = lonB - lonA;
+  const yAB = Math.sin(dLonAB) * Math.cos(latB);
+  const xAB = Math.cos(latA) * Math.sin(latB) - Math.sin(latA) * Math.cos(latB) * Math.cos(dLonAB);
+  const bearingAB = Math.atan2(yAB, xAB);
   
-  if (distAlongAB < 0 || distAlongAB > dAB) {
+  // Bearing from A to P
+  const dLonAP = lonP - lonA;
+  const yAP = Math.sin(dLonAP) * Math.cos(latP);
+  const xAP = Math.cos(latA) * Math.sin(latP) - Math.sin(latA) * Math.cos(latP) * Math.cos(dLonAP);
+  const bearingAP = Math.atan2(yAP, xAP);
+  
+  // Calculate the angular difference between bearings
+  const bearingDiff = bearingAP - bearingAB;
+  
+  // Calculate cross-track distance (perpendicular distance to the great circle)
+  // This is the angular distance from point P to the great circle through A and B
+  const sinCrossTrack = Math.sin(angularAP) * Math.sin(bearingDiff);
+  const sinCrossTrackClamped = Math.max(-1, Math.min(1, sinCrossTrack));
+  const crossTrackAngular = Math.asin(sinCrossTrackClamped);
+  const crossTrackDist = Math.abs(crossTrackAngular * R);
+  
+  // Calculate along-track distance (distance along the great circle from A)
+  // Use spherical law of cosines: cos(alongTrack) = cos(angularAP) / cos(crossTrackAngular)
+  // But handle edge cases where cos(crossTrackAngular) might be very small
+  const cosCrossTrack = Math.cos(crossTrackAngular);
+  if (Math.abs(cosCrossTrack) < 1e-10) {
+    // Perpendicular is very close to 90 degrees, use alternative calculation
+    // If cross-track is near 90°, along-track is near 0
+    const alongTrackDist = 0;
+    
+    // Check if point is within segment bounds
+    if (alongTrackDist >= 0 && alongTrackDist <= dAB) {
+      return crossTrackDist;
+    } else {
+      return Math.min(dAP, dBP);
+    }
+  }
+  
+  const cosAlongTrack = Math.cos(angularAP) / cosCrossTrack;
+  const cosAlongTrackClamped = Math.max(-1, Math.min(1, cosAlongTrack));
+  const alongTrackAngular = Math.acos(cosAlongTrackClamped);
+  const alongTrackDist = alongTrackAngular * R;
+  
+  // Check if the perpendicular foot lies within the segment bounds
+  // The along-track distance should be between 0 and dAB
+  if (alongTrackDist >= 0 && alongTrackDist <= dAB) {
+    // Perpendicular point is within the segment
+    return crossTrackDist;
+  } else {
     // Perpendicular point is outside the segment, return distance to nearest endpoint
     return Math.min(dAP, dBP);
   }
-  
-  return Math.abs(perpendicularDist);
 }
 
 /**
@@ -6917,8 +8271,8 @@ function findCollegesAlongRoute() {
         return true;
       });
       
-      // Sample route points to improve performance (check every 10th point for long routes)
-      const sampleRate = routeCoords.length > 100 ? 10 : 1;
+      // Sample route points to improve performance (check every 3rd-4th point for long routes)
+      const sampleRate = routeCoords.length > 100 ? 3 : 1;
       const sampledRoute = [];
       for (let i = 0; i < routeCoords.length; i += sampleRate) {
         sampledRoute.push(routeCoords[i]);
@@ -6928,11 +8282,12 @@ function findCollegesAlongRoute() {
         sampledRoute.push(routeCoords[routeCoords.length - 1]);
       }
       
-      // Filter by distance to route and cache the distance value (avoid double calculation)
+      // Filter by distance to route - always calculate true minimum across all segments for accurate display
       const allRouteColleges = preFiltered.map(c => {
         // Check distance to each segment of the sampled route
         let minRouteDist = Infinity;
         
+        // Check all segments to find the true minimum distance (no early exit for accuracy)
         for (let i = 0; i < sampledRoute.length - 1; i++) {
           const segmentStart = sampledRoute[i];
           const segmentEnd = sampledRoute[i + 1];
@@ -6944,18 +8299,14 @@ function findCollegesAlongRoute() {
             units
           );
           
+          // Always track true minimum across all segments for accurate display
           minRouteDist = Math.min(minRouteDist, dist);
-          
-          // Early exit if we're already within range
-          if (minRouteDist <= maxDistance) {
-            break;
-          }
         }
         
         return { college: c, distance: minRouteDist };
-      }).filter(item => item.distance <= maxDistance) // Filter by distance
+      }).filter(item => item.distance <= maxDistance) // Filter by true minimum distance
         .map(item => {
-          // Create distance text only for items that passed the filter
+          // Create distance text using the true minimum distance
           const distanceText = item.distance < Infinity 
             ? `<br>Distance from route: ${item.distance.toFixed(1)} ${units}`
             : '';
@@ -7017,6 +8368,9 @@ function findCollegesAlongRoute() {
       };
       
       isProcessingRoute = false;
+      
+      // Check if saved-only mode should be turned OFF after filter change
+      checkAndHandleNoVisibleSavedColleges();
     })
     .catch(error => {
       clearTimeout(timeoutId);
@@ -7190,6 +8544,12 @@ function findCollegesAlongRoute() {
       // Ensure loading indicator is cleared and flag is reset after fallback completes
       if (elements.loading) elements.loading.classList.remove('active');
       isProcessingRoute = false;
+      
+      // Update navigation icon visibility after route search completes
+      updateNavigationIconVisibility();
+      
+      // Check if saved-only mode should be turned OFF after filter change
+      checkAndHandleNoVisibleSavedColleges();
     });
 }
 
@@ -7544,6 +8904,8 @@ if (elements.clearRoute) {
     if (elements.routeEndSuggestions && elements.routeEnd) {
       closeRouteAutocomplete(routeEndAutocomplete, elements.routeEndSuggestions, elements.routeEnd);
     }
+    // Hide route planning icon when route is cleared
+    updateNavigationIconVisibility();
     // When clearing route, show colleges based on current filter settings
     if (activeMode === 'route') {
       // Clear route visualization
@@ -7698,6 +9060,8 @@ if (elements.clearRoute) {
         map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
       }
     }
+    // Update navigation icon visibility after clearing route
+    updateNavigationIconVisibility();
   };
 }
 
@@ -7741,6 +9105,14 @@ filterSections.forEach(section => {
       openSection.classList.add('active');
     }
     
+    // Check if route section is closing
+    const summary = section.querySelector('summary');
+    const isRouteSection = summary && summary.textContent.trim().includes('Find Colleges Along a Route');
+    if (isRouteSection && !section.open) {
+      // Route section is closing - hide route planning icon
+      updateNavigationIconVisibility();
+    }
+    
     // Only act if this section is now open (was just opened)
     if (section.open) {
       // Determine which section opened
@@ -7756,6 +9128,8 @@ filterSections.forEach(section => {
   // Clear route polyline references when route is cleared
   routeOutlinePolyline = null;
   routeMainPolyline = null;
+        // Hide route planning icon when switching away from route mode
+        updateNavigationIconVisibility();
         // Restore nearby state if available
         if (nearbyState.home) {
           home = nearbyState.home;
@@ -7825,6 +9199,8 @@ filterSections.forEach(section => {
             // Redraw the route
             findCollegesAlongRoute();
           }
+          // Update navigation icon visibility when route is restored
+          updateNavigationIconVisibility();
         } else {
           // If no route state, show colleges based on current filters (type, region, state, search)
           // Clear only route visualization layers, keep markers showing filtered colleges
@@ -7833,6 +9209,8 @@ filterSections.forEach(section => {
   routeOutlinePolyline = null;
   routeMainPolyline = null;
           render();
+          // Update navigation icon visibility when switching to route mode
+          updateNavigationIconVisibility();
         }
       }
       
@@ -7964,6 +9342,9 @@ if (elements.state) {
       } else {
         render();
       }
+      
+      // Check if saved-only mode should be turned OFF after filter change
+      checkAndHandleNoVisibleSavedColleges();
     } else {
       // This change was NOT from user - likely autofill - restore previous value
       elements.state.value = lastUserSelectedState;
@@ -8017,6 +9398,9 @@ function updateMobilePillText() {
     } else {
       render();
     }
+    
+    // Check if saved-only mode should be turned OFF after filter change
+    checkAndHandleNoVisibleSavedColleges();
   });
 });
 
@@ -8400,6 +9784,9 @@ document.querySelector('.controls').addEventListener('input', debounce((e) => {
       desktopSearch.value = e.target.value;
     }
     render();
+    
+    // Check if saved-only mode should be turned OFF after filter change
+    checkAndHandleNoVisibleSavedColleges();
   }
 }, 300));
 
