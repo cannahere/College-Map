@@ -1538,20 +1538,38 @@
   }
     /* Saved Colleges Overlay */
     .saved-colleges-overlay {
-      position: absolute;
+      position: fixed;
       top: 0;
+      left: 0;
       right: 0;
-      width: 400px;
-      height: 100%;
-      background: linear-gradient(180deg,#ffffff 0%,#fefefe 120px,#f3f6ff 100%);
-      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
       z-index: 9000;
       display: none;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       font-family: Inter, sans-serif;
+      touch-action: none;
     }
     .saved-colleges-overlay.active {
       display: flex;
+      touch-action: auto;
+    }
+    .saved-colleges-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .saved-colleges-modal.compare-mode {
+      max-width: 95vw;
+      width: 95%;
     }
     .saved-overlay-header {
       display: flex;
@@ -1560,7 +1578,75 @@
       padding: 20px;
       border-bottom: 1px solid #E5E7EB;
       flex-shrink: 0;
-      background: #f8fafc;
+      background: #ffffff;
+    }
+    .saved-overlay-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .saved-compare-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #2563eb;
+      background: transparent;
+      border: 1px solid #2563eb;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: Inter, sans-serif;
+      white-space: nowrap;
+    }
+    .saved-compare-btn:hover {
+      background: #EFF6FF;
+      border-color: #1d4ed8;
+    }
+    .saved-compare-btn:not(.visible) {
+      display: none;
+    }
+    .saved-back-btn {
+      padding: 8px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #0f172a;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+    }
+    .saved-back-btn:hover {
+      background: #F9FAFB;
+      color: #0f172a;
+    }
+    .saved-print-btn {
+      padding: 8px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2563eb;
+      width: 40px;
+      height: 40px;
+    }
+    .saved-print-btn:hover {
+      background: #EFF6FF;
+      color: #1d4ed8;
+    }
+    .saved-print-btn svg {
+      width: 24px;
+      height: 24px;
     }
     .saved-overlay-title-section {
       flex: 1;
@@ -1598,7 +1684,11 @@
     .saved-overlay-content {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 20px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
     .saved-overlay-section {
       margin-bottom: 32px;
@@ -1618,6 +1708,64 @@
     .saved-section-header .saved-section-title {
       margin: 0;
       flex: 1;
+    }
+    .saved-count-number {
+      font-weight: 600;
+      color: #2563eb;
+    }
+    .saved-actions {
+      margin-top: 8px;
+      padding-top: 16px;
+      margin-bottom: 0;
+      border-top: 1px solid #E5E7EB;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .saved-primary-btn {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: #2563eb;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: Inter, sans-serif;
+    }
+    .saved-primary-btn:hover:not(:disabled) {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+    }
+    .saved-primary-btn:disabled {
+      background: #CBD5E1;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .saved-primary-btn:not(.visible) {
+      display: none;
+    }
+    .saved-secondary-btn {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      background: transparent;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: Inter, sans-serif;
+    }
+    .saved-secondary-btn:hover {
+      background: #F9FAFB;
+      border-color: #CBD5E1;
     }
     .saved-search-wrapper {
       position: relative;
@@ -1810,6 +1958,145 @@
     .saved-college-details {
       font-size: 12px;
       color: #64748b;
+    }
+    .saved-college-website-link {
+      font-size: 12px;
+      color: #2563eb;
+      text-decoration: none;
+      margin-left: 8px;
+      transition: color 0.2s;
+    }
+    .saved-college-website-link:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    /* Compare Mode Styles */
+    .saved-compare-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+      max-width: 100%;
+      overflow-y: visible;
+    }
+    .saved-compare-table-wrapper::-webkit-scrollbar {
+      height: 8px;
+    }
+    .saved-compare-table-wrapper::-webkit-scrollbar-track {
+      background: #F3F4F6;
+      border-radius: 4px;
+    }
+    .saved-compare-table-wrapper::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    .saved-compare-table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+    .saved-compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 600px;
+    }
+    /* Expand table to full width in compare mode */
+    .saved-compare-view .saved-compare-table-wrapper {
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      width: calc(100% + 40px);
+    }
+    @media (max-width: 768px) {
+      .saved-compare-view .saved-compare-table-wrapper {
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+        width: calc(100% + 32px);
+      }
+    }
+    .saved-compare-table th {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 2px solid #E5E7EB;
+      font-weight: 600;
+      color: #0f172a;
+      background: #F9FAFB;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .saved-compare-table th:first-child {
+      min-width: 120px;
+    }
+    .saved-compare-table td {
+      padding: 12px;
+      border-bottom: 1px solid #F3F4F6;
+      color: #374151;
+      vertical-align: top;
+    }
+    .saved-compare-table tr:last-child td {
+      border-bottom: none;
+    }
+    .saved-compare-table .saved-compare-label {
+      font-weight: 500;
+      color: #64748b;
+    }
+    .saved-compare-table .saved-compare-value {
+      color: #0f172a;
+    }
+    .saved-compare-table .saved-compare-website {
+      color: #2563eb;
+      text-decoration: none;
+      word-break: break-all;
+      word-wrap: break-word;
+      max-width: 200px;
+      display: inline-block;
+    }
+    .saved-compare-table .saved-compare-website:hover {
+      text-decoration: underline;
+    }
+    .saved-compare-table .saved-compare-unsave {
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 4px;
+      border: 1px solid #86efac;
+      background: #dcfce7;
+      color: #15803d;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .saved-compare-table .saved-compare-unsave:hover {
+      background: #bbf7d0;
+    }
+    .saved-list-view:not(.visible) {
+      display: none;
+    }
+    .saved-compare-view:not(.visible) {
+      display: none;
+    }
+    .saved-compare-disclaimer {
+      margin-top: 20px;
+      padding: 16px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+      background: #F9FAFB;
+      border-radius: 8px;
+      border: 1px solid #E5E7EB;
+    }
+    @media (max-width: 768px) {
+      .saved-colleges-modal {
+        width: 95%;
+        max-height: 85vh;
+      }
+      .saved-overlay-header {
+        padding: 16px;
+      }
+      .saved-overlay-content {
+        padding: 16px;
+      }
     }
     .saved-college-unsave-btn {
       flex-shrink: 0;
@@ -2477,8 +2764,8 @@
   </div>
     <div class="row row-ranking">
       <!-- Ranking will be moved here on mobile via JavaScript -->
-  </div>
-    
+</div>
+
     <details class="filter-section">
       <summary>Find Colleges Nearby</summary>
       <div class="filter-section-content">
@@ -2591,39 +2878,70 @@
     <!-- Filter chips -->
     <div id="filter-chips" class="filter-chips"></div>
     <!-- Saved Colleges Overlay -->
-    <div id="saved-colleges-overlay" class="saved-colleges-overlay">
-      <div class="saved-overlay-header">
-        <div class="saved-overlay-title-section">
-          <h2 class="saved-overlay-title">My Saved Colleges</h2>
-        </div>
-        <button class="saved-overlay-close" onclick="closeSavedListPanel()" aria-label="Close saved colleges panel">×</button>
-      </div>
-      <div class="saved-overlay-content">
-        <!-- Search & Add Section -->
-        <div class="saved-overlay-section">
-          <h3 class="saved-section-title">Add a college to my saved list</h3>
-          <div class="saved-search-wrapper">
-            <svg class="saved-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            <input 
-              type="text" 
-              id="saved-search-input" 
-              class="saved-search-input" 
-              placeholder="Search by college name…"
-              autocomplete="off"
-            />
-            <div id="saved-search-results" class="saved-search-results"></div>
+    <div id="saved-colleges-overlay" class="saved-colleges-overlay" onclick="handleSavedOverlayBackdropClick(event)">
+      <div class="saved-colleges-modal" onclick="event.stopPropagation()">
+        <div class="saved-overlay-header">
+          <div class="saved-overlay-title-section">
+            <h2 class="saved-overlay-title" id="saved-overlay-title">My Saved Colleges</h2>
+          </div>
+          <div class="saved-overlay-header-actions">
+            <button id="saved-print-btn" class="saved-print-btn" onclick="printCompareTable()" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+            </button>
+            <button id="saved-back-btn" class="saved-back-btn" onclick="closeCompareMode()" style="display: none;">↩</button>
+            <button class="saved-overlay-close" id="saved-overlay-close-btn" onclick="closeSavedListPanel()" aria-label="Close saved colleges panel">×</button>
           </div>
         </div>
-        <!-- Saved List Section -->
-        <div class="saved-overlay-section">
-          <div class="saved-section-header">
-            <h3 class="saved-section-title" id="saved-overlay-count">0 Colleges Saved</h3>
-            <button id="unsave-all-btn" class="unsave-all-btn" onclick="confirmUnsaveAll()" style="display: none;">Unsave all</button>
+        <div class="saved-overlay-content">
+          <!-- Saved List View -->
+          <div id="saved-list-view" class="saved-list-view visible">
+            <!-- Search & Add Section -->
+            <div class="saved-overlay-section">
+              <h3 class="saved-section-title">Add a college to my saved list</h3>
+              <div class="saved-search-wrapper">
+                <svg class="saved-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input 
+                  type="text" 
+                  id="saved-search-input" 
+                  class="saved-search-input" 
+                  placeholder="Search by college name…"
+                  autocomplete="off"
+                />
+                <div id="saved-search-results" class="saved-search-results"></div>
+              </div>
+            </div>
+            <!-- Saved List Section -->
+            <div class="saved-overlay-section">
+              <div class="saved-section-header">
+                <h3 class="saved-section-title" id="saved-overlay-count">0 Colleges Saved</h3>
+                <button id="unsave-all-btn" class="unsave-all-btn" onclick="confirmUnsaveAll()" style="display: none;">Unsave all</button>
+              </div>
+              <div id="saved-colleges-list" class="saved-colleges-list">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+            <!-- Actions Section -->
+            <div class="saved-overlay-section saved-actions">
+              <button id="saved-compare-btn-section" class="saved-primary-btn" onclick="openCompareMode()">Compare Colleges</button>
+              <button class="saved-secondary-btn" onclick="closeSavedListPanel()">Cancel</button>
+            </div>
           </div>
-          <div id="saved-colleges-list" class="saved-colleges-list">
-            <!-- Will be populated by JavaScript -->
+          <!-- Compare View -->
+          <div id="saved-compare-view" class="saved-compare-view">
+            <div class="saved-compare-table-wrapper">
+              <table class="saved-compare-table" id="saved-compare-table">
+                <!-- Will be populated by JavaScript -->
+              </table>
+            </div>
+            <div class="saved-compare-disclaimer">
+              Disclaimer: School information provided on this site is for general reference and may be incomplete or out of date. Details such as tuition, enrollment, and acceptance rate can change at any time. Students and families should always verify the latest information directly on each college's official website when making decisions.
+            </div>
           </div>
         </div>
       </div>
@@ -6094,6 +6412,15 @@ function closeSavedListPanel() {
       searchResults.classList.remove('active');
       searchResults.innerHTML = '';
     }
+    // Return to list view if in compare mode
+    closeCompareMode();
+  }
+}
+
+function handleSavedOverlayBackdropClick(event) {
+  // Close overlay if clicking on the backdrop (not on the content)
+  if (event.target.id === 'saved-colleges-overlay') {
+    closeSavedListPanel();
   }
 }
 
@@ -6102,14 +6429,33 @@ function updateSavedOverlay() {
   const countEl = document.getElementById('saved-overlay-count');
   const listEl = document.getElementById('saved-colleges-list');
   const unsaveAllBtn = document.getElementById('unsave-all-btn');
+  const compareBtn = document.getElementById('saved-compare-btn');
+  const compareBtnSection = document.getElementById('saved-compare-btn-section');
   
   if (countEl) {
-    countEl.textContent = `${savedIds.length} Colleges Saved`;
+    countEl.innerHTML = `<span class="saved-count-number">${savedIds.length}</span> Colleges Saved`;
   }
   
   if (unsaveAllBtn) {
     unsaveAllBtn.style.display = savedIds.length > 0 ? 'block' : 'none';
   }
+  
+  // Show compare button only when 2+ saved colleges (both header and section buttons)
+  if (compareBtn) {
+    if (savedIds.length >= 2) {
+      compareBtn.classList.add('visible');
+    } else {
+      compareBtn.classList.remove('visible');
+    }
+  }
+  if (compareBtnSection) {
+    if (savedIds.length >= 2) {
+      compareBtnSection.classList.add('visible');
+    } else {
+      compareBtnSection.classList.remove('visible');
+    }
+  }
+  
   
   if (listEl) {
     if (savedIds.length === 0) {
@@ -6124,11 +6470,12 @@ function updateSavedOverlay() {
         const college = collegesById[collegeId];
         if (!college) return '';
         const typeDisplay = college.type || 'Unknown';
+        const websiteLink = college.url ? `<a href="${escapeHtml(college.url)}" target="_blank" rel="noopener noreferrer" class="saved-college-website-link">website</a>` : '';
         return `
           <div class="saved-college-item" data-college-id="${collegeId}">
             <div class="saved-college-info">
               <div class="saved-college-name">${escapeHtml(college.name)}</div>
-              <div class="saved-college-details">${college.state} · ${escapeHtml(typeDisplay)}</div>
+              <div class="saved-college-details">${college.state} · ${escapeHtml(typeDisplay)}${websiteLink ? ' · ' + websiteLink : ''}</div>
             </div>
             <button class="saved-college-unsave-btn" onclick="unsaveCollegeFromOverlay('${collegeId}')">
               <span style="color: #16a34a;">★</span> Saved
@@ -6141,6 +6488,364 @@ function updateSavedOverlay() {
   
   // Update pill count indicator
   updateSavedPillCount();
+  
+  // Update compare table if in compare mode
+  if (document.getElementById('saved-compare-view')?.classList.contains('visible')) {
+    updateCompareTable();
+  }
+}
+
+/**
+ * Open compare mode - switch from list view to comparison table
+ */
+function openCompareMode() {
+  const listView = document.getElementById('saved-list-view');
+  const compareView = document.getElementById('saved-compare-view');
+  const titleEl = document.getElementById('saved-overlay-title');
+  const compareBtnSection = document.getElementById('saved-compare-btn-section');
+  const backBtn = document.getElementById('saved-back-btn');
+  const printBtn = document.getElementById('saved-print-btn');
+  const closeBtn = document.getElementById('saved-overlay-close-btn');
+  const modal = document.querySelector('.saved-colleges-modal');
+  
+  if (listView && compareView) {
+    listView.classList.remove('visible');
+    compareView.classList.add('visible');
+    if (titleEl) titleEl.textContent = 'Compare Colleges';
+    if (compareBtnSection) compareBtnSection.classList.remove('visible');
+    if (backBtn) backBtn.style.display = 'flex';
+    if (printBtn) printBtn.style.display = 'flex';
+    if (closeBtn) closeBtn.style.display = 'none';
+    if (modal) modal.classList.add('compare-mode');
+    updateCompareTable();
+  }
+}
+
+/**
+ * Close compare mode - switch back to list view
+ */
+function closeCompareMode() {
+  const listView = document.getElementById('saved-list-view');
+  const compareView = document.getElementById('saved-compare-view');
+  const titleEl = document.getElementById('saved-overlay-title');
+  const compareBtn = document.getElementById('saved-compare-btn');
+  const compareBtnSection = document.getElementById('saved-compare-btn-section');
+  const backBtn = document.getElementById('saved-back-btn');
+  const printBtn = document.getElementById('saved-print-btn');
+  const closeBtn = document.getElementById('saved-overlay-close-btn');
+  const modal = document.querySelector('.saved-colleges-modal');
+  
+  if (listView && compareView) {
+    listView.classList.add('visible');
+    compareView.classList.remove('visible');
+    if (titleEl) titleEl.textContent = 'My Saved Colleges';
+    if (backBtn) backBtn.style.display = 'none';
+    if (printBtn) printBtn.style.display = 'none';
+    if (closeBtn) closeBtn.style.display = 'flex';
+    if (modal) modal.classList.remove('compare-mode');
+    const savedIds = SavedStore.getAll();
+    if (compareBtn && savedIds.length >= 2) {
+      compareBtn.classList.add('visible');
+    }
+    if (compareBtnSection && savedIds.length >= 2) {
+      compareBtnSection.classList.add('visible');
+    }
+  }
+}
+
+/**
+ * Update the comparison table with saved colleges
+ */
+function updateCompareTable() {
+  const savedIds = SavedStore.getAll();
+  const tableEl = document.getElementById('saved-compare-table');
+  
+  if (!tableEl) return;
+  
+  if (savedIds.length < 2) {
+    // If fewer than 2 colleges, exit compare mode
+    closeCompareMode();
+    return;
+  }
+  
+  // Get college data
+  const colleges = savedIds.map(id => collegesById[id]).filter(Boolean);
+  
+  if (colleges.length === 0) {
+    tableEl.innerHTML = '<tr><td colspan="' + (savedIds.length + 1) + '">No colleges to compare.</td></tr>';
+    return;
+  }
+  
+  // Build table header with college names
+  let html = '<thead><tr><th>Attribute</th>';
+  colleges.forEach(college => {
+    html += `<th>${escapeHtml(college.name)}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  
+  // Build rows for each attribute
+  const attributes = [
+    { label: 'Type of school', key: 'type', fallback: 'Unknown' },
+    { label: 'Acceptance rate', key: 'acceptance', fallback: 'N/A', format: (v) => {
+        if (!v || v === 'N/A' || v === 'Unknown') return 'N/A';
+        return v.includes('%') ? v : v + '%';
+      } },
+    { label: 'Enrollment', key: 'enrollment', fallback: 'N/A' },
+    { label: 'Tuition', key: 'tuition', fallback: 'N/A', format: (v) => {
+        if (!v || v === 'N/A' || v === 'Unknown') return 'N/A';
+        // Remove any non-numeric characters except decimal point, then convert to integer
+        const numStr = String(v).replace(/[^0-9.]/g, '');
+        const num = parseFloat(numStr);
+        if (isNaN(num)) return 'N/A';
+        return '$' + Math.floor(num).toLocaleString();
+      } },
+    { label: 'Website', key: 'url', fallback: 'N/A', isLink: true },
+    { label: 'Action', key: 'action', isAction: true }
+  ];
+  
+  attributes.forEach(attr => {
+    html += '<tr>';
+    html += `<td class="saved-compare-label">${escapeHtml(attr.label)}</td>`;
+    
+    colleges.forEach(college => {
+      html += '<td class="saved-compare-value">';
+      
+      if (attr.isAction) {
+        // Unsave button
+        html += `<button class="saved-compare-unsave" onclick="unsaveCollegeFromCompare('${college.college_id}')">Unsave</button>`;
+      } else if (attr.isLink) {
+        // Website link
+        if (college.url) {
+          html += `<a href="${escapeHtml(college.url)}" target="_blank" rel="noopener noreferrer" class="saved-compare-website">Site Link</a>`;
+        } else {
+          html += 'N/A';
+        }
+      } else {
+        // Regular value
+        let value = college[attr.key] || attr.fallback || 'N/A';
+        if (attr.format) {
+          value = attr.format(value);
+        }
+        html += escapeHtml(value);
+      }
+      
+      html += '</td>';
+    });
+    
+    html += '</tr>';
+  });
+  
+  html += '</tbody>';
+  tableEl.innerHTML = html;
+}
+
+/**
+ * Print the comparison table
+ */
+function printCompareTable() {
+  const savedIds = SavedStore.getAll();
+  const colleges = savedIds.map(id => collegesById[id]).filter(Boolean);
+  
+  if (colleges.length < 2) return;
+  
+  // Split colleges into chunks of 10
+  const chunkSize = 10;
+  const collegeChunks = [];
+  for (let i = 0; i < colleges.length; i += chunkSize) {
+    collegeChunks.push(colleges.slice(i, i + chunkSize));
+  }
+  
+  // Build rows for each attribute
+  const attributes = [
+    { label: 'Type of school', key: 'type', fallback: 'Unknown' },
+    { label: 'Acceptance rate', key: 'acceptance', fallback: 'N/A', format: (v) => {
+        if (!v || v === 'N/A' || v === 'Unknown') return 'N/A';
+        return v.includes('%') ? v : v + '%';
+      } },
+    { label: 'Enrollment', key: 'enrollment', fallback: 'N/A' },
+    { label: 'Tuition', key: 'tuition', fallback: 'N/A', format: (v) => {
+        if (!v || v === 'N/A' || v === 'Unknown') return 'N/A';
+        const numStr = String(v).replace(/[^0-9.]/g, '');
+        const num = parseFloat(numStr);
+        if (isNaN(num)) return 'N/A';
+        return '$' + Math.floor(num).toLocaleString();
+      } },
+    { label: 'Website', key: 'url', fallback: 'N/A', isLink: true }
+  ];
+  
+  // Function to build a table for a chunk of colleges
+  function buildTable(chunk, tableNumber, totalTables) {
+    const numCols = chunk.length + 1; // +1 for Attribute column
+    const attributeColWidth = '15%';
+    const collegeColWidth = `${85 / chunk.length}%`;
+    
+    let tableHTML = '';
+    if (totalTables > 1) {
+      tableHTML += `<h2 style="font-size: 18px; margin: 30px 0 15px 0; color: #0f172a;">Table ${tableNumber} of ${totalTables}</h2>`;
+    }
+    
+    tableHTML += `
+      <table style="table-layout: fixed; width: 100%; margin-bottom: ${totalTables > 1 ? '40px' : '20px'};">
+        <thead>
+          <tr>
+            <th style="width: ${attributeColWidth};">Attribute</th>
+    `;
+    
+    chunk.forEach(college => {
+      tableHTML += `<th style="width: ${collegeColWidth};">${escapeHtml(college.name)}</th>`;
+    });
+    
+    tableHTML += `
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    attributes.forEach(attr => {
+      tableHTML += '<tr>';
+      tableHTML += `<td class="label" style="width: ${attributeColWidth};">${escapeHtml(attr.label)}</td>`;
+      
+      chunk.forEach(college => {
+        tableHTML += `<td style="width: ${collegeColWidth};">`;
+        
+        if (attr.isLink) {
+          if (college.url) {
+            tableHTML += `<a href="${escapeHtml(college.url)}">${escapeHtml(college.url)}</a>`;
+          } else {
+            tableHTML += 'N/A';
+          }
+        } else {
+          let value = college[attr.key] || attr.fallback || 'N/A';
+          if (attr.format) {
+            value = attr.format(value);
+          }
+          tableHTML += escapeHtml(value);
+        }
+        
+        tableHTML += '</td>';
+      });
+      
+      tableHTML += '</tr>';
+    });
+    
+    tableHTML += `
+        </tbody>
+      </table>
+    `;
+    
+    return tableHTML;
+  }
+  
+  // Build all tables
+  let tablesHTML = '';
+  collegeChunks.forEach((chunk, index) => {
+    tablesHTML += buildTable(chunk, index + 1, collegeChunks.length);
+  });
+  
+  // Create a print-friendly version of the table
+  let printHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Compare Colleges</title>
+      <style>
+        @page {
+          margin: 1cm;
+          size: landscape;
+        }
+        body {
+          font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          margin: 0;
+          padding: 20px;
+          font-size: 12px;
+        }
+        h1 {
+          font-size: 24px;
+          margin: 0 0 20px 0;
+          color: #0f172a;
+        }
+        h2 {
+          page-break-after: avoid;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 11px;
+          table-layout: fixed;
+          page-break-inside: auto;
+        }
+        tr {
+          page-break-inside: avoid;
+          page-break-after: auto;
+        }
+        th {
+          text-align: left;
+          padding: 10px 8px;
+          border-bottom: 2px solid #E5E7EB;
+          font-weight: 600;
+          color: #0f172a;
+          background: #F9FAFB;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        td {
+          padding: 10px 8px;
+          border-bottom: 1px solid #F3F4F6;
+          color: #374151;
+          vertical-align: top;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        tr:last-child td {
+          border-bottom: none;
+        }
+        .label {
+          font-weight: 500;
+          color: #64748b;
+        }
+        a {
+          color: #2563eb;
+          text-decoration: none;
+          word-break: break-all;
+        }
+        @media print {
+          body { margin: 0; padding: 10px; }
+          .no-print { display: none; }
+          table { page-break-inside: avoid; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Compare Colleges</h1>
+      ${tablesHTML}
+      <div style="margin-top: 20px; padding: 16px; font-size: 10px; color: #64748b; line-height: 1.6;">
+        Disclaimer: School information provided on this site is for general reference and may be incomplete or out of date. Details such as tuition, enrollment, and acceptance rate can change at any time. Students and families should always verify the latest information directly on each college's official website when making decisions.
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // Open print window
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return;
+  
+  printWindow.document.write(printHTML);
+  printWindow.document.close();
+  
+  // Wait for content to load, then print
+  printWindow.onload = function() {
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  };
+}
+
+/**
+ * Unsave a college from compare mode
+ */
+function unsaveCollegeFromCompare(collegeId) {
+  unsaveCollegeFromOverlay(collegeId);
+  // updateCompareTable will be called by updateSavedOverlay
 }
 
 /**
@@ -6457,10 +7162,16 @@ function unsaveCollegeFromOverlay(collegeId) {
     
     SavedStore.toggle(collegeId);
     updateMarkerIcon(collegeId);
-    updateSavedOverlay();
     
     // Rule 3: Check if SavedStore becomes empty while saved-only is ON
     const savedIdsAfter = SavedStore.getAll();
+    
+    // Check if we need to exit compare mode (fewer than 2 colleges)
+    if (savedIdsAfter.length < 2 && document.getElementById('saved-compare-view')?.classList.contains('visible')) {
+      closeCompareMode();
+    }
+    
+    updateSavedOverlay();
     if (savedIdsAfter.length === 0 && savedOnlyMode) {
       // Auto-turn OFF toggle
       savedOnlyMode = false;
@@ -6595,6 +7306,12 @@ function unsaveAllColleges() {
   });
   
   closeUnsaveAllModal();
+  
+  // Exit compare mode if active (will have 0 colleges after unsave all)
+  if (document.getElementById('saved-compare-view')?.classList.contains('visible')) {
+    closeCompareMode();
+  }
+  
   updateSavedOverlay();
 
   // Rule 3: If Saved Only was on and SavedStore is now empty, turn it off and show hint
