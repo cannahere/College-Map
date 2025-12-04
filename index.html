@@ -4379,15 +4379,48 @@ map.on('popupopen', (event) => {
     sourceMarker.closeTooltip();
   }
   
-  // Disable tooltips on all markers when popup is open
-  markersLayer.eachLayer((layer) => {
-    if (layer.getTooltip && layer.getTooltip()) {
-      const tooltip = layer.getTooltip();
-      const tooltipContent = tooltip.getContent();
-      // Store tooltip content to restore later
-      tooltipStates.set(layer, tooltipContent);
-      // Unbind tooltip to prevent it from showing on hover
-      layer.unbindTooltip();
+  // Disable tooltips on visible markers only (performance optimization for mobile)
+  // Defer this operation to not block popup opening
+  requestAnimationFrame(() => {
+    const bounds = map.getBounds();
+    let processedCount = 0;
+    const maxProcessPerFrame = 50; // Process in batches to avoid blocking
+    
+    markersLayer.eachLayer((layer) => {
+      // Only process markers visible in current viewport
+      if (bounds.contains(layer.getLatLng())) {
+        if (layer.getTooltip && layer.getTooltip()) {
+          const tooltip = layer.getTooltip();
+          const tooltipContent = tooltip.getContent();
+          // Store tooltip content to restore later
+          tooltipStates.set(layer, tooltipContent);
+          // Unbind tooltip to prevent it from showing on hover
+          layer.unbindTooltip();
+          processedCount++;
+          
+          // If we've processed many markers, defer the rest
+          if (processedCount >= maxProcessPerFrame) {
+            return false; // Stop iteration
+          }
+        }
+      }
+    });
+    
+    // If there are more markers to process, continue in next frame
+    if (processedCount >= maxProcessPerFrame) {
+      setTimeout(() => {
+        const bounds = map.getBounds();
+        markersLayer.eachLayer((layer) => {
+          if (bounds.contains(layer.getLatLng()) && layer.getTooltip && layer.getTooltip()) {
+            const tooltip = layer.getTooltip();
+            const tooltipContent = tooltip.getContent();
+            if (!tooltipStates.has(layer)) {
+              tooltipStates.set(layer, tooltipContent);
+              layer.unbindTooltip();
+            }
+          }
+        });
+      }, 0);
     }
   });
   
@@ -4578,15 +4611,46 @@ map.on('popupopen', (event) => {
   }
 });
 
-// Handle popup close: re-enable tooltips on all markers
+// Handle popup close: re-enable tooltips on visible markers
 map.on('popupclose', () => {
-  // Re-enable tooltips on all markers when popup closes
-  markersLayer.eachLayer((layer) => {
-    const tooltipContent = tooltipStates.get(layer);
-    if (tooltipContent) {
-      // Rebind tooltip with stored content
-      layer.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
-      tooltipStates.delete(layer);
+  // Re-enable tooltips on visible markers only (performance optimization)
+  // Defer to avoid blocking UI
+  requestAnimationFrame(() => {
+    const bounds = map.getBounds();
+    let processedCount = 0;
+    const maxProcessPerFrame = 50;
+    
+    markersLayer.eachLayer((layer) => {
+      // Only process markers visible in current viewport
+      if (bounds.contains(layer.getLatLng())) {
+        const tooltipContent = tooltipStates.get(layer);
+        if (tooltipContent) {
+          // Rebind tooltip with stored content
+          layer.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
+          tooltipStates.delete(layer);
+          processedCount++;
+          
+          if (processedCount >= maxProcessPerFrame) {
+            return false; // Stop iteration
+          }
+        }
+      }
+    });
+    
+    // If there are more markers to process, continue in next frame
+    if (processedCount >= maxProcessPerFrame) {
+      setTimeout(() => {
+        const bounds = map.getBounds();
+        markersLayer.eachLayer((layer) => {
+          if (bounds.contains(layer.getLatLng())) {
+            const tooltipContent = tooltipStates.get(layer);
+            if (tooltipContent) {
+              layer.bindTooltip(tooltipContent, {permanent: false, direction: 'top'});
+              tooltipStates.delete(layer);
+            }
+          }
+        });
+      }, 0);
     }
   });
 });
@@ -7102,7 +7166,7 @@ function initSavedSearch() {
             </div>
             <button class="saved-search-result-save-btn ${isSaved ? 'saved' : ''}" 
                     data-college-id="${collegeIdEscaped}"
-                    onclick="saveCollegeFromSearch('${collegeIdEscaped.replace(/'/g, "\\'")}')">
+                    onclick="event.stopPropagation(); saveCollegeFromSearch('${collegeIdEscaped.replace(/'/g, "\\'")}');">
               <span style="color: ${isSaved ? '#16a34a' : '#64748b'}; display: inline-block; width: 12px; text-align: center; line-height: 1;">${isSaved ? '★' : '☆'}</span>
               ${isSaved ? 'Saved' : 'Save'}
             </button>
@@ -7120,13 +7184,31 @@ function initSavedSearch() {
   document.addEventListener('click', (e) => {
     const searchInput = document.getElementById('saved-search-input');
     if (!searchInput) return;
+    const resultsEl = document.getElementById('saved-search-results');
+    if (!resultsEl) return;
+    
     const searchWrapper = searchInput.closest('.saved-search-wrapper');
+    // Close if clicking outside the search wrapper
     if (searchWrapper && !searchWrapper.contains(e.target)) {
+      resultsEl.classList.remove('active');
+      resultsEl.innerHTML = '';
+    }
+  });
+  
+  // Also close on blur (when input loses focus)
+  searchInput.addEventListener('blur', (e) => {
+    // Use setTimeout to allow click events on dropdown items to fire first
+    setTimeout(() => {
       const resultsEl = document.getElementById('saved-search-results');
       if (resultsEl) {
-        resultsEl.classList.remove('active');
+        const searchWrapper = searchInput.closest('.saved-search-wrapper');
+        // Only close if focus didn't move to a dropdown item
+        if (!searchWrapper || !searchWrapper.contains(document.activeElement)) {
+          resultsEl.classList.remove('active');
+          resultsEl.innerHTML = '';
+        }
       }
-    }
+    }, 200);
   });
 }
 
@@ -7154,6 +7236,15 @@ function saveCollegeFromSearch(collegeId) {
       `;
     }
   }
+  
+  // Close dropdown after saving (standard UX: keep search term in input)
+  if (resultsEl) {
+    resultsEl.classList.remove('active');
+    resultsEl.innerHTML = '';
+  }
+  
+  // Keep search input value (standard practice - allows user to refine search or save more colleges)
+  // This follows the pattern used by Google, GitHub, Amazon, Slack, and other major platforms
   
   // Re-render if saved-only mode is on
   if (savedOnlyMode) {
