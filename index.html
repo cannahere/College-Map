@@ -101,7 +101,7 @@
   <link rel="dns-prefetch" href="https://unpkg.com">
   <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -2740,9 +2740,1273 @@
         margin: 20px;
       }
     }
+    /* Onboarding Overlay Styles */
+    .onboarding-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #F8F8F8;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Inter, sans-serif;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .onboarding-overlay.active {
+      display: flex;
+    }
+    /* Decorative blue shapes - adjusted positioning */
+    .onboarding-overlay::before {
+      content: '';
+      position: absolute;
+      top: -50px; /* Moved up more to show less of the circle */
+      left: 0;
+      width: 120px;
+      height: 120px;
+      background: #2F80ED;
+      border-radius: 0 0 120px 0;
+      opacity: 1;
+      z-index: 0;
+    }
+    .onboarding-overlay::after {
+      content: '';
+      position: absolute;
+      bottom: -50px; /* Moved down more to show less of the circle */
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: #2F80ED;
+      border-radius: 120px 0 0 0;
+      opacity: 1;
+      z-index: 0;
+    }
+    /* Tablet: Larger corner circles to reduce white space */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-overlay::before {
+        width: 180px; /* Increased from 120px (50% larger) */
+        height: 180px; /* Increased from 120px */
+        top: -60px; /* Adjusted to show similar proportion */
+        border-radius: 0 0 180px 0;
+      }
+      .onboarding-overlay::after {
+        width: 180px; /* Increased from 120px (50% larger) */
+        height: 180px; /* Increased from 120px */
+        bottom: -60px; /* Adjusted to show similar proportion */
+        border-radius: 180px 0 0 0;
+      }
+    }
+    .onboarding-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    /* Mobile: Full screen */
+    @media (max-width: 768px) {
+      .onboarding-container {
+        padding: 16px;
+      }
+    }
+    /* Tablet: Hide onboarding */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-overlay {
+        display: none !important;
+      }
+    }
+    /* Desktop: Hide onboarding */
+    @media (min-width: 1025px) {
+      .onboarding-overlay {
+        display: none !important;
+      }
+    }
+    /* Back Button */
+    .onboarding-back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: transparent;
+      border: none;
+      color: #e2e8f0; /* Very light gray, close to white */
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      z-index: 100; /* Higher z-index to ensure it's clickable */
+      pointer-events: auto; /* Ensure clicks work */
+    }
+    .onboarding-back-btn:hover {
+      background: #F9FAFB;
+      color: #cbd5e1; /* Slightly darker gray on hover */
+    }
+    .onboarding-back-btn svg {
+      stroke: currentColor; /* Ensure SVG uses the color */
+    }
+    .onboarding-back-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+    @media (max-width: 768px) {
+      .onboarding-back-btn {
+        top: 16px;
+        left: 16px;
+      }
+    }
+    /* Skip Button - Now positioned below Next button */
+    .onboarding-skip-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.2s;
+      z-index: 10;
+      font-family: Inter, sans-serif;
+      margin-top: 12px;
+      display: inline-block;
+      text-align: center;
+    }
+    /* First and last page skip button - percentage-based sizing */
+    .onboarding-page[data-page="1"] .onboarding-skip-btn,
+    .onboarding-page[data-page="7"] .onboarding-skip-btn {
+      padding: 1.2vh 2vw; /* 1.2% viewport height × 2% viewport width */
+      font-size: 1.8vw; /* Responsive to viewport width */
+      margin-top: 1.8vh; /* ~1.8% of viewport height */
+    }
+    .onboarding-skip-btn:hover {
+      color: #475569;
+    }
+    @media (max-width: 768px) {
+      .onboarding-skip-btn {
+        font-size: 3.2vw;
+        margin-top: 1.2vh;
+      }
+      /* First and last page skip button - 1/3 from top of space between Next button and dots, Mont font */
+      .onboarding-page[data-page="1"] .onboarding-skip-btn,
+      .onboarding-page[data-page="7"] .onboarding-skip-btn {
+        position: absolute;
+        bottom: 18.15vh; /* 1/3 from top of space: Next (22.22vh) - (12.22vh/3) = 18.15vh from bottom */
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 3.2vw;
+        font-weight: 500; /* Slightly fatter */
+        font-style: normal;
+        letter-spacing: 0.02em; /* Slightly tighter for square-ish look */
+        margin-top: 0;
+        padding: 1vh 3vw;
+        text-align: center;
+        color: #94a3b8; /* Gray color */
+        font-family: 'Montserrat', 'Mont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; /* Mont or Montserrat font */
+      }
+      .onboarding-page[data-page="1"] .onboarding-skip-btn:hover,
+      .onboarding-page[data-page="7"] .onboarding-skip-btn:hover {
+        color: #64748b; /* Slightly darker gray on hover */
+      }
+    }
+    /* Tablet sizing for first/last page skip button */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-page[data-page="1"] .onboarding-skip-btn,
+      .onboarding-page[data-page="7"] .onboarding-skip-btn {
+        font-size: 2vw; /* Slightly larger on tablet */
+        margin-top: 2vh; /* ~2% of viewport height */
+        padding: 1.3vh 2.2vw; /* 1.3% viewport height × 2.2% viewport width */
+      }
+    }
+    /* Button container for proper stacking */
+    .onboarding-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .onboarding-next-btn,
+    .onboarding-get-started-btn,
+    .onboarding-skip-btn {
+      align-self: center;
+    }
+    /* Pages Container */
+    .onboarding-pages {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: hidden;
+      padding-top: 20px;
+    }
+    /* Individual Page */
+    .onboarding-page {
+      position: absolute;
+      width: 100%;
+      max-width: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      padding: 20px 0;
+      min-height: 100vh; /* Ensure full height for absolute positioning */
+    }
+    /* Pages 2-6: Ensure same positioning context as page 1 */
+    .onboarding-page[data-page="2"],
+    .onboarding-page[data-page="3"],
+    .onboarding-page[data-page="4"],
+    .onboarding-page[data-page="5"],
+    .onboarding-page[data-page="6"] {
+      position: relative;
+      min-height: 100vh;
+    }
+    /* Tablet: Ensure pages 2-6 have proper positioning context */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-page[data-page="2"],
+      .onboarding-page[data-page="3"],
+      .onboarding-page[data-page="4"],
+      .onboarding-page[data-page="5"],
+      .onboarding-page[data-page="6"] {
+        position: relative;
+        min-height: 100vh;
+      }
+    }
+    /* First and last pages - absolute positioning for precise placement */
+    .onboarding-page[data-page="1"],
+    .onboarding-page[data-page="7"] {
+      position: relative;
+      justify-content: flex-start;
+      padding-top: 0;
+      min-height: 100vh;
+      gap: 0;
+    }
+    @media (max-width: 768px) {
+      .onboarding-page[data-page="1"],
+      .onboarding-page[data-page="7"] {
+        padding-top: 0;
+      }
+    }
+    /* Tablet padding for first/last pages - removed since using absolute positioning */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-page[data-page="1"],
+      .onboarding-page[data-page="7"] {
+        padding-top: 0; /* No padding, using absolute positioning like mobile */
+      }
+    }
+    .onboarding-page.active {
+      display: flex;
+      opacity: 1;
+      transform: translateX(0);
+      position: relative;
+    }
+    .onboarding-page.prev {
+      transform: translateX(-100%);
+    }
+    .onboarding-page.next {
+      transform: translateX(100%);
+    }
+    /* Icon animations */
+    @keyframes riseUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes dropDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    /* Icon */
+    .onboarding-icon {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .onboarding-icon img {
+      width: auto;
+      height: auto;
+      max-width: 120px;
+      max-height: 120px;
+      /* Make icons transparent - works for PNG with transparent background */
+      background: transparent !important;
+    }
+    /* For SVG icons - ensure transparency */
+    .onboarding-icon img[src$=".svg"] {
+      background: transparent !important;
+      opacity: 1;
+    }
+    /* For PNG icons - ensure transparency works */
+    .onboarding-icon img[src$=".png"] {
+      background: transparent !important;
+    }
+    /* Alternative: if SVG has white background, use blend mode (may affect colors) */
+    .onboarding-icon img[src*="page-1-icon"],
+    .onboarding-icon img[src*="page-7-icon"] {
+      /* For icon-only pages, ensure transparency */
+      background: transparent !important;
+    }
+    /* First and last page icons - percentage-based sizing and spacing */
+    .onboarding-page[data-page="1"] .onboarding-icon,
+    .onboarding-page[data-page="7"] .onboarding-icon {
+      margin-bottom: 5vh; /* ~5% of viewport height */
+    }
+    .onboarding-page[data-page="1"] .onboarding-icon img,
+    .onboarding-page[data-page="7"] .onboarding-icon img {
+      width: 25vw; /* 25% of viewport width */
+      height: auto;
+      max-width: 25vw;
+      max-height: 25vw; /* Keep square aspect ratio */
+    }
+    @media (max-width: 768px) {
+      .onboarding-icon {
+        margin-bottom: 2.5vh;
+      }
+      .onboarding-icon img {
+        max-width: 100px;
+        max-height: 100px;
+      }
+      /* First and last page icons - 1/6 screen width, top at 1/9 from top */
+      .onboarding-page[data-page="1"] .onboarding-icon,
+      .onboarding-page[data-page="7"] .onboarding-icon {
+        position: absolute;
+        top: 11.11vh; /* 1/9 from top */
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 0;
+        opacity: 0;
+      }
+      /* Apply animations on mobile */
+      .onboarding-page[data-page="1"] .onboarding-icon {
+        animation: iconRise 0.6s ease-out forwards;
+      }
+      .onboarding-page[data-page="7"] .onboarding-icon {
+        animation: iconDrop 0.6s ease-out forwards;
+      }
+      .onboarding-page[data-page="1"] .onboarding-icon img,
+      .onboarding-page[data-page="7"] .onboarding-icon img {
+        width: 30vw !important; /* 10% smaller than 33.34vw = 30vw for mobile */
+        max-width: 30vw !important; /* Override any 100px limit */
+        max-height: 30vw !important;
+        height: auto;
+        min-width: 30vw !important; /* Ensure minimum size */
+      }
+    }
+    /* Tablet sizing for first/last page icons */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-page[data-page="1"] .onboarding-icon,
+      .onboarding-page[data-page="7"] .onboarding-icon {
+        position: absolute;
+        top: 11.11vh; /* 1/9 from top, same as mobile */
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 0;
+        opacity: 0;
+      }
+      /* Apply animations on tablet */
+      .onboarding-page[data-page="1"] .onboarding-icon {
+        animation: iconRise 0.6s ease-out forwards;
+      }
+      .onboarding-page[data-page="7"] .onboarding-icon {
+        animation: iconDrop 0.6s ease-out forwards;
+      }
+      .onboarding-page[data-page="1"] .onboarding-icon img,
+      .onboarding-page[data-page="7"] .onboarding-icon img {
+        width: 16.67vw !important; /* 1/6 of viewport width, same as mobile */
+        max-width: 16.67vw !important;
+        max-height: 16.67vw !important;
+        min-width: 16.67vw !important;
+        height: auto;
+      }
+    }
+    /* Icon animations */
+    @keyframes iconRise {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+    @keyframes iconDrop {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+    /* Apply rise animation to globe icon (page 1) */
+    .onboarding-page[data-page="1"] .onboarding-icon {
+      opacity: 0;
+      animation: iconRise 0.6s ease-out forwards;
+    }
+    /* Apply drop animation to green location icon (page 7) */
+    .onboarding-page[data-page="7"] .onboarding-icon {
+      opacity: 0;
+      animation: iconDrop 0.6s ease-out forwards;
+    }
+    /* Title */
+    .onboarding-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 24px 0;
+      line-height: 1.3;
+    }
+    /* First and last page titles - percentage-based sizing */
+    .onboarding-page[data-page="1"] .onboarding-title,
+    .onboarding-page[data-page="7"] .onboarding-title {
+      font-size: 4.5vw; /* Responsive to viewport width */
+      margin-bottom: 3.5vh; /* ~3.5% of viewport height */
+      line-height: 1.2;
+    }
+    @media (max-width: 768px) {
+      .onboarding-title {
+        font-size: 24px;
+        margin-bottom: 2.5vh;
+      }
+      /* Pages 2-6: Title positioned below 1/9 from top with 1/6 screen width padding */
+      .onboarding-page[data-page="2"] .onboarding-title,
+      .onboarding-page[data-page="3"] .onboarding-title,
+      .onboarding-page[data-page="4"] .onboarding-title,
+      .onboarding-page[data-page="5"] .onboarding-title,
+      .onboarding-page[data-page="6"] .onboarding-title {
+        position: absolute;
+        top: 9vh; /* Below 1/9 from top */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Center horizontally */
+        width: auto;
+        padding: 0; /* Remove padding */
+        margin: 0; /* Remove margin */
+        text-align: center;
+        box-sizing: border-box;
+        font-size: 5.5vw !important; /* Adjusted to keep titles in one line on most devices */
+        line-height: 1.2; /* Tighter line height to keep in one line */
+        white-space: nowrap; /* Prevent title from wrapping to multiple lines */
+        overflow: hidden; /* Hide overflow if text is too long */
+        text-overflow: ellipsis; /* Show ellipsis if text overflows */
+      }
+      /* First and last page titles - center of two lines at 1/3 from top, 3/4 page width, more spacing between lines */
+      .onboarding-page[data-page="1"] .onboarding-title,
+      .onboarding-page[data-page="7"] .onboarding-title {
+        position: absolute;
+        top: 33.33vh; /* 1/3 from top */
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center vertically on the 1/3 line */
+        width: 75%; /* 3/4 of page width */
+        text-align: center;
+        font-size: 7.5vw; /* Increased to make widest part 3/4 of page width */
+        margin-bottom: 0;
+        line-height: 1.5; /* Increased from 1.2 to 1.5 for more spacing between lines */
+      }
+      /* Add extra spacing between the two lines of the title */
+      .onboarding-page[data-page="1"] .onboarding-title br,
+      .onboarding-page[data-page="7"] .onboarding-title br {
+        display: block;
+        content: '';
+        margin-top: 0.5vh; /* Add spacing after the line break */
+      }
+    }
+    /* Tablet sizing for first/last page titles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-page[data-page="1"] .onboarding-title,
+      .onboarding-page[data-page="7"] .onboarding-title {
+        position: absolute;
+        top: 33.33vh; /* 1/3 from top, same as mobile */
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center vertically on the 1/3 line */
+        width: 75%; /* 3/4 of container width, same as mobile */
+        text-align: center;
+        font-size: 4.5vw !important; /* Adjusted for tablet */
+        margin-bottom: 0;
+        line-height: 1.5; /* Same as mobile */
+      }
+      .onboarding-page[data-page="1"] .onboarding-title br,
+      .onboarding-page[data-page="7"] .onboarding-title br {
+        display: block;
+        content: '';
+        margin-top: 0.5vh; /* Same spacing as mobile */
+      }
+      /* Pages 2-6: Title positioned above screenshots, centered, no margin/padding */
+      .onboarding-page[data-page="2"] .onboarding-title,
+      .onboarding-page[data-page="3"] .onboarding-title,
+      .onboarding-page[data-page="4"] .onboarding-title,
+      .onboarding-page[data-page="5"] .onboarding-title,
+      .onboarding-page[data-page="6"] .onboarding-title {
+        position: absolute;
+        top: 4vh !important; /* Moved higher to ensure it's above screenshots */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Center horizontally */
+        width: auto;
+        padding: 0; /* Remove padding */
+        margin: 0; /* Remove margin */
+        text-align: center;
+        box-sizing: border-box;
+        font-size: 5vw !important; /* Increased font size for tablet */
+        line-height: 1.2; /* Tighter line height */
+        white-space: nowrap; /* Prevent title from wrapping */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        z-index: 10; /* Ensure title is above screenshot */
+      }
+    }
+    /* Description */
+    .onboarding-description {
+      font-size: 16px;
+      color: #64748b;
+      line-height: 1.6;
+      margin: 0 0 32px 0;
+      max-width: 600px;
+    }
+    /* Add spacing between paragraphs on first and last page - percentage-based */
+    .onboarding-page[data-page="1"] .onboarding-description,
+    .onboarding-page[data-page="7"] .onboarding-description {
+      display: flex;
+      flex-direction: column;
+      gap: 2.2vh; /* ~2.2% of viewport height between paragraphs */
+      margin-bottom: 5vh; /* ~5% of viewport height */
+      font-size: 2.2vw; /* Responsive to viewport width */
+      line-height: 1.6;
+      max-width: 85%; /* 85% of container width */
+      width: 85%;
+    }
+    .onboarding-page[data-page="1"] .onboarding-description span,
+    .onboarding-page[data-page="7"] .onboarding-description span {
+      display: block;
+    }
+    .onboarding-page[data-page="1"] .onboarding-description span:first-child,
+    .onboarding-page[data-page="7"] .onboarding-description span:first-child {
+      margin-bottom: 2.2vh; /* Same gap as flex gap */
+    }
+    @media (max-width: 768px) {
+      .onboarding-description {
+        font-size: 14px;
+        margin-bottom: 3.5vh;
+        padding: 0 4vw; /* 4% of viewport width */
+      }
+      /* First and last page descriptions - pushed down a bit, same color as title, reduced gap */
+      .onboarding-page[data-page="1"] .onboarding-description,
+      .onboarding-page[data-page="7"] .onboarding-description {
+        position: absolute;
+        top: 55vh; /* Pushed down from 50vh to 55vh */
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center vertically and horizontally */
+        font-size: 3.8vw;
+        gap: 1.5vh; /* Reduced from 2.2vh to 1.5vh */
+        margin-bottom: 0;
+        padding: 0 5vw;
+        line-height: 1.5;
+        max-width: 88%;
+        width: 88%;
+        text-align: center;
+        color: #0f172a; /* Same color as title */
+      }
+      .onboarding-page[data-page="1"] .onboarding-description span:first-child,
+      .onboarding-page[data-page="7"] .onboarding-description span:first-child {
+        margin-bottom: 1.5vh; /* Reduced to match gap */
+      }
+    }
+    /* Tablet sizing for first/last page descriptions */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .onboarding-page[data-page="1"] .onboarding-description,
+      .onboarding-page[data-page="7"] .onboarding-description {
+        position: absolute;
+        top: 55vh; /* Same as mobile */
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center vertically and horizontally */
+        font-size: 2.8vw; /* Adjusted for tablet */
+        gap: 1.5vh; /* Same as mobile */
+        margin-bottom: 0;
+        padding: 0 5vw;
+        line-height: 1.5;
+        max-width: 88%;
+        width: 88%;
+        text-align: center;
+        color: #0f172a; /* Same color as title */
+      }
+      .onboarding-page[data-page="1"] .onboarding-description span:first-child,
+      .onboarding-page[data-page="7"] .onboarding-description span:first-child {
+        margin-bottom: 1.5vh; /* Same as mobile */
+      }
+    }
+    /* Screenshot */
+    .onboarding-screenshot {
+      margin: 0 0 40px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      padding: 0 20px;
+      background: transparent; /* Ensure no background */
+    }
+    .onboarding-screenshot img {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: transparent; /* Ensure image has no background */
+    }
+    @media (max-width: 768px) {
+      .onboarding-screenshot {
+        margin-bottom: 32px;
+        padding: 0 16px;
+      }
+      /* Pages 2-6: Screenshot positioned in middle between title and body text, 1/12 margin, centered horizontally */
+      .onboarding-page[data-page="2"] .onboarding-screenshot,
+      .onboarding-page[data-page="3"] .onboarding-screenshot,
+      .onboarding-page[data-page="4"] .onboarding-screenshot,
+      .onboarding-page[data-page="5"] .onboarding-screenshot,
+      .onboarding-page[data-page="6"] .onboarding-screenshot {
+        position: absolute;
+        top: 33.335vh; /* Perfect center: (9vh + 55.56vh) / 2 = 32.28vh, but keeping balanced spacing */
+        left: 50%; /* Center horizontally */
+        transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+        width: calc(100vw - 2 * (100vw / 12)); /* Exactly 10/12 = 83.333vw */
+        max-width: calc(100vw - 2 * (100vw / 12)); /* Ensure it doesn't exceed */
+        height: auto; /* Let height adjust to content */
+        max-height: none; /* Remove height constraint to allow enlargement */
+        margin-bottom: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        background: transparent !important; /* Remove any gray background */
+        border: none; /* Remove any border */
+      }
+      .onboarding-page[data-page="2"] .onboarding-screenshot img,
+      .onboarding-page[data-page="3"] .onboarding-screenshot img,
+      .onboarding-page[data-page="4"] .onboarding-screenshot img,
+      .onboarding-page[data-page="5"] .onboarding-screenshot img,
+      .onboarding-page[data-page="6"] .onboarding-screenshot img {
+        width: 100%; /* Match container width exactly (83.34vw) */
+        height: auto; /* Adjust height proportionally to maintain aspect ratio */
+        max-width: 100%;
+        max-height: none; /* Remove height constraint to allow enlargement */
+        object-fit: contain; /* Maintain aspect ratio while fitting */
+        background: transparent !important; /* Remove any gray background from image */
+        border: none; /* Remove any border */
+        border-radius: 0; /* Remove border radius */
+        box-shadow: none; /* Remove shadow */
+        display: block; /* Remove any inline spacing */
+      }
+      /* Short screens: Adjust screenshot size (slightly increase by 5%) and reduce icons */
+      /* Breakpoint: aspect ratio < 0.58 (height/width) or viewport height < 650px */
+      /* Examples: iPhone SE (375×667 = 0.562), iPhone 12 mini (375×812 = 0.462) */
+      @media (max-width: 768px) and (max-height: 700px) {
+        .onboarding-page[data-page="2"] .onboarding-screenshot,
+        .onboarding-page[data-page="3"] .onboarding-screenshot,
+        .onboarding-page[data-page="4"] .onboarding-screenshot,
+        .onboarding-page[data-page="5"] .onboarding-screenshot,
+        .onboarding-page[data-page="6"] .onboarding-screenshot {
+          width: calc((100vw - 2 * (100vw / 12)) * 0.86625); /* Increase by another 10%: 78.75% * 1.10 = 86.625% */
+          max-width: calc((100vw - 2 * (100vw / 12)) * 0.86625);
+          max-height: 34.65vh; /* Increase by another 10%: 31.5vh * 1.10 = 34.65vh */
+        }
+        .onboarding-page[data-page="2"] .onboarding-screenshot img,
+        .onboarding-page[data-page="3"] .onboarding-screenshot img,
+        .onboarding-page[data-page="4"] .onboarding-screenshot img,
+        .onboarding-page[data-page="5"] .onboarding-screenshot img,
+        .onboarding-page[data-page="6"] .onboarding-screenshot img {
+          max-height: 34.65vh; /* Increase by another 10%: 31.5vh * 1.10 = 34.65vh */
+        }
+        /* Reduce icons on first and last page by 10% */
+        .onboarding-page[data-page="1"] .onboarding-icon img,
+        .onboarding-page[data-page="7"] .onboarding-icon img {
+          width: 27vw !important; /* Reduce by 10%: 30vw * 0.9 = 27vw */
+          max-width: 27vw !important;
+          max-height: 27vw !important;
+          min-width: 27vw !important;
+        }
+      }
+      /* Short screens: Reduce body text font size and width for better balance */
+      @media (max-width: 768px) and (max-height: 700px) {
+        .onboarding-page[data-page="2"] .onboarding-features,
+        .onboarding-page[data-page="3"] .onboarding-features,
+        .onboarding-page[data-page="4"] .onboarding-features,
+        .onboarding-page[data-page="5"] .onboarding-features,
+        .onboarding-page[data-page="6"] .onboarding-features {
+          /* Reduce width to 85% of current: current is 8.33vw on each side, so 85% = 7.08vw on each side */
+          /* Or: increase margins by 15%: 8.33vw * 1.15 = 9.58vw on each side */
+          left: 9.58vw; /* Increase left margin by 15% to reduce width to 85% */
+          right: 9.58vw; /* Increase right margin by 15% to reduce width to 85% */
+        }
+        .onboarding-page[data-page="2"] .onboarding-features li,
+        .onboarding-page[data-page="3"] .onboarding-features li,
+        .onboarding-page[data-page="4"] .onboarding-features li,
+        .onboarding-page[data-page="5"] .onboarding-features li,
+        .onboarding-page[data-page="6"] .onboarding-features li {
+          font-size: 12px !important; /* Reduced from 14px (85% of 14px = 11.9px, rounded to 12px) */
+          margin-bottom: 10px; /* Slightly reduced spacing */
+        }
+      }
+      /* Very short screens: Further adjust screenshot size (increase by 5%) and reduce icons */
+      @media (max-width: 768px) and (max-height: 600px) {
+        .onboarding-page[data-page="2"] .onboarding-screenshot,
+        .onboarding-page[data-page="3"] .onboarding-screenshot,
+        .onboarding-page[data-page="4"] .onboarding-screenshot,
+        .onboarding-page[data-page="5"] .onboarding-screenshot,
+        .onboarding-page[data-page="6"] .onboarding-screenshot {
+          width: calc((100vw - 2 * (100vw / 12)) * 0.75075); /* Increase by another 10%: 68.25% * 1.10 = 75.075% */
+          max-width: calc((100vw - 2 * (100vw / 12)) * 0.75075);
+          max-height: 28.875vh; /* Increase by another 10%: 26.25vh * 1.10 = 28.875vh */
+        }
+        .onboarding-page[data-page="2"] .onboarding-screenshot img,
+        .onboarding-page[data-page="3"] .onboarding-screenshot img,
+        .onboarding-page[data-page="4"] .onboarding-screenshot img,
+        .onboarding-page[data-page="5"] .onboarding-screenshot img,
+        .onboarding-page[data-page="6"] .onboarding-screenshot img {
+          max-height: 28.875vh; /* Increase by another 10%: 26.25vh * 1.10 = 28.875vh */
+        }
+        /* Reduce icons on first and last page by 10% */
+        .onboarding-page[data-page="1"] .onboarding-icon img,
+        .onboarding-page[data-page="7"] .onboarding-icon img {
+          width: 27vw !important; /* Reduce by 10%: 30vw * 0.9 = 27vw */
+          max-width: 27vw !important;
+          max-height: 27vw !important;
+          min-width: 27vw !important;
+        }
+        .onboarding-page[data-page="2"] .onboarding-features,
+        .onboarding-page[data-page="3"] .onboarding-features,
+        .onboarding-page[data-page="4"] .onboarding-features,
+        .onboarding-page[data-page="5"] .onboarding-features,
+        .onboarding-page[data-page="6"] .onboarding-features {
+          left: 9.58vw; /* Increase left margin by 15% to reduce width to 85% */
+          right: 9.58vw; /* Increase right margin by 15% to reduce width to 85% */
+        }
+        .onboarding-page[data-page="2"] .onboarding-features li,
+        .onboarding-page[data-page="3"] .onboarding-features li,
+        .onboarding-page[data-page="4"] .onboarding-features li,
+        .onboarding-page[data-page="5"] .onboarding-features li,
+        .onboarding-page[data-page="6"] .onboarding-features li {
+          font-size: 11px !important; /* Further reduced from 12px */
+          margin-bottom: 8px; /* Further reduced spacing */
+        }
+      }
+    }
+    /* Tablet: Pages 2-6 screenshot and features positioning */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      /* Pages 2-6: Screenshot positioned in middle between title and body text, doubled in size, centered horizontally */
+      .onboarding-page[data-page="2"] .onboarding-screenshot,
+      .onboarding-page[data-page="3"] .onboarding-screenshot,
+      .onboarding-page[data-page="4"] .onboarding-screenshot,
+      .onboarding-page[data-page="5"] .onboarding-screenshot,
+      .onboarding-page[data-page="6"] .onboarding-screenshot {
+        position: absolute;
+        top: 33.335vh; /* Keep center position unchanged */
+        left: 50%; /* Center horizontally */
+        transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+        width: 95%; /* Increased width to allow larger screenshots (was 83.333%) */
+        max-width: 95%; /* Constrain to container */
+        height: auto;
+        max-height: 40vh; /* Double the max-height: 2 * 20vh = 40vh */
+        margin-bottom: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        background: transparent !important;
+        border: none;
+      }
+      .onboarding-page[data-page="2"] .onboarding-screenshot img,
+      .onboarding-page[data-page="3"] .onboarding-screenshot img,
+      .onboarding-page[data-page="4"] .onboarding-screenshot img,
+      .onboarding-page[data-page="5"] .onboarding-screenshot img,
+      .onboarding-page[data-page="6"] .onboarding-screenshot img {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        max-height: 40vh; /* Double the max-height: 2 * 20vh = 40vh */
+        object-fit: contain;
+        background: transparent !important;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        display: block;
+      }
+      /* Pages 2-6: Features list - positioned below screenshot, middle between screenshot bottom and next button top */
+      .onboarding-page[data-page="2"] .onboarding-features,
+      .onboarding-page[data-page="3"] .onboarding-features,
+      .onboarding-page[data-page="4"] .onboarding-features,
+      .onboarding-page[data-page="5"] .onboarding-features,
+      .onboarding-page[data-page="6"] .onboarding-features {
+        position: absolute;
+        /* Screenshot center is at 33.335vh with translateY(-50%), so screenshot extends from ~23vh to ~43vh */
+        /* To be safe, ensure body text starts below screenshot: use 50vh as starting point */
+        /* Next button bottom is at 22.22vh from bottom = 77.78vh from top, button top is around 74-75vh */
+        /* Middle point between screenshot bottom (50vh) and button top (75vh): (50vh + 75vh) / 2 = 62.5vh */
+        top: 62.5vh; /* Middle between screenshot bottom (50vh) and next button top (75vh) */
+        left: calc(100% / 12); /* 1/12 of container width from left */
+        right: calc(100% / 12); /* 1/12 of container width from right */
+        width: auto;
+        padding: 0;
+        margin-bottom: 0;
+        max-width: none;
+        box-sizing: border-box;
+        transform: translateY(-50%); /* Center vertically in the space */
+        z-index: 10; /* Ensure body text is above screenshot */
+      }
+      .onboarding-page[data-page="2"] .onboarding-features li,
+      .onboarding-page[data-page="3"] .onboarding-features li,
+      .onboarding-page[data-page="4"] .onboarding-features li,
+      .onboarding-page[data-page="5"] .onboarding-features li,
+      .onboarding-page[data-page="6"] .onboarding-features li {
+        font-size: 20px !important; /* Increased font size for tablet */
+        margin-bottom: 18px; /* Increased spacing */
+        line-height: 1.7; /* Slightly increased line height for better readability */
+      }
+    }
+    /* Features List */
+    .onboarding-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 40px 0;
+      text-align: left;
+      max-width: 500px;
+      width: 100%;
+    }
+    .onboarding-features li {
+      font-size: 16px;
+      color: #0f172a;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      padding-left: 32px;
+      position: relative;
+    }
+    .onboarding-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #0f172a;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    @media (max-width: 768px) {
+      .onboarding-features {
+        margin-bottom: 32px;
+        padding: 0 16px;
+      }
+      .onboarding-features li {
+        font-size: 14px;
+        margin-bottom: 12px;
+        padding-left: 28px;
+      }
+      /* Pages 2-6: Features list with 1/12 screen width padding on each side */
+      .onboarding-page[data-page="2"] .onboarding-features,
+      .onboarding-page[data-page="3"] .onboarding-features,
+      .onboarding-page[data-page="4"] .onboarding-features,
+      .onboarding-page[data-page="5"] .onboarding-features,
+      .onboarding-page[data-page="6"] .onboarding-features {
+        position: absolute;
+        top: 55.56vh; /* Below screenshot (5/9 from top) */
+        left: 8.33vw; /* 1/12 of screen width from left */
+        right: 8.33vw; /* 1/12 of screen width from right */
+        width: auto; /* Auto width to respect left/right */
+        padding: 0;
+        margin-bottom: 0;
+        max-width: none;
+        box-sizing: border-box;
+      }
+    }
+    /* Buttons */
+    .onboarding-next-btn,
+    .onboarding-get-started-btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: Inter, sans-serif;
+      min-width: 120px;
+      margin-top: 0;
+    }
+    /* First and last page buttons - percentage-based sizing */
+    .onboarding-page[data-page="1"] .onboarding-next-btn,
+    .onboarding-page[data-page="7"] .onboarding-get-started-btn {
+      padding: 2vh 6vw; /* 2% viewport height × 6% viewport width */
+      font-size: 2.2vw; /* Responsive to viewport width */
+      min-width: 45%; /* 45% of container width */
+      width: 45%;
+      margin-top: 0;
+      margin-bottom: 1.8vh; /* ~1.8% of viewport height */
+      border-radius: 10px;
+    }
+    .onboarding-next-btn:hover,
+    .onboarding-get-started-btn:hover {
+      background: #1d4ed8;
+    }
+    .onboarding-next-btn:active,
+    .onboarding-get-started-btn:active {
+      transform: scale(0.98);
+    }
+    @media (max-width: 768px) {
+      .onboarding-next-btn,
+      .onboarding-get-started-btn {
+        padding: 1.5vh 5vw;
+        font-size: 3.8vw;
+      }
+      /* First and last page buttons - positioned 2/9 from bottom, 1/2 width, shorter height */
+      .onboarding-page[data-page="1"] .onboarding-next-btn,
+      .onboarding-page[data-page="7"] .onboarding-get-started-btn {
+        position: absolute;
+        bottom: 22.22vh; /* 2/9 from bottom = 100vh - (2/9 * 100vh) = 77.78vh from top, but using bottom: 22.22vh */
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1.4vh 8vw; /* Reduced from 2vh to 1.4vh for shorter height */
+        font-size: 4.2vw;
+        min-width: 36%; /* 1/2 of 72% = 36% */
+        width: 36%;
+        margin-bottom: 0;
+        z-index: 100; /* Ensure buttons are clickable */
+        pointer-events: auto; /* Ensure clicks work */
+      }
+      /* Page 7 Get Started button - longer to fit text in one line */
+      .onboarding-page[data-page="7"] .onboarding-get-started-btn {
+        min-width: 50% !important; /* Longer width to fit "Get Started" text in one line */
+        width: 50% !important; /* Override the 36% width */
+      }
+      /* Pages 2-6: Apply same button, skip, and pagination styling - force absolute positioning */
+      .onboarding-page[data-page="2"] .onboarding-next-btn,
+      .onboarding-page[data-page="3"] .onboarding-next-btn,
+      .onboarding-page[data-page="4"] .onboarding-next-btn,
+      .onboarding-page[data-page="5"] .onboarding-next-btn,
+      .onboarding-page[data-page="6"] .onboarding-next-btn {
+        position: absolute !important; /* Force absolute positioning */
+        bottom: 22.22vh !important; /* Same position as page 1 */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        padding: 1.4vh 8vw !important; /* Same shorter height */
+        font-size: 4.2vw !important;
+        min-width: 36% !important; /* Same width */
+        width: 36% !important;
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        z-index: 100 !important; /* Ensure buttons are clickable */
+        pointer-events: auto !important; /* Ensure clicks work */
+      }
+      /* Pages 2-6: Skip button styling - force absolute positioning */
+      .onboarding-page[data-page="2"] .onboarding-skip-btn,
+      .onboarding-page[data-page="3"] .onboarding-skip-btn,
+      .onboarding-page[data-page="4"] .onboarding-skip-btn,
+      .onboarding-page[data-page="5"] .onboarding-skip-btn,
+      .onboarding-page[data-page="6"] .onboarding-skip-btn {
+        position: absolute !important; /* Force absolute positioning */
+        bottom: 18.15vh !important; /* Same position as page 1 - 1/3 from top of space */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        font-size: 3.2vw !important;
+        font-weight: 500 !important;
+        font-style: normal !important;
+        letter-spacing: 0.02em !important;
+        margin-top: 0 !important;
+        padding: 1vh 3vw !important;
+        text-align: center !important;
+        color: #94a3b8 !important; /* Gray color */
+        font-family: 'Montserrat', 'Mont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+      }
+      .onboarding-page[data-page="2"] .onboarding-skip-btn:hover,
+      .onboarding-page[data-page="3"] .onboarding-skip-btn:hover,
+      .onboarding-page[data-page="4"] .onboarding-skip-btn:hover,
+      .onboarding-page[data-page="5"] .onboarding-skip-btn:hover,
+      .onboarding-page[data-page="6"] .onboarding-skip-btn:hover {
+        color: #64748b; /* Slightly darker gray on hover */
+      }
+    }
+    /* Tablet sizing for buttons - same proportional logic as mobile */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      /* First and last page buttons - positioned 2/9 from bottom */
+      .onboarding-page[data-page="1"] .onboarding-next-btn,
+      .onboarding-page[data-page="7"] .onboarding-get-started-btn {
+        position: absolute;
+        bottom: 22.22vh; /* 2/9 from bottom, same as mobile */
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1.4vh 6vw; /* Adjusted for tablet */
+        font-size: 2.8vw;
+        min-width: 36%; /* Same proportion as mobile */
+        width: 36%;
+        margin-bottom: 0;
+        z-index: 100;
+        pointer-events: auto;
+      }
+      /* Page 7 Get Started button - longer to fit text */
+      .onboarding-page[data-page="7"] .onboarding-get-started-btn {
+        min-width: 50% !important;
+        width: 50% !important;
+      }
+      /* Pages 2-6: Next button - same position as page 1 */
+      .onboarding-page[data-page="2"] .onboarding-next-btn,
+      .onboarding-page[data-page="3"] .onboarding-next-btn,
+      .onboarding-page[data-page="4"] .onboarding-next-btn,
+      .onboarding-page[data-page="5"] .onboarding-next-btn,
+      .onboarding-page[data-page="6"] .onboarding-next-btn {
+        position: absolute !important;
+        bottom: 22.22vh !important; /* Same position as page 1 */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        padding: 1.4vh 6vw !important;
+        font-size: 2.8vw !important;
+        min-width: 36% !important;
+        width: 36% !important;
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        z-index: 100 !important;
+        pointer-events: auto !important;
+      }
+      /* Pages 2-6: Skip button - 1/3 between Next and dots */
+      .onboarding-page[data-page="2"] .onboarding-skip-btn,
+      .onboarding-page[data-page="3"] .onboarding-skip-btn,
+      .onboarding-page[data-page="4"] .onboarding-skip-btn,
+      .onboarding-page[data-page="5"] .onboarding-skip-btn,
+      .onboarding-page[data-page="6"] .onboarding-skip-btn {
+        position: absolute !important;
+        bottom: 18.15vh !important; /* 1/3 between Next (22.22vh) and dots (10vh) */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        font-size: 2.2vw !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.02em !important;
+        margin-top: 0 !important;
+        padding: 0.8vh 2.5vw !important;
+        text-align: center !important;
+        color: #94a3b8 !important;
+        font-family: 'Montserrat', 'Mont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+      }
+      /* First and last page skip button */
+      .onboarding-page[data-page="1"] .onboarding-skip-btn,
+      .onboarding-page[data-page="7"] .onboarding-skip-btn {
+        position: absolute;
+        bottom: 18.15vh; /* Same position as pages 2-6 */
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2.2vw;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: #94a3b8;
+        font-family: 'Montserrat', 'Mont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      }
+    }
+    /* Pagination Dots */
+    .onboarding-pagination {
+      position: absolute;
+      bottom: 10vh; /* 1/10 from bottom */
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 0;
+      padding: 0 20px;
+      z-index: 10;
+    }
+    .onboarding-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #CBD5E1;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .onboarding-dot.active {
+      width: 32px;
+      height: 8px;
+      border-radius: 4px;
+      background: #2563eb;
+    }
+    @media (max-width: 768px) {
+      .onboarding-pagination {
+        margin-top: 32px;
+      }
+      .onboarding-dot {
+        width: 6px;
+        height: 6px;
+      }
+      .onboarding-dot.active {
+        width: 24px;
+        height: 6px;
+      }
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
+<!-- Onboarding Overlay -->
+<div id="onboarding-overlay" class="onboarding-overlay" style="display: none;">
+  <div class="onboarding-container">
+    <!-- Back Button (pages 2-6) -->
+    <button class="onboarding-back-btn" id="onboarding-back-btn" aria-label="Go back" style="display: none;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    
+    <!-- Pages Container -->
+    <div class="onboarding-pages" id="onboarding-pages">
+      <!-- Page 1: Welcome -->
+      <div class="onboarding-page active" data-page="1">
+        <div class="onboarding-icon">
+          <img src="onboarding-assets/onboarding-page-1-icon.png" alt="Welcome icon" />
+        </div>
+        <h2 class="onboarding-title">Welcome to<br>U.S. College Map</h2>
+        <p class="onboarding-description">
+          <span>A simpler way to explore U.S. colleges.</span>
+          <span>Search, filter, save, plan routes, and share<br>— all on one clear, easy map.</span>
+        </p>
+        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
+        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+      </div>
+      
+      <!-- Page 2: For Early Exploration -->
+      <div class="onboarding-page" data-page="2">
+        <h2 class="onboarding-title">For Early Exploration</h2>
+        <div class="onboarding-screenshot">
+          <img src="onboarding-assets/onboarding-page-2-screenshot.svg" alt="Map exploration" />
+        </div>
+        <ul class="onboarding-features">
+          <li>See every U.S. college on one map.</li>
+          <li>Filter by type, ranking, region, or state to find schools that fit.</li>
+          <li>Tap any dot to see key details and the official website.</li>
+        </ul>
+        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
+        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+      </div>
+      
+      <!-- Page 3: Save Your Picks -->
+      <div class="onboarding-page" data-page="3">
+        <h2 class="onboarding-title">Save Your Picks</h2>
+        <div class="onboarding-screenshot">
+          <img src="onboarding-assets/onboarding-page-3-screenshot.svg" alt="Save and compare colleges" />
+        </div>
+        <ul class="onboarding-features">
+          <li>Build your personalized college list.</li>
+          <li>See all your favorite schools on one clean map and revisit key details.</li>
+          <li>Compare schools side-by-side when you're ready to narrow choices.</li>
+        </ul>
+        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
+        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+      </div>
+      
+      <!-- Page 4: Find Colleges Nearby -->
+      <div class="onboarding-page" data-page="4">
+        <h2 class="onboarding-title">Find Nearby Colleges</h2>
+        <div class="onboarding-screenshot">
+          <img src="onboarding-assets/onboarding-page-4-screenshot.svg" alt="Nearby search" />
+        </div>
+        <ul class="onboarding-features">
+          <li>Explore colleges close to home.</li>
+          <li>Discover nearby schools, including community colleges for resources.</li>
+          <li>Make the most of upcoming trips, vacations, or tournaments by checking schools near destination.</li>
+        </ul>
+        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
+        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+      </div>
+      
+      <!-- Page 5: Plan Visit Route -->
+      <div class="onboarding-page" data-page="5">
+        <h2 class="onboarding-title">Plan Visit Route</h2>
+        <div class="onboarding-screenshot">
+          <img src="onboarding-assets/onboarding-page-5-screenshot.svg" alt="Route planning" />
+        </div>
+        <ul class="onboarding-features">
+          <li>Enter a start and destination to find colleges along your drive.</li>
+          <li>Save schools you plan to visit.</li>
+          <li>Open the full trip in Google Maps for navigation, no more manual typing.</li>
+        </ul>
+        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
+        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+      </div>
+      
+      <!-- Page 6: Share List or Route -->
+      <div class="onboarding-page" data-page="6">
+        <h2 class="onboarding-title">Share List or Route</h2>
+        <div class="onboarding-screenshot">
+          <img src="onboarding-assets/onboarding-page-6-screenshot.svg" alt="Sharing feature" />
+        </div>
+        <ul class="onboarding-features">
+          <li>Share your saved colleges with family, counselors, or friends.</li>
+          <li>Send your planned route — they'll see the same school visit route.</li>
+          <li>Anyone with your link can open the full Google Maps route instantly.</li>
+        </ul>
+        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
+        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+      </div>
+      
+      <!-- Page 7: You Are Ready -->
+      <div class="onboarding-page" data-page="7">
+        <div class="onboarding-icon">
+          <img src="onboarding-assets/onboarding-page-7-icon.svg" alt="Ready to explore" />
+        </div>
+        <h2 class="onboarding-title">You Are Ready<br>to Explore!</h2>
+        <p class="onboarding-description">
+          <span>U.S. College Map (Beta) is built to make<br>college search clearer and easier—<br>for students, families, and educators.</span>
+          <span>Try it out, explore at your own pace,<br>and tell us what features you'd love next.</span>
+        </p>
+        <button class="onboarding-get-started-btn" onclick="onboardingComplete()">Get Started</button>
+      </div>
+    </div>
+    
+    <!-- Pagination Dots -->
+    <div class="onboarding-pagination">
+      <span class="onboarding-dot active" data-page="1"></span>
+      <span class="onboarding-dot" data-page="2"></span>
+      <span class="onboarding-dot" data-page="3"></span>
+      <span class="onboarding-dot" data-page="4"></span>
+      <span class="onboarding-dot" data-page="5"></span>
+      <span class="onboarding-dot" data-page="6"></span>
+      <span class="onboarding-dot" data-page="7"></span>
+    </div>
+  </div>
+</div>
+
 <!-- Shared map banner -->
 <div class="shared-map-banner" id="shared-map-banner">
   <div class="shared-map-banner-message">You're viewing a shared map of saved colleges. Your own saved list won't be changed.</div>
@@ -3099,6 +4363,324 @@
 <footer class="site-footer">© 2025 U.S. College Map | <a href="mailto:contact@uscollegemap.org" id="contact-email-link">Contact Us</a></footer>
 
 <script>
+// ============================================================================
+// ONBOARDING SYSTEM
+// ============================================================================
+const ONBOARDING_STORAGE_KEY = 'ucm_onboarding_completed_v1';
+let onboardingCurrentPage = 1;
+let onboardingTouchStartX = 0;
+let onboardingTouchEndX = 0;
+let onboardingIsTransitioning = false;
+
+// Simple device detection for onboarding (runs before detectDeviceType is defined)
+function detectDeviceTypeForOnboarding() {
+  const width = window.innerWidth;
+  const ua = navigator.userAgent || '';
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  
+  if (isTouchDevice && width <= 768 && !isIPad) {
+    return 'mobile';
+  }
+  if (isTouchDevice && (width <= 1024 || isIPad)) {
+    return 'tablet';
+  }
+  // Desktop - don't show onboarding
+  return 'desktop';
+}
+
+// Check if onboarding should be shown (runs immediately, before DOMContentLoaded)
+function shouldShowOnboarding() {
+  // Check if already completed
+  const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === '1';
+  if (hasCompleted) return false;
+  
+  // Check device type - only show on mobile (not tablet or desktop)
+  const deviceType = detectDeviceTypeForOnboarding();
+  const isMobileOnly = deviceType === 'mobile';
+  if (!isMobileOnly) return false;
+  
+  // Don't show in shared view
+  const isSharedView = window.location.search.includes('view=savedshare');
+  if (isSharedView) return false;
+  
+  return true;
+}
+
+// Initialize onboarding
+function initOnboarding() {
+  if (!shouldShowOnboarding()) {
+    return;
+  }
+  
+  const overlay = document.getElementById('onboarding-overlay');
+  if (!overlay) return;
+  
+  // Show overlay
+  overlay.style.display = 'flex';
+  overlay.classList.add('active');
+  
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+  
+  // Set initial page
+  showOnboardingPage(1);
+  
+  // Setup event listeners
+  setupOnboardingEvents();
+  
+  // Track GA event
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'onboarding_started', {
+      'device_type': detectDeviceTypeForOnboarding()
+    });
+  }
+}
+
+// Show specific onboarding page
+function showOnboardingPage(pageNum) {
+  const pages = document.querySelectorAll('.onboarding-page');
+  const dots = document.querySelectorAll('.onboarding-dot');
+  const backBtn = document.getElementById('onboarding-back-btn');
+  
+  // Update current page
+  onboardingCurrentPage = pageNum;
+  
+  // Update pages
+  pages.forEach((page, index) => {
+    const pageNumAttr = parseInt(page.getAttribute('data-page'));
+    page.classList.remove('active', 'prev', 'next');
+    
+    if (pageNumAttr === pageNum) {
+      page.classList.add('active');
+    } else if (pageNumAttr < pageNum) {
+      page.classList.add('prev');
+    } else {
+      page.classList.add('next');
+    }
+  });
+  
+  // Update dots
+  dots.forEach((dot, index) => {
+    const dotPage = parseInt(dot.getAttribute('data-page'));
+    dot.classList.toggle('active', dotPage === pageNum);
+  });
+  
+  // Show/hide back button (pages 2-7)
+  if (backBtn) {
+    backBtn.style.display = (pageNum >= 2 && pageNum <= 7) ? 'flex' : 'none';
+  }
+  
+  // Track page view
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'onboarding_page_viewed', {
+      'page_number': pageNum
+    });
+  }
+}
+
+// Next page - make globally accessible
+function onboardingNext() {
+  if (onboardingCurrentPage >= 7 || onboardingIsTransitioning) return;
+  
+  onboardingIsTransitioning = true;
+  const nextPage = onboardingCurrentPage + 1;
+  showOnboardingPage(nextPage);
+  
+  setTimeout(() => {
+    onboardingIsTransitioning = false;
+  }, 300);
+}
+window.onboardingNext = onboardingNext;
+
+// Previous page - make globally accessible
+function onboardingBack() {
+  if (onboardingCurrentPage <= 1 || onboardingIsTransitioning) return;
+  
+  onboardingIsTransitioning = true;
+  const prevPage = onboardingCurrentPage - 1;
+  showOnboardingPage(prevPage);
+  
+  setTimeout(() => {
+    onboardingIsTransitioning = false;
+  }, 300);
+}
+window.onboardingBack = onboardingBack;
+
+// Complete onboarding - make globally accessible
+function onboardingComplete() {
+  // Mark as completed
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
+  
+  // Hide overlay
+  const overlay = document.getElementById('onboarding-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 300);
+  }
+  
+  // Track GA event
+  if (typeof gtag !== 'undefined') {
+    const deviceType = typeof detectDeviceType === 'function' ? detectDeviceType() : detectDeviceTypeForOnboarding();
+    gtag('event', 'onboarding_completed', {
+      'final_page': onboardingCurrentPage,
+      'device_type': deviceType
+    });
+  }
+}
+window.onboardingComplete = onboardingComplete;
+
+// Skip onboarding - make globally accessible
+function onboardingSkip() {
+  // Mark as completed
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
+  
+  // Hide overlay
+  const overlay = document.getElementById('onboarding-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 300);
+  }
+  
+  // Track GA event
+  if (typeof gtag !== 'undefined') {
+    const deviceType = typeof detectDeviceType === 'function' ? detectDeviceType() : detectDeviceTypeForOnboarding();
+    gtag('event', 'onboarding_skipped', {
+      'skipped_at_page': onboardingCurrentPage,
+      'device_type': deviceType
+    });
+  }
+}
+window.onboardingSkip = onboardingSkip;
+
+// Setup event listeners
+function setupOnboardingEvents() {
+  // Back button - use event delegation
+  document.addEventListener('click', (e) => {
+    const backBtn = e.target.closest('#onboarding-back-btn') || e.target.closest('.onboarding-back-btn');
+    if (backBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      onboardingBack(); // Function already checks transition flag
+    }
+  });
+  
+  // Skip buttons (now on each page, use event delegation)
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('onboarding-skip-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      onboardingSkip();
+    }
+  });
+  
+  // Next buttons - use event delegation to ensure they work
+  document.addEventListener('click', (e) => {
+    const nextBtn = e.target.closest('.onboarding-next-btn');
+    if (nextBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      onboardingNext(); // Function already checks transition flag
+    }
+  });
+  
+  // Get Started button - use event delegation
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('onboarding-get-started-btn') || e.target.closest('.onboarding-get-started-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      onboardingComplete();
+    }
+  });
+  
+  // Pagination dots
+  const dots = document.querySelectorAll('.onboarding-dot');
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const pageNum = parseInt(dot.getAttribute('data-page'));
+      if (pageNum !== onboardingCurrentPage) {
+        showOnboardingPage(pageNum);
+      }
+    });
+  });
+  
+  // Swipe gestures
+  let swipeTouchStartX = 0;
+  let swipeTouchEndX = 0;
+  
+  const pagesContainer = document.getElementById('onboarding-pages');
+  if (pagesContainer) {
+    pagesContainer.addEventListener('touchstart', (e) => {
+      swipeTouchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    pagesContainer.addEventListener('touchend', (e) => {
+      swipeTouchEndX = e.changedTouches[0].screenX;
+      handleOnboardingSwipe();
+    }, { passive: true });
+  }
+  
+  function handleOnboardingSwipe() {
+    if (onboardingIsTransitioning) return;
+    
+    const swipeThreshold = 50;
+    const diff = swipeTouchStartX - swipeTouchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swipe left - next page
+        onboardingNext();
+      } else {
+        // Swipe right - previous page
+        onboardingBack();
+      }
+    }
+  }
+  
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('onboarding-overlay');
+    if (!overlay || overlay.style.display === 'none') return;
+    
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      onboardingNext();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      onboardingBack();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onboardingSkip();
+    } else if (e.key === 'Enter' && onboardingCurrentPage === 7) {
+      e.preventDefault();
+      onboardingComplete();
+    }
+  });
+}
+
+// Initialize onboarding immediately (before DOMContentLoaded)
+// This ensures onboarding shows before site content loads
+if (document.readyState === 'loading') {
+  // DOM not ready yet, wait for it
+  document.addEventListener('DOMContentLoaded', () => {
+    // Small delay to ensure all elements are ready
+    setTimeout(initOnboarding, 100);
+  });
+} else {
+  // DOM already ready
+  setTimeout(initOnboarding, 100);
+}
+
+// ============================================================================
+// END ONBOARDING SYSTEM
+// ============================================================================
+
 const localMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const DATA_URL = localMode ? 'colleges_usa_2024.csv' : 'https://uscollegemap.org/colleges_usa_2024.csv';
 const COLLEGE_CACHE_KEY = 'ucm_colleges_csv_v1';
