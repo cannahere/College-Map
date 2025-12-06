@@ -3917,6 +3917,461 @@
         transform: translateY(0);
       }
     }
+    
+    /* ============================================
+       Desktop/Tablet Welcome Overlay
+       ============================================ */
+    /* Only show on desktop and tablet (min-width: 769px) */
+    @media (min-width: 769px) {
+      .desktop-welcome-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99998; /* Below mobile onboarding (99999) but above site content */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Inter, sans-serif;
+      }
+      
+      .desktop-welcome-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+      
+      .desktop-welcome-container {
+        position: relative;
+        background: #F8F8F8;
+        border-radius: 16px;
+        width: 80vw;
+        height: 80vh;
+        max-width: 80vw;
+        max-height: 80vh;
+        overflow: hidden;
+        padding: 3rem 4rem 2rem 4rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      /* Ensure all content elements have consistent max-width for alignment */
+      .desktop-welcome-icon,
+      .desktop-welcome-title,
+      .desktop-welcome-description,
+      .desktop-welcome-features,
+      .desktop-welcome-get-started-btn {
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      /* Decorative blue corner circles */
+      .desktop-welcome-container::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        left: 0;
+        width: 150px;
+        height: 150px;
+        background: #2F80ED;
+        border-radius: 0 0 150px 0;
+        opacity: 1;
+        z-index: 0;
+      }
+      
+      .desktop-welcome-container::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: #2F80ED;
+        border-radius: 150px 0 0 0;
+        opacity: 1;
+        z-index: 0;
+      }
+      
+      /* Close Button */
+      .desktop-welcome-close-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        z-index: 10;
+      }
+      
+      .desktop-welcome-close-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: #475569;
+      }
+      
+      .desktop-welcome-close-btn:active {
+        transform: scale(0.95);
+      }
+      
+      /* Globe Icon */
+      .desktop-welcome-icon {
+        position: relative;
+        margin-bottom: 1rem;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .desktop-welcome-icon img {
+        width: 60px;
+        height: auto;
+        background: transparent !important;
+        filter: brightness(1) contrast(1);
+        animation: iconRise 0.6s ease-out forwards;
+        margin: 0 auto;
+        position: relative;
+        left: 8px; /* Shift right to align center with "s" in "U.S." */
+      }
+      
+      /* Title */
+      .desktop-welcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 auto 0.75rem auto;
+        line-height: 1.2;
+        z-index: 1;
+        position: relative;
+        white-space: nowrap;
+        width: 100%;
+        max-width: 100%;
+        text-align: center;
+      }
+      
+      /* Description */
+      .desktop-welcome-description {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 0 auto 1.25rem auto;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #1e293b;
+        max-width: 100%;
+        width: 100%;
+        z-index: 1;
+        position: relative;
+        align-items: center;
+      }
+      
+      .desktop-welcome-description span {
+        display: block;
+        white-space: nowrap;
+      }
+      
+      /* Features Section */
+      .desktop-welcome-features {
+        width: 100%;
+        margin-bottom: 1.25rem;
+        z-index: 1;
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: visible;
+      }
+      
+      .desktop-welcome-features::before {
+        content: '';
+        display: block !important;
+        width: 100%;
+        max-width: 600px;
+        height: 1px;
+        background: #e2e8f0 !important;
+        margin: 0 auto 1rem auto;
+        z-index: 1;
+        position: relative;
+        opacity: 1 !important;
+        visibility: visible !important;
+        flex-shrink: 0;
+      }
+      
+      .desktop-welcome-features-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 auto 1rem auto;
+        text-align: center;
+        width: 100%;
+      }
+      
+      /* Carousel Wrapper */
+      .desktop-welcome-carousel-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        flex: 1;
+        min-height: 0;
+        max-height: 80%;
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      /* Carousel Buttons */
+      .desktop-welcome-carousel-btn {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #475569;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        z-index: 2;
+      }
+      
+      .desktop-welcome-carousel-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #334155;
+      }
+      
+      .desktop-welcome-carousel-btn:active {
+        transform: scale(0.95);
+      }
+      
+      .desktop-welcome-carousel-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      
+      .desktop-welcome-carousel-btn.hidden {
+        display: none;
+      }
+      
+      /* Carousel */
+      .desktop-welcome-carousel {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+      }
+      
+      .desktop-welcome-carousel-track {
+        display: flex;
+        transition: transform 0.4s ease;
+        gap: 1.5rem;
+        height: 100%;
+        align-items: stretch;
+      }
+      
+      /* Cards */
+      .desktop-welcome-card {
+        flex: 0 0 auto;
+        min-width: 0;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 0 0 0.5rem 0; /* Only bottom padding for description text */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      
+      /* Responsive card widths - will be overridden by JavaScript for precise control */
+      .desktop-welcome-carousel-track {
+        width: 100%;
+      }
+      
+      .desktop-welcome-card {
+        width: calc(100% / 3 - 1rem);
+      }
+      
+      .desktop-welcome-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      }
+      
+      .desktop-welcome-card-image {
+        width: 100%;
+        background: transparent;
+        border-radius: 8px;
+        margin: 0;
+        margin-bottom: 0.375rem;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: hidden;
+        padding: 5px 5px 0 5px; /* Top, right, bottom, left - 5px padding on top and sides */
+        flex-shrink: 0;
+        box-sizing: border-box;
+      }
+      
+      .desktop-welcome-card-image img {
+        width: calc(100% - 10px); /* Reduce by 10px (5px on each side) to accommodate padding */
+        height: calc(100% - 5px); /* Reduce by 5px (top padding) to accommodate padding */
+        max-width: calc(100% - 10px);
+        max-height: calc(100% - 5px);
+        object-fit: contain;
+        display: block;
+      }
+      
+      .desktop-welcome-card-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 auto;
+        text-align: center;
+        flex-shrink: 0;
+        line-height: 1.3;
+        padding: 0;
+        white-space: nowrap;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .desktop-welcome-card-placeholder {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-align: center;
+        padding: 1rem;
+      }
+      
+      
+      /* Carousel Dots */
+      .desktop-welcome-carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0.75rem;
+        flex-shrink: 0;
+      }
+      
+      .desktop-welcome-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .desktop-welcome-dot.active {
+        width: 24px;
+        border-radius: 4px;
+        background: #2563eb;
+      }
+      
+      .desktop-welcome-dot:hover {
+        background: #94a3b8;
+      }
+      
+      /* Get Started Button */
+      .desktop-welcome-get-started-btn {
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        padding: 0.875rem 2.25rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        z-index: 2;
+        position: relative;
+        white-space: nowrap;
+        margin-bottom: 1.5rem;
+        margin-top: auto;
+        flex-shrink: 0;
+        width: fit-content;
+        min-width: fit-content;
+      }
+      
+      .desktop-welcome-get-started-btn:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+      
+      .desktop-welcome-get-started-btn:active {
+        transform: translateY(0);
+      }
+      
+      /* Tablet adjustments */
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .desktop-welcome-container {
+          max-width: 90%;
+          padding: 2.5rem 3rem;
+        }
+        
+        .desktop-welcome-title {
+          font-size: 2rem;
+        }
+        
+        .desktop-welcome-description {
+          font-size: 1rem;
+        }
+        
+        .desktop-welcome-container::before,
+        .desktop-welcome-container::after {
+          width: 180px;
+          height: 180px;
+        }
+      }
+      
+      /* Desktop adjustments for wider screens */
+      @media (min-width: 1400px) {
+        .desktop-welcome-container {
+          max-width: 1200px;
+        }
+      }
+    }
+    
+    /* Hide desktop welcome overlay on mobile */
+    @media (max-width: 768px) {
+      .desktop-welcome-overlay {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -4045,6 +4500,100 @@
       <span class="onboarding-dot" data-page="6"></span>
       <span class="onboarding-dot" data-page="7"></span>
     </div>
+  </div>
+</div>
+
+<!-- Desktop/Tablet Welcome Overlay -->
+<div id="desktop-welcome-overlay" class="desktop-welcome-overlay" style="display: none;">
+  <div class="desktop-welcome-backdrop"></div>
+  <div class="desktop-welcome-container">
+    <!-- Close Button -->
+    <button class="desktop-welcome-close-btn" aria-label="Close welcome">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+    
+    <!-- Globe Icon -->
+    <div class="desktop-welcome-icon">
+      <img src="onboarding-assets/onboarding-page-1-icon.png" alt="Welcome icon" />
+    </div>
+    
+    <!-- Title -->
+    <h2 class="desktop-welcome-title">Welcome to U.S. College Map</h2>
+    
+    <!-- Description -->
+    <p class="desktop-welcome-description">
+      <span>A simpler way to explore U.S. colleges.</span>
+      <span>Search, filter, save, plan routes, and share — all on one clear, easy map.</span>
+    </p>
+    
+    <!-- Feature Carousel Section -->
+    <div class="desktop-welcome-features">
+      <h3 class="desktop-welcome-features-title">Explore What You Can Do</h3>
+      <div class="desktop-welcome-carousel-wrapper">
+        <button class="desktop-welcome-carousel-btn desktop-welcome-carousel-btn-prev" aria-label="Previous">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <div class="desktop-welcome-carousel">
+          <div class="desktop-welcome-carousel-track">
+            <!-- Card 1: Filter to Explore -->
+            <div class="desktop-welcome-card">
+              <div class="desktop-welcome-card-image">
+                <img src="onboarding-assets/desktop-welcome-card-1-filter.svg" alt="Filter to Explore" />
+              </div>
+              <h4 class="desktop-welcome-card-title">Filter to Explore</h4>
+            </div>
+            <!-- Card 2: Save & Compare -->
+            <div class="desktop-welcome-card">
+              <div class="desktop-welcome-card-image">
+                <img src="onboarding-assets/desktop-welcome-card-2-save-compare.svg" alt="Save & Compare" />
+              </div>
+              <h4 class="desktop-welcome-card-title">Save & Compare</h4>
+            </div>
+            <!-- Card 3: Find Colleges Nearby -->
+            <div class="desktop-welcome-card">
+              <div class="desktop-welcome-card-image">
+                <img src="onboarding-assets/desktop-welcome-card-3-find-nearby.svg" alt="Find Colleges Nearby" />
+              </div>
+              <h4 class="desktop-welcome-card-title">Find Colleges Nearby</h4>
+            </div>
+            <!-- Card 4: Plan Driving Route -->
+            <div class="desktop-welcome-card">
+              <div class="desktop-welcome-card-image">
+                <img src="onboarding-assets/desktop-welcome-card-4-plan-route.svg" alt="Plan Driving Route" />
+              </div>
+              <h4 class="desktop-welcome-card-title">Plan Driving Route</h4>
+            </div>
+            <!-- Card 5: Share List & Map -->
+            <div class="desktop-welcome-card">
+              <div class="desktop-welcome-card-image">
+                <img src="onboarding-assets/desktop-welcome-card-5-share.svg" alt="Share List & Map" />
+              </div>
+              <h4 class="desktop-welcome-card-title">Share List & Map</h4>
+            </div>
+          </div>
+        </div>
+        <button class="desktop-welcome-carousel-btn desktop-welcome-carousel-btn-next" aria-label="Next">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+      <!-- Carousel Pagination Dots -->
+      <div class="desktop-welcome-carousel-dots">
+        <span class="desktop-welcome-dot active" data-index="0"></span>
+        <span class="desktop-welcome-dot" data-index="1"></span>
+        <span class="desktop-welcome-dot" data-index="2"></span>
+        <span class="desktop-welcome-dot" data-index="3"></span>
+        <span class="desktop-welcome-dot" data-index="4"></span>
+      </div>
+    </div>
+    
+    <!-- Get Started Button -->
+    <button class="desktop-welcome-get-started-btn">Get Started</button>
   </div>
 </div>
 
@@ -4492,36 +5041,64 @@ function detectDeviceTypeForOnboarding() {
     isMobileUA,
     isDesktopUA,
     isTabletUA,
-    userAgent: ua.substring(0, 50)
+    userAgent: ua.substring(0, 50),
+    maxTouchPoints: navigator.maxTouchPoints
   });
   
   // Prioritize actual device type over window size
   // Desktop: Desktop UA detected (Windows, Mac, Linux) and not touch device
   if (isDesktopUA) {
+    console.log('[Onboarding Debug] Detected as desktop (desktop UA)');
     return 'desktop';
   }
   
   // Tablet: iPad or tablet UA detected
-  if (isTabletUA || isIPad) {
+  // iPad Mini (768px) should be treated as tablet, not mobile
+  // Check for iPad first, even if width is 768
+  if (isIPad) {
+    console.log('[Onboarding Debug] Detected as tablet (iPad detected)');
     return 'tablet';
   }
   
-  // Mobile: iPhone or mobile UA with touch device
+  // Check for other tablets (Android tablets) but only if width >= 768
+  if (isTabletUA && width >= 768) {
+    console.log('[Onboarding Debug] Detected as tablet (tablet UA, width >= 768)');
+    return 'tablet';
+  }
+  
+  // Mobile: iPhone or mobile UA with touch device, OR small screens (width <= 768) that are NOT iPad
   // iPhone should always be detected as mobile
-  if (isIPhone || (isTouchDevice && isMobileUA)) {
+  // Surface Duo (540px) and other small non-iPad devices should be mobile
+  if (isIPhone) {
+    console.log('[Onboarding Debug] Detected as mobile (iPhone)');
+    return 'mobile';
+  }
+  
+  // Small screens (width <= 768) that are NOT iPad should be mobile
+  if (width <= 768 && !isIPad) {
+    console.log('[Onboarding Debug] Detected as mobile (width <= 768, not iPad)');
+    return 'mobile';
+  }
+  
+  // Mobile UA with touch device
+  if (isTouchDevice && isMobileUA) {
+    console.log('[Onboarding Debug] Detected as mobile (touch device + mobile UA)');
     return 'mobile';
   }
   
   // Fallback: Use window size only if device type is unclear
   // But still prioritize desktop/tablet if window is large
   if (width > 1024) {
+    console.log('[Onboarding Debug] Detected as desktop (fallback: width > 1024)');
     return 'desktop';
   }
   if (width > 768) {
+    console.log('[Onboarding Debug] Detected as tablet (fallback: width > 768)');
     return 'tablet';
   }
   
   // Default to mobile for small screens
+  console.log('[Onboarding Debug] Detected as mobile (default fallback)');
   return 'mobile';
 }
 
@@ -4556,9 +5133,13 @@ function shouldShowOnboarding() {
 
 // Initialize onboarding
 function initOnboarding() {
+  console.log('[Onboarding Debug] initOnboarding called');
   console.log('[Onboarding Debug] Initializing onboarding...');
   
-  if (!shouldShowOnboarding()) {
+  const shouldShow = shouldShowOnboarding();
+  console.log('[Onboarding Debug] shouldShowOnboarding returned:', shouldShow);
+  
+  if (!shouldShow) {
     console.log('[Onboarding Debug] shouldShowOnboarding returned false, aborting');
     return;
   }
@@ -5047,16 +5628,530 @@ function tryInitOnboarding() {
       console.log('[Onboarding Debug] DOMContentLoaded fired');
       // Small delay to ensure all elements are ready
       setTimeout(initOnboarding, 100);
+      
+      // Initialize desktop/tablet welcome overlay
+      setTimeout(initDesktopWelcome, 100);
     });
   } else {
     // DOM already ready
     console.log('[Onboarding Debug] DOM already ready, initializing');
     setTimeout(initOnboarding, 100);
+    setTimeout(initDesktopWelcome, 100);
   }
 }
 
 // Try immediately
 tryInitOnboarding();
+
+// ============================================
+// Desktop/Tablet Welcome Overlay
+// ============================================
+let desktopWelcomeCurrentIndex = 0;
+let desktopWelcomeCardsPerView = 3; // Default
+
+// Calculate cards per view based on available carousel height and width
+function updateDesktopWelcomeCardsPerView() {
+  const carouselWrapper = document.querySelector('.desktop-welcome-carousel-wrapper');
+  const carousel = document.querySelector('.desktop-welcome-carousel');
+  if (!carouselWrapper || !carousel) {
+    // Fallback to width-based calculation
+    const width = window.innerWidth;
+    if (width >= 1400) {
+      desktopWelcomeCardsPerView = 4;
+    } else if (width >= 1025) {
+      desktopWelcomeCardsPerView = 3;
+    } else if (width >= 900) {
+      desktopWelcomeCardsPerView = 2.5;
+    } else {
+      desktopWelcomeCardsPerView = 2;
+    }
+    return;
+  }
+  
+  // Get available height for carousel (80% of space between features title and button)
+  const carouselHeight = carouselWrapper.offsetHeight;
+  const carouselWidth = carousel.offsetWidth;
+  
+  // Card height is carousel height
+  const cardHeight = carouselHeight;
+  // Card width is 80% of height
+  const cardWidth = cardHeight * 0.8;
+  
+  // Calculate how many cards fit horizontally
+  const gap = 24; // 1.5rem = 24px
+  const cardWidthWithGap = cardWidth + gap;
+  const maxCards = Math.floor(carouselWidth / cardWidthWithGap);
+  
+  // Determine cards per view
+  if (carouselHeight > 400) {
+    // Very tall - show only 1 card
+    desktopWelcomeCardsPerView = 1;
+  } else if (maxCards >= 5) {
+    // All 5 cards fit - show all without scrolling
+    desktopWelcomeCardsPerView = 5;
+  } else if (maxCards >= 4) {
+    desktopWelcomeCardsPerView = 4;
+  } else if (maxCards >= 3) {
+    desktopWelcomeCardsPerView = 3;
+  } else if (maxCards >= 2) {
+    desktopWelcomeCardsPerView = 2.5;
+  } else {
+    desktopWelcomeCardsPerView = 2;
+  }
+}
+
+// Initialize desktop welcome overlay
+function initDesktopWelcome() {
+  console.log('[Desktop Welcome] initDesktopWelcome called');
+  
+  // Only show on desktop/tablet
+  // Check device type, not just width (iPad Mini is 768px but should show desktop welcome)
+  const deviceType = detectDeviceTypeForOnboarding();
+  console.log('[Desktop Welcome] Device type detected:', deviceType);
+  
+  if (deviceType !== 'desktop' && deviceType !== 'tablet') {
+    console.log('[Desktop Welcome] Not desktop/tablet, skipping');
+    return;
+  }
+  
+  // Check if already completed (same localStorage key as mobile for consistency)
+  const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === '1';
+  console.log('[Desktop Welcome] Has completed:', hasCompleted);
+  if (hasCompleted) {
+    console.log('[Desktop Welcome] Already completed, skipping');
+    return;
+  }
+  
+  // Don't show in shared view
+  const isSharedView = window.location.search.includes('view=savedshare');
+  if (isSharedView) {
+    console.log('[Desktop Welcome] Shared view, skipping');
+    return;
+  }
+  
+  const overlay = document.getElementById('desktop-welcome-overlay');
+  if (!overlay) {
+    console.error('[Desktop Welcome] Overlay element not found!');
+    return;
+  }
+  
+  // Show overlay first to get proper dimensions
+  overlay.style.display = 'flex';
+  
+  // Wait for layout to calculate proper dimensions
+  setTimeout(() => {
+    // Set carousel wrapper height to 80% of available space
+    const featuresTitle = document.querySelector('.desktop-welcome-features-title');
+    const getStartedBtn = document.querySelector('.desktop-welcome-get-started-btn');
+    const carouselWrapper = document.querySelector('.desktop-welcome-carousel-wrapper');
+    
+    if (featuresTitle && getStartedBtn && carouselWrapper) {
+      const featuresTitleBottom = featuresTitle.getBoundingClientRect().bottom;
+      const buttonTop = getStartedBtn.getBoundingClientRect().top;
+      const availableSpace = buttonTop - featuresTitleBottom;
+      const carouselHeight = availableSpace * 0.8;
+      carouselWrapper.style.height = `${carouselHeight}px`;
+      carouselWrapper.style.maxHeight = `${carouselHeight}px`;
+      carouselWrapper.style.minHeight = `${carouselHeight}px`;
+      
+      console.log('[Desktop Welcome] Carousel height set to:', carouselHeight, 'px (80% of', availableSpace, 'px)');
+    }
+    
+    // Update cards per view based on actual dimensions
+    updateDesktopWelcomeCardsPerView();
+    
+    // Initialize carousel
+    initDesktopWelcomeCarousel();
+    
+    // Setup event listeners
+    setupDesktopWelcomeEvents();
+    
+    // Track GA event
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'desktop_welcome_viewed', {
+        'device_type': detectDeviceTypeForOnboarding()
+      });
+    }
+    
+    console.log('[Desktop Welcome] Initialized successfully');
+  }, 150);
+}
+
+// Initialize carousel
+function initDesktopWelcomeCarousel() {
+  updateDesktopWelcomeCardsPerView();
+  updateDesktopWelcomeCarousel();
+  updateDesktopWelcomeCarouselButtons();
+}
+
+// Update carousel position
+function updateDesktopWelcomeCarousel() {
+  const track = document.querySelector('.desktop-welcome-carousel-track');
+  const carousel = document.querySelector('.desktop-welcome-carousel');
+  const carouselWrapper = document.querySelector('.desktop-welcome-carousel-wrapper');
+  if (!track || !carousel || !carouselWrapper) return;
+  
+  // Calculate card dimensions based on carousel height
+  const cards = track.querySelectorAll('.desktop-welcome-card');
+  if (cards.length === 0) return;
+  
+  // Get carousel height (should be 80% of available space)
+  const carouselHeight = carouselWrapper.offsetHeight || carouselWrapper.clientHeight;
+  
+  if (!carouselHeight || carouselHeight === 0) {
+    console.warn('[Desktop Welcome] Carousel height is 0, skipping update');
+    return;
+  }
+  
+  // Card height is the carousel height (cards fill the carousel)
+  // Card width should be 80% of card height
+  const cardHeight = carouselHeight; // Use full carousel height
+  const cardWidth = cardHeight * 0.8; // 80% of height
+  
+  // Set card dimensions dynamically
+  // Card only has bottom padding (0.5rem = 8px) for description text
+  const bottomPadding = 8;
+  
+  cards.forEach(card => {
+    card.style.width = `${cardWidth}px`;
+    card.style.height = `${carouselHeight}px`;
+    card.style.flex = `0 0 ${cardWidth}px`;
+    
+    // Calculate space for description text
+    const cardContent = card.querySelector('.desktop-welcome-card-image');
+    const cardTitle = card.querySelector('.desktop-welcome-card-title');
+    
+    if (cardContent && cardTitle) {
+      // Add small padding (5px) on top and sides of image
+      const imagePadding = 5;
+      cardContent.style.width = '100%';
+      cardContent.style.marginLeft = '0';
+      cardContent.style.marginRight = '0';
+      cardContent.style.marginTop = '0';
+      cardContent.style.padding = `${imagePadding}px ${imagePadding}px 0 ${imagePadding}px`; // Top, right, bottom, left
+      
+      // Measure how much space the image actually takes
+      // We'll set image container height to leave room for description
+      // Description needs about 30px, plus 8px bottom padding, plus 6px margin between image and text
+      const descriptionHeight = 30;
+      const marginBetweenImageAndText = 6; // 0.375rem = 6px
+      const imageContainerHeight = carouselHeight - descriptionHeight - bottomPadding - marginBetweenImageAndText - imagePadding; // Subtract top padding
+      
+      cardContent.style.height = `${imageContainerHeight}px`;
+      cardContent.style.maxHeight = `${imageContainerHeight}px`;
+      cardContent.style.marginBottom = `${marginBetweenImageAndText}px`; // Ensure margin is set
+      
+      // Description text gets the remaining space at bottom, centered both horizontally and vertically
+      // Calculate the actual available space for description (including margin between image and text)
+      const descriptionSpace = carouselHeight - imageContainerHeight - imagePadding - marginBetweenImageAndText - bottomPadding; // Total space for description area
+      cardTitle.style.height = `${descriptionSpace}px`;
+      cardTitle.style.minHeight = `${descriptionSpace}px`;
+      cardTitle.style.paddingLeft = '0';
+      cardTitle.style.paddingRight = '0';
+      cardTitle.style.paddingTop = '0';
+      cardTitle.style.paddingBottom = '0';
+      cardTitle.style.marginTop = '0';
+      cardTitle.style.marginBottom = '0';
+      cardTitle.style.width = '100%'; // Full width edge to edge
+      cardTitle.style.display = 'flex';
+      cardTitle.style.alignItems = 'center';
+      cardTitle.style.justifyContent = 'center';
+      cardTitle.style.boxSizing = 'border-box';
+    }
+  });
+  
+  // Calculate optimal font size so longest text takes about 80% of card width
+  // Longest text is "Plan Driving Route" (18 characters)
+  // But don't exceed the font size of "Explore What You Can Do" (1.25rem)
+  // Create a temporary element to measure text width accurately
+  const tempSpan = document.createElement('span');
+  tempSpan.style.visibility = 'hidden';
+  tempSpan.style.position = 'absolute';
+  tempSpan.style.whiteSpace = 'nowrap';
+  tempSpan.style.fontWeight = '600';
+  tempSpan.style.fontFamily = window.getComputedStyle(document.querySelector('.desktop-welcome-card-title') || document.body).fontFamily;
+  document.body.appendChild(tempSpan);
+  
+  const longestText = "Plan Driving Route";
+  const maxFontSize = 1.25; // Don't exceed "Explore What You Can Do" font size (1.25rem)
+  const targetWidth = cardWidth * 0.8; // Use 80% of card width (edge to edge, no padding)
+  let fontSize = 0.75; // Start with base font size
+  let textWidth = 0;
+  
+  // Binary search for optimal font size
+  let minFont = 0.5;
+  let maxFont = maxFontSize; // Cap at maxFontSize
+  let bestFontSize = minFont;
+  
+  for (let i = 0; i < 30; i++) {
+    fontSize = (minFont + maxFont) / 2;
+    tempSpan.style.fontSize = `${fontSize}rem`;
+    tempSpan.textContent = longestText;
+    textWidth = tempSpan.offsetWidth;
+    
+    if (textWidth <= targetWidth) {
+      bestFontSize = fontSize;
+      minFont = fontSize;
+    } else {
+      maxFont = fontSize;
+    }
+    
+    // Break if we're close enough (within 0.5px)
+    if (Math.abs(textWidth - targetWidth) < 0.5) {
+      bestFontSize = fontSize;
+      break;
+    }
+  }
+  
+  // Ensure we don't exceed maxFontSize, but also ensure we're not too small
+  fontSize = Math.min(bestFontSize, maxFontSize);
+  
+  // Verify the final font size produces the correct width
+  tempSpan.style.fontSize = `${fontSize}rem`;
+  tempSpan.textContent = longestText;
+  const finalTextWidth = tempSpan.offsetWidth;
+  
+  // If final width is still too large, reduce font size further
+  if (finalTextWidth > targetWidth * 1.01) { // Allow 1% tolerance
+    // Calculate the exact font size needed
+    fontSize = (targetWidth / finalTextWidth) * fontSize;
+    fontSize = Math.min(fontSize, maxFontSize);
+  }
+  
+  // Apply font size to all card titles
+  const cardTitles = document.querySelectorAll('.desktop-welcome-card-title');
+  cardTitles.forEach(title => {
+    title.style.fontSize = `${fontSize}rem`;
+  });
+  
+  console.log('[Desktop Welcome] Font size calculation:', {
+    cardWidth: cardWidth,
+    targetWidth: targetWidth,
+    finalFontSize: fontSize,
+    longestText: longestText,
+    finalTextWidth: finalTextWidth,
+    percentage: (finalTextWidth / cardWidth) * 100
+  });
+  
+  document.body.removeChild(tempSpan);
+  
+  // Calculate translateX based on current index
+  const gap = 24; // 1.5rem = 24px
+  const totalCards = 5;
+  const needsScrolling = desktopWelcomeCardsPerView < 5;
+  
+  let translateX;
+  if (!needsScrolling) {
+    // When all 5 cards are visible, center the middle card (index 2, which is the 3rd card)
+    const carouselWidth = carousel.offsetWidth || carousel.clientWidth;
+    
+    // Calculate center of carousel
+    const carouselCenter = carouselWidth / 2;
+    
+    // Calculate position of middle card (index 2) center
+    // Middle card starts at: (2 * cardWidth) + (2 * gap)
+    // Middle card center is at: (2 * cardWidth) + (2 * gap) + (cardWidth / 2)
+    const middleCardIndex = 2;
+    const middleCardStart = (middleCardIndex * cardWidth) + (middleCardIndex * gap);
+    const middleCardCenter = middleCardStart + (cardWidth / 2);
+    
+    // Calculate offset needed to center the middle card
+    const offsetNeeded = carouselCenter - middleCardCenter;
+    
+    // Apply the offset
+    translateX = offsetNeeded;
+  } else {
+    // Normal scrolling behavior
+    translateX = -(desktopWelcomeCurrentIndex * (cardWidth + gap));
+  }
+  
+  track.style.transform = `translateX(${translateX}px)`;
+  
+  // Update dots and arrows visibility
+  // totalCards and needsScrolling already declared above
+  const maxIndex = Math.max(0, totalCards - Math.ceil(desktopWelcomeCardsPerView));
+  
+  // Show/hide arrows based on whether scrolling is needed
+  const prevBtn = document.querySelector('.desktop-welcome-carousel-btn-prev');
+  const nextBtn = document.querySelector('.desktop-welcome-carousel-btn-next');
+  
+  if (prevBtn && nextBtn) {
+    if (needsScrolling) {
+      prevBtn.classList.remove('hidden');
+      nextBtn.classList.remove('hidden');
+    } else {
+      // Hide arrows when all cards are visible
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      prevBtn.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+      
+      // Force a reflow to ensure arrows are hidden before recalculating
+      void carousel.offsetHeight;
+      
+      // Recalculate centering without arrows taking up space
+      // The carousel width changes when arrows are hidden
+      const carouselWidth = carousel.offsetWidth || carousel.clientWidth;
+      const carouselCenter = carouselWidth / 2;
+      const middleCardIndex = 2;
+      const middleCardStart = (middleCardIndex * cardWidth) + (middleCardIndex * gap);
+      const middleCardCenter = middleCardStart + (cardWidth / 2);
+      const offsetNeeded = carouselCenter - middleCardCenter;
+      track.style.transform = `translateX(${offsetNeeded}px)`;
+      
+      // Double-check after a brief delay to ensure it's centered
+      setTimeout(() => {
+        const updatedCarouselWidth = carousel.offsetWidth || carousel.clientWidth;
+        const updatedCarouselCenter = updatedCarouselWidth / 2;
+        const updatedOffsetNeeded = updatedCarouselCenter - middleCardCenter;
+        track.style.transform = `translateX(${updatedOffsetNeeded}px)`;
+      }, 50);
+    }
+  }
+  
+  // Update dots - move them closer to carousel on desktop
+  const dots = document.querySelectorAll('.desktop-welcome-dot');
+  const dotsContainer = document.querySelector('.desktop-welcome-carousel-dots');
+  if (dotsContainer) {
+    dotsContainer.style.marginTop = '0.25rem';
+    dotsContainer.style.marginBottom = '0.75rem';
+  }
+  dots.forEach((dot, index) => {
+    if (needsScrolling && index <= maxIndex) {
+      dot.classList.toggle('active', index === desktopWelcomeCurrentIndex);
+      dot.style.display = 'block';
+    } else if (!needsScrolling) {
+      // Hide all dots when all cards are visible
+      dot.style.display = 'none';
+    } else {
+      dot.style.display = 'none';
+    }
+  });
+}
+
+// Update carousel button states
+function updateDesktopWelcomeCarouselButtons() {
+  const totalCards = 5;
+  // Calculate max index: allow scrolling to show last card fully
+  const maxIndex = Math.max(0, totalCards - Math.ceil(desktopWelcomeCardsPerView));
+  
+  const prevBtn = document.querySelector('.desktop-welcome-carousel-btn-prev');
+  const nextBtn = document.querySelector('.desktop-welcome-carousel-btn-next');
+  
+  if (prevBtn) {
+    prevBtn.disabled = desktopWelcomeCurrentIndex === 0;
+  }
+  if (nextBtn) {
+    nextBtn.disabled = desktopWelcomeCurrentIndex >= maxIndex;
+  }
+}
+
+// Carousel navigation
+function desktopWelcomeCarouselNext() {
+  const totalCards = 5;
+  const maxIndex = Math.max(0, totalCards - Math.ceil(desktopWelcomeCardsPerView));
+  
+  if (desktopWelcomeCurrentIndex < maxIndex) {
+    desktopWelcomeCurrentIndex++;
+    updateDesktopWelcomeCarousel();
+    updateDesktopWelcomeCarouselButtons();
+  }
+}
+
+function desktopWelcomeCarouselPrev() {
+  if (desktopWelcomeCurrentIndex > 0) {
+    desktopWelcomeCurrentIndex--;
+    updateDesktopWelcomeCarousel();
+    updateDesktopWelcomeCarouselButtons();
+  }
+}
+
+// Setup event listeners
+function setupDesktopWelcomeEvents() {
+  const overlay = document.getElementById('desktop-welcome-overlay');
+  if (!overlay) return;
+  
+  // Close button
+  const closeBtn = overlay.querySelector('.desktop-welcome-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', dismissDesktopWelcome);
+  }
+  
+  // Get Started button
+  const getStartedBtn = overlay.querySelector('.desktop-welcome-get-started-btn');
+  if (getStartedBtn) {
+    getStartedBtn.addEventListener('click', dismissDesktopWelcome);
+  }
+  
+  // Carousel buttons
+  const prevBtn = overlay.querySelector('.desktop-welcome-carousel-btn-prev');
+  const nextBtn = overlay.querySelector('.desktop-welcome-carousel-btn-next');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', desktopWelcomeCarouselPrev);
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', desktopWelcomeCarouselNext);
+  }
+  
+  // Carousel dots
+  const dots = overlay.querySelectorAll('.desktop-welcome-dot');
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      desktopWelcomeCurrentIndex = index;
+      updateDesktopWelcomeCarousel();
+      updateDesktopWelcomeCarouselButtons();
+    });
+  });
+  
+  // Handle window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      if (window.innerWidth >= 769) {
+        // Recalculate carousel height
+        const featuresTitle = document.querySelector('.desktop-welcome-features-title');
+        const getStartedBtn = document.querySelector('.desktop-welcome-get-started-btn');
+        const carouselWrapper = document.querySelector('.desktop-welcome-carousel-wrapper');
+        
+        if (featuresTitle && getStartedBtn && carouselWrapper) {
+          const featuresTitleBottom = featuresTitle.getBoundingClientRect().bottom;
+          const buttonTop = getStartedBtn.getBoundingClientRect().top;
+          const availableSpace = buttonTop - featuresTitleBottom;
+          const carouselHeight = availableSpace * 0.8;
+          carouselWrapper.style.height = `${carouselHeight}px`;
+          carouselWrapper.style.maxHeight = `${carouselHeight}px`;
+          carouselWrapper.style.minHeight = `${carouselHeight}px`;
+        }
+        
+        updateDesktopWelcomeCardsPerView();
+        updateDesktopWelcomeCarousel();
+        updateDesktopWelcomeCarouselButtons();
+      }
+    }, 250);
+  });
+}
+
+// Dismiss desktop welcome
+function dismissDesktopWelcome() {
+  // Mark as completed (same key as mobile for consistency)
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
+  
+  const overlay = document.getElementById('desktop-welcome-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+  
+  // Track GA event
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'desktop_welcome_dismissed', {
+      'device_type': detectDeviceTypeForOnboarding()
+    });
+  }
+  
+  console.log('[Desktop Welcome] Dismissed');
+}
 
 // Also try on window load as fallback
 window.addEventListener('load', () => {
