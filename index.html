@@ -3850,7 +3850,7 @@
     /* Pagination Dots */
     .onboarding-pagination {
       position: absolute;
-      bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px) + 3vh); /* 2/3 distance from Skip + safe area + extra space for Chrome bottom bar */
+      bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px)); /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -3859,7 +3859,7 @@
       gap: 8px;
       margin-top: 0;
       padding: 0 20px;
-      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5vh); /* Extra padding for browser UI */
+      padding-bottom: env(safe-area-inset-bottom, 0px); /* Safe area padding for notched devices */
       z-index: 10;
     }
     .onboarding-dot {
@@ -3879,9 +3879,9 @@
     }
     @media (max-width: 768px) {
       .onboarding-pagination {
-        bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px) + 3vh) !important; /* 2/3 distance + safe area + extra space for Chrome bottom bar (3vh ~48px on most phones) */
+        bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px)) !important; /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
         margin-top: 0; /* Remove margin-top to use bottom positioning */
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5vh) !important; /* Extra padding for browser UI */
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Safe area padding for notched devices */
       }
       .onboarding-dot {
         width: 6px;
@@ -4530,6 +4530,36 @@ function initOnboarding() {
   
   // Store original scroll position before locking
   const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+  
+  // Function to update overlay height based on actual viewport (accounts for Chrome navigation bar show/hide)
+  function updateOverlayHeight() {
+    const actualHeight = window.innerHeight;
+    overlay.style.height = `${actualHeight}px`;
+  }
+  
+  // Set initial height based on actual viewport
+  updateOverlayHeight();
+  
+  // Update height when viewport changes (e.g., Chrome navigation bar hides/shows when user tries to scroll)
+  let resizeObserver = null;
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      updateOverlayHeight();
+    });
+    resizeObserver.observe(document.documentElement);
+    // Store observer for cleanup
+    overlay._resizeObserver = resizeObserver;
+  }
+  
+  // Also listen to window resize and orientation change as fallback
+  const handleResize = () => {
+    updateOverlayHeight();
+  };
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', handleResize);
+  
+  // Store handlers for cleanup
+  overlay._resizeHandler = handleResize;
   
   // Show overlay
   overlay.style.display = 'flex';
