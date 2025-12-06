@@ -3842,7 +3842,7 @@
     /* Pagination Dots */
     .onboarding-pagination {
       position: absolute;
-      bottom: 10vh; /* 1/10 from bottom */
+      bottom: 9.075vh; /* Middle between Skip button (18.15vh) and bottom edge (0vh): (18.15 + 0) / 2 = 9.075vh */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -3870,7 +3870,8 @@
     }
     @media (max-width: 768px) {
       .onboarding-pagination {
-        margin-top: 32px;
+        bottom: 9.075vh !important; /* Middle between Skip button (18.15vh) and bottom edge (0vh) for all pages */
+        margin-top: 0; /* Remove margin-top to use bottom positioning */
       }
       .onboarding-dot {
         width: 6px;
