@@ -4722,8 +4722,11 @@ function showOnboardingPage(pageNum) {
   
   // Track page view
   if (typeof gtag !== 'undefined') {
+    const pageType = pageNum === 1 ? 'Welcome' : 'onboarding';
     gtag('event', 'onboarding_page_viewed', {
-      'page_number': pageNum
+      'page_number': pageNum,
+      'page_type': pageType,
+      'page_name': pageNum === 1 ? 'Welcome Page' : `Onboarding Page ${pageNum}`
     });
   }
 }
