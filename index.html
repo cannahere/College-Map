@@ -3842,7 +3842,7 @@
     /* Pagination Dots */
     .onboarding-pagination {
       position: absolute;
-      bottom: 11.11vh; /* Middle between Next button (22.22vh) and bottom edge (0vh): (22.22 + 0) / 2 = 11.11vh */
+      bottom: 6.05vh; /* 2/3 of the distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -3870,7 +3870,7 @@
     }
     @media (max-width: 768px) {
       .onboarding-pagination {
-        bottom: 11.11vh !important; /* Middle between Next button (22.22vh) and bottom edge (0vh) for all pages: (22.22 + 0) / 2 = 11.11vh */
+        bottom: 6.05vh !important; /* 2/3 of the distance from Skip button (18.15vh) to bottom (0vh) for all pages: 18.15vh * (1/3) = 6.05vh */
         margin-top: 0; /* Remove margin-top to use bottom positioning */
       }
       .onboarding-dot {
