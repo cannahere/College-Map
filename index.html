@@ -4737,10 +4737,25 @@ function restoreScroll() {
       overlay._resizeHandler = null;
     }
     
-    // Reset overlay height and custom properties to CSS defaults
+    // Reset overlay height to CSS default
     overlay.style.height = '';
-    overlay.style.removeProperty('--actual-vh');
-    document.documentElement.style.removeProperty('--actual-vh');
+    
+    // Reset button positions (remove inline styles so CSS vh units take over)
+    const nextButtons = overlay.querySelectorAll('.onboarding-next-btn, .onboarding-get-started-btn');
+    nextButtons.forEach(btn => {
+      btn.style.bottom = '';
+      btn.style.padding = '';
+    });
+    
+    const skipButtons = overlay.querySelectorAll('.onboarding-skip-btn');
+    skipButtons.forEach(btn => {
+      btn.style.bottom = '';
+    });
+    
+    const pagination = overlay.querySelector('.onboarding-pagination');
+    if (pagination) {
+      pagination.style.bottom = '';
+    }
     
     // Clean up attributes
     overlay.removeAttribute('data-scroll-y');
