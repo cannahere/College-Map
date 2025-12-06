@@ -4474,6 +4474,15 @@ function detectDeviceTypeForOnboarding() {
   const isIPhone = /iPhone/i.test(ua);
   const isIPad = /iPad/.test(ua) || (!isIPhone && ua.includes('Mac') && navigator.maxTouchPoints > 1);
   
+  // Check for desktop user agents (Windows, Mac, Linux - but not mobile/tablet)
+  const isDesktopUA = !isMobileUA && !isIPad && !isIPhone && (
+    /Windows|Macintosh|Linux|X11/i.test(ua) || 
+    (!isTouchDevice && width > 1024)
+  );
+  
+  // Check for tablet user agents
+  const isTabletUA = isIPad || /Android.*Tablet|iPad/i.test(ua);
+  
   // Debug logging (remove in production if needed)
   console.log('[Onboarding Debug]', {
     width,
@@ -4481,20 +4490,39 @@ function detectDeviceTypeForOnboarding() {
     isIPhone,
     isIPad,
     isMobileUA,
+    isDesktopUA,
+    isTabletUA,
     userAgent: ua.substring(0, 50)
   });
   
-  // More lenient mobile detection: touch device with mobile UA OR width <= 900
-  // Also allow phones with width up to 900px (some modern phones)
-  // iPhone should always be detected as mobile
-  if (isIPhone || (isTouchDevice && !isIPad && (isMobileUA || width <= 900))) {
-    return 'mobile';
+  // Prioritize actual device type over window size
+  // Desktop: Desktop UA detected (Windows, Mac, Linux) and not touch device
+  if (isDesktopUA) {
+    return 'desktop';
   }
-  if (isTouchDevice && (width <= 1024 || isIPad)) {
+  
+  // Tablet: iPad or tablet UA detected
+  if (isTabletUA || isIPad) {
     return 'tablet';
   }
-  // Desktop - don't show onboarding
-  return 'desktop';
+  
+  // Mobile: iPhone or mobile UA with touch device
+  // iPhone should always be detected as mobile
+  if (isIPhone || (isTouchDevice && isMobileUA)) {
+    return 'mobile';
+  }
+  
+  // Fallback: Use window size only if device type is unclear
+  // But still prioritize desktop/tablet if window is large
+  if (width > 1024) {
+    return 'desktop';
+  }
+  if (width > 768) {
+    return 'tablet';
+  }
+  
+  // Default to mobile for small screens
+  return 'mobile';
 }
 
 // Check if onboarding should be shown (runs immediately, before DOMContentLoaded)
@@ -4631,6 +4659,20 @@ function initOnboarding() {
     window.addEventListener('orientationchange', handleResize);
     overlay._resizeHandler = handleResize;
   }
+  
+  // Add resize listener to hide onboarding if window is resized to tablet/desktop
+  const handleWindowResize = () => {
+    const deviceType = detectDeviceTypeForOnboarding();
+    if (deviceType !== 'mobile') {
+      // Hide onboarding if device is detected as tablet or desktop
+      overlay.style.display = 'none';
+      overlay.classList.remove('active');
+      restoreScroll();
+      console.log('[Onboarding Debug] Window resized to tablet/desktop, hiding onboarding');
+    }
+  };
+  window.addEventListener('resize', handleWindowResize);
+  overlay._windowResizeHandler = handleWindowResize;
   
   // Show overlay
   overlay.style.display = 'flex';
@@ -4777,6 +4819,12 @@ function restoreScroll() {
       window.removeEventListener('resize', overlay._resizeHandler);
       window.removeEventListener('orientationchange', overlay._resizeHandler);
       overlay._resizeHandler = null;
+    }
+    
+    // Remove window resize handler for tablet/desktop detection
+    if (overlay._windowResizeHandler) {
+      window.removeEventListener('resize', overlay._windowResizeHandler);
+      overlay._windowResizeHandler = null;
     }
     
     // Reset overlay height to CSS default
