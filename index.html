@@ -3860,7 +3860,7 @@
       margin-top: 0;
       padding: 0 20px;
       padding-bottom: env(safe-area-inset-bottom, 0px); /* Safe area padding for notched devices */
-      z-index: 10;
+      z-index: 100; /* Increased to ensure dots are visible above other elements */
     }
     .onboarding-dot {
       width: 8px;
@@ -4549,15 +4549,21 @@ function initOnboarding() {
     overlay.style.height = `${actualHeight}px`;
     
     // Update button positions proportionally (convert vh to pixels based on actual viewport)
+    // Use setProperty with important flag to override CSS !important rules
     const nextButtons = overlay.querySelectorAll('.onboarding-next-btn, .onboarding-get-started-btn');
     nextButtons.forEach(btn => {
       // 22.22vh = 22.22% of actual height in pixels
-      btn.style.bottom = `${oneVhInPx * 22.22}px`;
-      // Update padding too
-      const currentPadding = btn.style.padding || getComputedStyle(btn).padding;
-      if (currentPadding.includes('vh')) {
-        const vhValue = parseFloat(currentPadding.match(/([\d.]+)vh/)?.[1] || '1.4');
-        btn.style.padding = `${oneVhInPx * vhValue}px 8vw`;
+      btn.style.setProperty('bottom', `${oneVhInPx * 22.22}px`, 'important');
+      // Update padding too - extract vh value from CSS
+      const computedStyle = getComputedStyle(btn);
+      const paddingTop = computedStyle.paddingTop;
+      if (paddingTop.includes('px')) {
+        const currentPx = parseFloat(paddingTop);
+        const scaledPx = (currentPx / cssViewportHeight) * actualHeight;
+        btn.style.setProperty('padding', `${scaledPx}px 8vw`, 'important');
+      } else {
+        // Default to 1.4vh equivalent
+        btn.style.setProperty('padding', `${oneVhInPx * 1.4}px 8vw`, 'important');
       }
     });
     
@@ -4565,15 +4571,27 @@ function initOnboarding() {
     const skipButtons = overlay.querySelectorAll('.onboarding-skip-btn');
     skipButtons.forEach(btn => {
       // 18.15vh = 18.15% of actual height in pixels
-      btn.style.bottom = `${oneVhInPx * 18.15}px`;
+      btn.style.setProperty('bottom', `${oneVhInPx * 18.15}px`, 'important');
     });
     
     // Update pagination dots position
     const pagination = overlay.querySelector('.onboarding-pagination');
     if (pagination) {
       // 6.05vh = 6.05% of actual height in pixels
-      const safeArea = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)')) || 0;
-      pagination.style.bottom = `${(oneVhInPx * 6.05) + safeArea}px`;
+      // Try to get safe area, but if not available, use 0
+      let safeArea = 0;
+      try {
+        const testEl = document.createElement('div');
+        testEl.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
+        document.body.appendChild(testEl);
+        const computed = getComputedStyle(testEl).paddingBottom;
+        safeArea = parseFloat(computed) || 0;
+        document.body.removeChild(testEl);
+      } catch (e) {
+        safeArea = 0;
+      }
+      pagination.style.setProperty('bottom', `${(oneVhInPx * 6.05) + safeArea}px`, 'important');
+      pagination.style.setProperty('z-index', '100', 'important'); // Ensure dots are visible
     }
   }
   
