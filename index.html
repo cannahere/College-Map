@@ -2922,8 +2922,7 @@
       .onboarding-page[data-page="1"] .onboarding-skip-btn,
       .onboarding-page[data-page="7"] .onboarding-skip-btn {
         position: absolute;
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 18.15); /* 1/3 from top of space: Next (22.22vh) - (12.22vh/3) = 18.15vh from bottom */
+        bottom: 18.15vh; /* 1/3 from top of space: Next (22.22vh) - (12.22vh/3) = 18.15vh from bottom */
         left: 50%;
         transform: translateX(-50%);
         font-size: 3.2vw;
@@ -3710,11 +3709,10 @@
       .onboarding-page[data-page="1"] .onboarding-next-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         position: absolute;
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 22.22); /* 2/9 from bottom = 100vh - (2/9 * 100vh) = 77.78vh from top, but using bottom: 22.22vh */
+        bottom: 22.22vh; /* 2/9 from bottom = 100vh - (2/9 * 100vh) = 77.78vh from top, but using bottom: 22.22vh */
         left: 50%;
         transform: translateX(-50%);
-        padding: calc(var(--actual-vh, 1vh) * 1.4) 8vw; /* Reduced from 2vh to 1.4vh for shorter height */
+        padding: 1.4vh 8vw; /* Reduced from 2vh to 1.4vh for shorter height */
         font-size: 4.2vw;
         min-width: 36%; /* 1/2 of 72% = 36% */
         width: 36%;
@@ -3734,11 +3732,10 @@
       .onboarding-page[data-page="5"] .onboarding-next-btn,
       .onboarding-page[data-page="6"] .onboarding-next-btn {
         position: absolute !important; /* Force absolute positioning to match pages 1 and 7 */
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 22.22) !important; /* Same position as page 1 and 7 (2/9 from bottom) */
+        bottom: 22.22vh !important; /* Same position as page 1 and 7 (2/9 from bottom) */
         left: 50% !important;
         transform: translateX(-50%) !important;
-        padding: calc(var(--actual-vh, 1vh) * 1.4) 8vw !important; /* Same padding as pages 1 and 7 */
+        padding: 1.4vh 8vw !important; /* Same padding as pages 1 and 7 */
         font-size: 4.2vw !important;
         min-width: 36% !important; /* Same width as pages 1 and 7 */
         width: 36% !important;
@@ -3754,8 +3751,7 @@
       .onboarding-page[data-page="5"] .onboarding-skip-btn,
       .onboarding-page[data-page="6"] .onboarding-skip-btn {
         position: absolute !important; /* Force absolute positioning to match pages 1 and 7 */
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 18.15) !important; /* Same position as page 1 and 7 (1/3 between Next button and dots) */
+        bottom: 18.15vh !important; /* Same position as page 1 and 7 (1/3 between Next button and dots) */
         left: 50% !important;
         transform: translateX(-50%) !important;
         font-size: 3.2vw !important;
@@ -3783,11 +3779,10 @@
       .onboarding-page[data-page="1"] .onboarding-next-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         position: absolute;
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 22.22); /* 2/9 from bottom, same as mobile */
+        bottom: 22.22vh; /* 2/9 from bottom, same as mobile */
         left: 50%;
         transform: translateX(-50%);
-        padding: calc(var(--actual-vh, 1vh) * 1.4) 6vw; /* Adjusted for tablet */
+        padding: 1.4vh 6vw; /* Adjusted for tablet */
         font-size: 2.8vw;
         min-width: 36%; /* Same proportion as mobile */
         width: 36%;
@@ -3807,8 +3802,7 @@
       .onboarding-page[data-page="5"] .onboarding-next-btn,
       .onboarding-page[data-page="6"] .onboarding-next-btn {
         position: absolute !important;
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 22.22) !important; /* Same position as page 1 */
+        bottom: 22.22vh !important; /* Same position as page 1 */
         left: 50% !important;
         transform: translateX(-50%) !important;
         padding: 1.4vh 6vw !important;
@@ -3827,8 +3821,7 @@
       .onboarding-page[data-page="5"] .onboarding-skip-btn,
       .onboarding-page[data-page="6"] .onboarding-skip-btn {
         position: absolute !important;
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 18.15) !important; /* 1/3 between Next (22.22vh) and dots (10vh) */
+        bottom: 18.15vh !important; /* 1/3 between Next (22.22vh) and dots (10vh) */
         left: 50% !important;
         transform: translateX(-50%) !important;
         font-size: 2.2vw !important;
@@ -3844,8 +3837,7 @@
       .onboarding-page[data-page="1"] .onboarding-skip-btn,
       .onboarding-page[data-page="7"] .onboarding-skip-btn {
         position: absolute;
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc(var(--actual-vh, 1vh) * 18.15); /* Same position as pages 2-6 */
+        bottom: 18.15vh; /* Same position as pages 2-6 */
         left: 50%;
         transform: translateX(-50%);
         font-size: 2.2vw;
@@ -3858,8 +3850,7 @@
     /* Pagination Dots */
     .onboarding-pagination {
       position: absolute;
-      /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-      bottom: calc((var(--actual-vh, 1vh) * 6.05) + env(safe-area-inset-bottom, 0px)); /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
+      bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px)); /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -3888,8 +3879,7 @@
     }
     @media (max-width: 768px) {
       .onboarding-pagination {
-        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
-        bottom: calc((var(--actual-vh, 1vh) * 6.05) + env(safe-area-inset-bottom, 0px)) !important; /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
+        bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px)) !important; /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
         margin-top: 0; /* Remove margin-top to use bottom positioning */
         padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Safe area padding for notched devices */
       }
@@ -4541,60 +4531,71 @@ function initOnboarding() {
   // Store original scroll position before locking
   const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
   
-  // Function to update overlay height based on actual viewport (accounts for Chrome navigation bar show/hide)
-  // Safari: 100vh is stable - address bar behavior doesn't significantly affect viewport calculations
-  // Chrome: Navigation bar show/hide changes window.innerHeight dramatically, but CSS 100vh stays constant
-  // Solution: Only apply dynamic height for Chrome/Android, let Safari use CSS 100vh
+  // Chrome-only proportional scaling: Apply scaling only for Chrome/Android, Safari completely untouched
+  // Safari: Uses CSS vh units directly (no JavaScript changes)
+  // Chrome: Apply proportional scaling via JavaScript by setting positions in pixels based on actual viewport
   const ua = navigator.userAgent || '';
   const isChrome = /Chrome/.test(ua) && !/Safari/.test(ua.replace(/Chrome/g, ''));
   const isAndroid = /Android/.test(ua);
-  const needsDynamicHeight = isChrome || isAndroid; // Only Chrome/Android need dynamic height adjustment
+  const isChromeOrAndroid = isChrome || isAndroid;
   
-  function updateOverlayHeight() {
-    if (needsDynamicHeight) {
-      const actualHeight = window.innerHeight; // Screen minus navigation bar
-      // Set overlay height to actual visible viewport
-      overlay.style.height = `${actualHeight}px`;
-      
-      // Create CSS custom property: 1vh = 1% of actual visible height
-      // This makes all vh units inside the overlay use the actual viewport, not CSS viewport
-      const oneVh = actualHeight * 0.01;
-      overlay.style.setProperty('--actual-vh', `${oneVh}px`);
-      
-      // Also set on document root for any elements that might need it
-      document.documentElement.style.setProperty('--actual-vh', `${oneVh}px`);
-    } else {
-      // Safari: Use CSS 100vh (don't override with JavaScript)
-      overlay.style.height = '';
-      overlay.style.removeProperty('--actual-vh');
-      document.documentElement.style.removeProperty('--actual-vh');
+  function updateChromeProportionalScaling() {
+    if (!isChromeOrAndroid) return; // Safari: Do nothing, use CSS vh units
+    
+    const actualHeight = window.innerHeight; // Screen minus navigation bar
+    const oneVhInPx = actualHeight * 0.01; // 1vh in actual pixels
+    
+    // Set overlay height to actual viewport
+    overlay.style.height = `${actualHeight}px`;
+    
+    // Update button positions proportionally (convert vh to pixels based on actual viewport)
+    const nextButtons = overlay.querySelectorAll('.onboarding-next-btn, .onboarding-get-started-btn');
+    nextButtons.forEach(btn => {
+      // 22.22vh = 22.22% of actual height in pixels
+      btn.style.bottom = `${oneVhInPx * 22.22}px`;
+      // Update padding too
+      const currentPadding = btn.style.padding || getComputedStyle(btn).padding;
+      if (currentPadding.includes('vh')) {
+        const vhValue = parseFloat(currentPadding.match(/([\d.]+)vh/)?.[1] || '1.4');
+        btn.style.padding = `${oneVhInPx * vhValue}px 8vw`;
+      }
+    });
+    
+    // Update skip button positions
+    const skipButtons = overlay.querySelectorAll('.onboarding-skip-btn');
+    skipButtons.forEach(btn => {
+      // 18.15vh = 18.15% of actual height in pixels
+      btn.style.bottom = `${oneVhInPx * 18.15}px`;
+    });
+    
+    // Update pagination dots position
+    const pagination = overlay.querySelector('.onboarding-pagination');
+    if (pagination) {
+      // 6.05vh = 6.05% of actual height in pixels
+      const safeArea = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)')) || 0;
+      pagination.style.bottom = `${(oneVhInPx * 6.05) + safeArea}px`;
     }
   }
   
-  // Set initial height based on browser
-  updateOverlayHeight();
-  
-  // Only set up dynamic height updates for Chrome/Android
-  if (needsDynamicHeight) {
-    // Update height when viewport changes (e.g., Chrome navigation bar hides/shows when user tries to scroll)
+  // Apply scaling for Chrome only
+  if (isChromeOrAndroid) {
+    updateChromeProportionalScaling();
+    
+    // Update when viewport changes (Chrome navigation bar hides/shows)
     let resizeObserver = null;
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(() => {
-        updateOverlayHeight();
+        updateChromeProportionalScaling();
       });
       resizeObserver.observe(document.documentElement);
-      // Store observer for cleanup
       overlay._resizeObserver = resizeObserver;
     }
     
-    // Also listen to window resize and orientation change as fallback
     const handleResize = () => {
-      updateOverlayHeight();
+      updateChromeProportionalScaling();
     };
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
-    
-    // Store handlers for cleanup
     overlay._resizeHandler = handleResize;
   }
   
