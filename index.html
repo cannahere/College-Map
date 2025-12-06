@@ -4716,8 +4716,10 @@ function restoreScroll() {
       overlay._resizeHandler = null;
     }
     
-    // Reset overlay height to CSS default
+    // Reset overlay height and custom properties to CSS defaults
     overlay.style.height = '';
+    overlay.style.removeProperty('--actual-vh');
+    document.documentElement.style.removeProperty('--actual-vh');
     
     // Clean up attributes
     overlay.removeAttribute('data-scroll-y');
