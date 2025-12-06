@@ -3827,7 +3827,8 @@
       .onboarding-page[data-page="5"] .onboarding-skip-btn,
       .onboarding-page[data-page="6"] .onboarding-skip-btn {
         position: absolute !important;
-        bottom: 18.15vh !important; /* 1/3 between Next (22.22vh) and dots (10vh) */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 18.15) !important; /* 1/3 between Next (22.22vh) and dots (10vh) */
         left: 50% !important;
         transform: translateX(-50%) !important;
         font-size: 2.2vw !important;
