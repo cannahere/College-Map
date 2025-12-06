@@ -2844,13 +2844,26 @@
       align-items: center;
       justify-content: center;
       border-radius: 6px;
-      transition: all 0.2s;
+      transition: background 0.2s, color 0.2s;
       z-index: 100; /* Higher z-index to ensure it's clickable */
       pointer-events: auto; /* Ensure clicks work */
+      outline: none; /* Remove default focus outline */
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
     }
     .onboarding-back-btn:hover {
       background: #F9FAFB;
       color: #cbd5e1; /* Slightly darker gray on hover */
+    }
+    .onboarding-back-btn:active {
+      background: transparent !important; /* Keep transparent on click */
+      color: #cbd5e1; /* Slightly darker on click */
+    }
+    .onboarding-back-btn:focus {
+      outline: none; /* Remove focus outline */
+      background: transparent; /* Keep transparent on focus */
+    }
+    .onboarding-back-btn:focus-visible {
+      outline: none; /* Remove focus-visible outline */
     }
     .onboarding-back-btn svg {
       stroke: currentColor; /* Ensure SVG uses the color */
@@ -3196,14 +3209,14 @@
         font-size: 24px;
         margin-bottom: 2.5vh;
       }
-      /* Pages 2-6: Title positioned below 1/9 from top with 1/6 screen width padding */
+      /* Pages 2-6: Title positioned higher to avoid being blocked by screenshots */
       .onboarding-page[data-page="2"] .onboarding-title,
       .onboarding-page[data-page="3"] .onboarding-title,
       .onboarding-page[data-page="4"] .onboarding-title,
       .onboarding-page[data-page="5"] .onboarding-title,
       .onboarding-page[data-page="6"] .onboarding-title {
         position: absolute;
-        top: 9vh; /* Below 1/9 from top */
+        top: 6vh !important; /* Raised from 9vh to 6vh to avoid screenshot overlap */
         left: 50%; /* Center horizontally */
         transform: translateX(-50%); /* Center horizontally */
         width: auto;
@@ -3216,6 +3229,7 @@
         white-space: nowrap; /* Prevent title from wrapping to multiple lines */
         overflow: hidden; /* Hide overflow if text is too long */
         text-overflow: ellipsis; /* Show ellipsis if text overflows */
+        z-index: 10; /* Ensure title is above screenshots */
       }
       /* First and last page titles - center of two lines at 1/3 from top, 3/4 page width, more spacing between lines */
       .onboarding-page[data-page="1"] .onboarding-title,
@@ -3703,33 +3717,33 @@
         min-width: 50% !important; /* Longer width to fit "Get Started" text in one line */
         width: 50% !important; /* Override the 36% width */
       }
-      /* Pages 2-6: Apply same button, skip, and pagination styling - force absolute positioning */
+      /* Pages 2-6: Apply same button styling as pages 1 and 7 - force absolute positioning */
       .onboarding-page[data-page="2"] .onboarding-next-btn,
       .onboarding-page[data-page="3"] .onboarding-next-btn,
       .onboarding-page[data-page="4"] .onboarding-next-btn,
       .onboarding-page[data-page="5"] .onboarding-next-btn,
       .onboarding-page[data-page="6"] .onboarding-next-btn {
-        position: absolute !important; /* Force absolute positioning */
-        bottom: 22.22vh !important; /* Same position as page 1 */
+        position: absolute !important; /* Force absolute positioning to match pages 1 and 7 */
+        bottom: 22.22vh !important; /* Same position as page 1 and 7 (2/9 from bottom) */
         left: 50% !important;
         transform: translateX(-50%) !important;
-        padding: 1.4vh 8vw !important; /* Same shorter height */
+        padding: 1.4vh 8vw !important; /* Same padding as pages 1 and 7 */
         font-size: 4.2vw !important;
-        min-width: 36% !important; /* Same width */
+        min-width: 36% !important; /* Same width as pages 1 and 7 */
         width: 36% !important;
         margin-bottom: 0 !important;
         margin-top: 0 !important;
         z-index: 100 !important; /* Ensure buttons are clickable */
         pointer-events: auto !important; /* Ensure clicks work */
       }
-      /* Pages 2-6: Skip button styling - force absolute positioning */
+      /* Pages 2-6: Skip button styling - same position as pages 1 and 7 */
       .onboarding-page[data-page="2"] .onboarding-skip-btn,
       .onboarding-page[data-page="3"] .onboarding-skip-btn,
       .onboarding-page[data-page="4"] .onboarding-skip-btn,
       .onboarding-page[data-page="5"] .onboarding-skip-btn,
       .onboarding-page[data-page="6"] .onboarding-skip-btn {
-        position: absolute !important; /* Force absolute positioning */
-        bottom: 18.15vh !important; /* Same position as page 1 - 1/3 from top of space */
+        position: absolute !important; /* Force absolute positioning to match pages 1 and 7 */
+        bottom: 18.15vh !important; /* Same position as page 1 and 7 (1/3 between Next button and dots) */
         left: 50% !important;
         transform: translateX(-50%) !important;
         font-size: 3.2vw !important;
@@ -3739,8 +3753,9 @@
         margin-top: 0 !important;
         padding: 1vh 3vw !important;
         text-align: center !important;
-        color: #94a3b8 !important; /* Gray color */
+        color: #94a3b8 !important; /* Gray color - same as pages 1 and 7 */
         font-family: 'Montserrat', 'Mont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+        z-index: 100 !important; /* Ensure it's clickable */
       }
       .onboarding-page[data-page="2"] .onboarding-skip-btn:hover,
       .onboarding-page[data-page="3"] .onboarding-skip-btn:hover,
