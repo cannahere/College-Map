@@ -3850,7 +3850,7 @@
     /* Pagination Dots */
     .onboarding-pagination {
       position: absolute;
-      bottom: 6.05vh; /* 2/3 of the distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
+      bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px) + 3vh); /* 2/3 distance from Skip + safe area + extra space for Chrome bottom bar */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -3859,6 +3859,7 @@
       gap: 8px;
       margin-top: 0;
       padding: 0 20px;
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5vh); /* Extra padding for browser UI */
       z-index: 10;
     }
     .onboarding-dot {
@@ -3878,8 +3879,9 @@
     }
     @media (max-width: 768px) {
       .onboarding-pagination {
-        bottom: 6.05vh !important; /* 2/3 of the distance from Skip button (18.15vh) to bottom (0vh) for all pages: 18.15vh * (1/3) = 6.05vh */
+        bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px) + 3vh) !important; /* 2/3 distance + safe area + extra space for Chrome bottom bar (3vh ~48px on most phones) */
         margin-top: 0; /* Remove margin-top to use bottom positioning */
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5vh) !important; /* Extra padding for browser UI */
       }
       .onboarding-dot {
         width: 6px;
