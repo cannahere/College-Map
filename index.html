@@ -4684,6 +4684,28 @@ function restoreScroll() {
   const overlay = document.getElementById('onboarding-overlay');
   const scrollY = overlay ? parseInt(overlay.getAttribute('data-scroll-y') || '0') : 0;
   
+  // Clean up resize listeners
+  if (overlay) {
+    // Remove ResizeObserver
+    if (overlay._resizeObserver) {
+      overlay._resizeObserver.disconnect();
+      overlay._resizeObserver = null;
+    }
+    
+    // Remove event listeners
+    if (overlay._resizeHandler) {
+      window.removeEventListener('resize', overlay._resizeHandler);
+      window.removeEventListener('orientationchange', overlay._resizeHandler);
+      overlay._resizeHandler = null;
+    }
+    
+    // Reset overlay height to CSS default
+    overlay.style.height = '';
+    
+    // Clean up attributes
+    overlay.removeAttribute('data-scroll-y');
+  }
+  
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.width = '';
@@ -4697,11 +4719,6 @@ function restoreScroll() {
   // Restore scroll position
   if (scrollY > 0) {
     window.scrollTo(0, scrollY);
-  }
-  
-  // Clean up
-  if (overlay) {
-    overlay.removeAttribute('data-scroll-y');
   }
 }
 
