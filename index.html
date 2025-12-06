@@ -4532,34 +4532,51 @@ function initOnboarding() {
   const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
   
   // Function to update overlay height based on actual viewport (accounts for Chrome navigation bar show/hide)
+  // Safari: 100vh is stable - address bar behavior doesn't significantly affect viewport calculations
+  // Chrome: Navigation bar show/hide changes window.innerHeight dramatically, but CSS 100vh stays constant
+  // Solution: Only apply dynamic height for Chrome/Android, let Safari use CSS 100vh
+  const ua = navigator.userAgent || '';
+  const isChrome = /Chrome/.test(ua) && !/Safari/.test(ua.replace(/Chrome/g, ''));
+  const isAndroid = /Android/.test(ua);
+  const needsDynamicHeight = isChrome || isAndroid; // Only Chrome/Android need dynamic height adjustment
+  
   function updateOverlayHeight() {
-    const actualHeight = window.innerHeight;
-    overlay.style.height = `${actualHeight}px`;
+    if (needsDynamicHeight) {
+      const actualHeight = window.innerHeight;
+      // Set overlay height to actual viewport - this makes it shrink/grow with Chrome's navigation bar
+      overlay.style.height = `${actualHeight}px`;
+    } else {
+      // Safari: Use CSS 100vh (don't override with JavaScript)
+      overlay.style.height = '';
+    }
   }
   
-  // Set initial height based on actual viewport
+  // Set initial height based on browser
   updateOverlayHeight();
   
-  // Update height when viewport changes (e.g., Chrome navigation bar hides/shows when user tries to scroll)
-  let resizeObserver = null;
-  if (typeof ResizeObserver !== 'undefined') {
-    resizeObserver = new ResizeObserver(() => {
+  // Only set up dynamic height updates for Chrome/Android
+  if (needsDynamicHeight) {
+    // Update height when viewport changes (e.g., Chrome navigation bar hides/shows when user tries to scroll)
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        updateOverlayHeight();
+      });
+      resizeObserver.observe(document.documentElement);
+      // Store observer for cleanup
+      overlay._resizeObserver = resizeObserver;
+    }
+    
+    // Also listen to window resize and orientation change as fallback
+    const handleResize = () => {
       updateOverlayHeight();
-    });
-    resizeObserver.observe(document.documentElement);
-    // Store observer for cleanup
-    overlay._resizeObserver = resizeObserver;
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
+    // Store handlers for cleanup
+    overlay._resizeHandler = handleResize;
   }
-  
-  // Also listen to window resize and orientation change as fallback
-  const handleResize = () => {
-    updateOverlayHeight();
-  };
-  window.addEventListener('resize', handleResize);
-  window.addEventListener('orientationchange', handleResize);
-  
-  // Store handlers for cleanup
-  overlay._resizeHandler = handleResize;
   
   // Show overlay
   overlay.style.display = 'flex';
