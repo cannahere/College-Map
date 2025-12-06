@@ -3682,6 +3682,7 @@
     }
     /* First and last page buttons - percentage-based sizing */
     .onboarding-page[data-page="1"] .onboarding-next-btn,
+    .onboarding-page[data-page="1"] .onboarding-get-started-btn,
     .onboarding-page[data-page="7"] .onboarding-get-started-btn {
       padding: 2vh 6vw; /* 2% viewport height × 6% viewport width */
       font-size: 2.2vw; /* Responsive to viewport width */
@@ -3707,6 +3708,7 @@
       }
       /* First and last page buttons - positioned 2/9 from bottom, 1/2 width, shorter height */
       .onboarding-page[data-page="1"] .onboarding-next-btn,
+      .onboarding-page[data-page="1"] .onboarding-get-started-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         position: absolute;
         bottom: 22.22vh; /* 2/9 from bottom = 100vh - (2/9 * 100vh) = 77.78vh from top, but using bottom: 22.22vh */
@@ -3719,8 +3721,10 @@
         margin-bottom: 0;
         z-index: 100; /* Ensure buttons are clickable */
         pointer-events: auto; /* Ensure clicks work */
+        white-space: nowrap; /* Prevent text wrapping */
       }
-      /* Page 7 Get Started button - longer to fit text in one line */
+      /* Page 1 and Page 7 Get Started button - longer to fit text in one line */
+      .onboarding-page[data-page="1"] .onboarding-get-started-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         min-width: 50% !important; /* Longer width to fit "Get Started" text in one line */
         width: 50% !important; /* Override the 36% width */
@@ -3777,6 +3781,7 @@
     @media (min-width: 769px) and (max-width: 1024px) {
       /* First and last page buttons - positioned 2/9 from bottom */
       .onboarding-page[data-page="1"] .onboarding-next-btn,
+      .onboarding-page[data-page="1"] .onboarding-get-started-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         position: absolute;
         bottom: 22.22vh; /* 2/9 from bottom, same as mobile */
@@ -3789,8 +3794,10 @@
         margin-bottom: 0;
         z-index: 100;
         pointer-events: auto;
+        white-space: nowrap; /* Prevent text wrapping */
       }
-      /* Page 7 Get Started button - longer to fit text */
+      /* Page 1 and Page 7 Get Started button - longer to fit text */
+      .onboarding-page[data-page="1"] .onboarding-get-started-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         min-width: 50% !important;
         width: 50% !important;
@@ -3862,6 +3869,14 @@
       padding-bottom: env(safe-area-inset-bottom, 0px); /* Safe area padding for notched devices */
       z-index: 100; /* Increased to ensure dots are visible above other elements */
     }
+    /* Hide pagination dots on page 1 */
+    .onboarding-page[data-page="1"].active ~ .onboarding-pagination,
+    .onboarding-page[data-page="1"].active ~ * .onboarding-pagination {
+      display: none !important;
+    }
+    .onboarding-overlay:has(.onboarding-page[data-page="1"].active) .onboarding-pagination {
+      display: none !important;
+    }
     .onboarding-dot {
       width: 8px;
       height: 8px;
@@ -3927,8 +3942,8 @@
           <span>A simpler way to explore U.S. colleges.</span>
           <span>Search, filter, save, plan routes, and share<br>— all on one clear, easy map.</span>
         </p>
-        <button class="onboarding-next-btn" onclick="onboardingNext()">Next</button>
-        <button class="onboarding-skip-btn" onclick="onboardingSkip()">Skip to Website</button>
+        <button class="onboarding-get-started-btn" onclick="onboardingComplete()">Get Started</button>
+        <button class="onboarding-skip-btn">See How it Works</button>
       </div>
       
       <!-- Page 2: For Early Exploration -->
@@ -4699,6 +4714,12 @@ function showOnboardingPage(pageNum) {
     backBtn.style.display = (pageNum >= 2 && pageNum <= 7) ? 'flex' : 'none';
   }
   
+  // Hide pagination dots on page 1
+  const pagination = document.querySelector('.onboarding-pagination');
+  if (pagination) {
+    pagination.style.display = pageNum === 1 ? 'none' : 'flex';
+  }
+  
   // Track page view
   if (typeof gtag !== 'undefined') {
     gtag('event', 'onboarding_page_viewed', {
@@ -4861,10 +4882,21 @@ function setupOnboardingEvents() {
   
   // Skip buttons (now on each page, use event delegation)
   document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('onboarding-skip-btn')) {
+    const skipBtn = e.target.closest('.onboarding-skip-btn');
+    if (skipBtn) {
       e.preventDefault();
       e.stopPropagation();
-      onboardingSkip();
+      
+      // Check which page this button is on by looking at its parent
+      const pageElement = skipBtn.closest('.onboarding-page');
+      const pageNum = pageElement ? parseInt(pageElement.getAttribute('data-page')) : onboardingCurrentPage;
+      
+      // On page 1, "See How it Works" should go to next page, not skip
+      if (pageNum === 1) {
+        onboardingNext();
+      } else {
+        onboardingSkip();
+      }
     }
   });
   
