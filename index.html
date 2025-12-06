@@ -4378,8 +4378,20 @@ function detectDeviceTypeForOnboarding() {
   const ua = navigator.userAgent || '';
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
   
-  if (isTouchDevice && width <= 768 && !isIPad) {
+  // Debug logging (remove in production if needed)
+  console.log('[Onboarding Debug]', {
+    width,
+    isTouchDevice,
+    isIPad,
+    isMobileUA,
+    userAgent: ua.substring(0, 50)
+  });
+  
+  // More lenient mobile detection: touch device with mobile UA OR width <= 768
+  // Also allow phones with width up to 900px (some modern phones)
+  if (isTouchDevice && !isIPad && (isMobileUA || width <= 900)) {
     return 'mobile';
   }
   if (isTouchDevice && (width <= 1024 || isIPad)) {
@@ -4393,28 +4405,47 @@ function detectDeviceTypeForOnboarding() {
 function shouldShowOnboarding() {
   // Check if already completed
   const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === '1';
-  if (hasCompleted) return false;
+  if (hasCompleted) {
+    console.log('[Onboarding Debug] Already completed');
+    return false;
+  }
   
   // Check device type - only show on mobile (not tablet or desktop)
   const deviceType = detectDeviceTypeForOnboarding();
   const isMobileOnly = deviceType === 'mobile';
-  if (!isMobileOnly) return false;
+  console.log('[Onboarding Debug] Device type:', deviceType, 'isMobile:', isMobileOnly);
+  if (!isMobileOnly) {
+    console.log('[Onboarding Debug] Not mobile device, skipping onboarding');
+    return false;
+  }
   
   // Don't show in shared view
   const isSharedView = window.location.search.includes('view=savedshare');
-  if (isSharedView) return false;
+  if (isSharedView) {
+    console.log('[Onboarding Debug] Shared view, skipping onboarding');
+    return false;
+  }
   
+  console.log('[Onboarding Debug] Should show onboarding: YES');
   return true;
 }
 
 // Initialize onboarding
 function initOnboarding() {
+  console.log('[Onboarding Debug] Initializing onboarding...');
+  
   if (!shouldShowOnboarding()) {
+    console.log('[Onboarding Debug] shouldShowOnboarding returned false, aborting');
     return;
   }
   
   const overlay = document.getElementById('onboarding-overlay');
-  if (!overlay) return;
+  if (!overlay) {
+    console.error('[Onboarding Debug] Overlay element not found!');
+    return;
+  }
+  
+  console.log('[Onboarding Debug] Showing overlay');
   
   // Show overlay
   overlay.style.display = 'flex';
@@ -4435,6 +4466,8 @@ function initOnboarding() {
       'device_type': detectDeviceTypeForOnboarding()
     });
   }
+  
+  console.log('[Onboarding Debug] Onboarding initialized successfully');
 }
 
 // Show specific onboarding page
@@ -4666,16 +4699,104 @@ function setupOnboardingEvents() {
 
 // Initialize onboarding immediately (before DOMContentLoaded)
 // This ensures onboarding shows before site content loads
-if (document.readyState === 'loading') {
-  // DOM not ready yet, wait for it
-  document.addEventListener('DOMContentLoaded', () => {
-    // Small delay to ensure all elements are ready
+function tryInitOnboarding() {
+  console.log('[Onboarding Debug] Attempting to initialize, readyState:', document.readyState);
+  
+  if (document.readyState === 'loading') {
+    // DOM not ready yet, wait for it
+    console.log('[Onboarding Debug] DOM loading, waiting for DOMContentLoaded');
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('[Onboarding Debug] DOMContentLoaded fired');
+      // Small delay to ensure all elements are ready
+      setTimeout(initOnboarding, 100);
+    });
+  } else {
+    // DOM already ready
+    console.log('[Onboarding Debug] DOM already ready, initializing');
     setTimeout(initOnboarding, 100);
-  });
-} else {
-  // DOM already ready
-  setTimeout(initOnboarding, 100);
+  }
 }
+
+// Try immediately
+tryInitOnboarding();
+
+// Also try on window load as fallback
+window.addEventListener('load', () => {
+  console.log('[Onboarding Debug] Window load event fired');
+  const overlay = document.getElementById('onboarding-overlay');
+  if (overlay && overlay.style.display === 'none' && shouldShowOnboarding()) {
+    console.log('[Onboarding Debug] Fallback: showing onboarding on window load');
+    initOnboarding();
+  }
+});
+
+// Helper function for testing: Reset onboarding (call from console)
+// Usage: resetOnboarding() then refresh the page
+window.resetOnboarding = function() {
+  localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+  console.log('Onboarding reset! Refresh the page to see it again.');
+  return true;
+};
+
+// Helper function for testing: Force show onboarding (call from console)
+// Usage: forceShowOnboarding() - will show onboarding regardless of device type
+window.forceShowOnboarding = function() {
+  console.log('[Onboarding Debug] Force showing onboarding...');
+  const overlay = document.getElementById('onboarding-overlay');
+  if (!overlay) {
+    console.error('[Onboarding Debug] Overlay not found!');
+    return false;
+  }
+  
+  // Remove completion flag
+  localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+  
+  // Force show
+  overlay.style.display = 'flex';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  showOnboardingPage(1);
+  setupOnboardingEvents();
+  
+  console.log('[Onboarding Debug] Onboarding force-shown');
+  return true;
+};
+
+// Debug function: Check onboarding status
+window.debugOnboarding = function() {
+  const width = window.innerWidth;
+  const ua = navigator.userAgent || '';
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+  const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const deviceType = detectDeviceTypeForOnboarding();
+  const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === '1';
+  const overlay = document.getElementById('onboarding-overlay');
+  
+  console.log('=== ONBOARDING DEBUG INFO ===');
+  console.log('Screen width:', width);
+  console.log('User Agent:', ua);
+  console.log('Is Touch Device:', isTouchDevice);
+  console.log('Is iPad:', isIPad);
+  console.log('Is Mobile UA:', isMobileUA);
+  console.log('Detected Device Type:', deviceType);
+  console.log('Has Completed:', hasCompleted);
+  console.log('Overlay exists:', !!overlay);
+  if (overlay) {
+    console.log('Overlay display:', overlay.style.display);
+    console.log('Overlay has active class:', overlay.classList.contains('active'));
+  }
+  console.log('Should Show:', shouldShowOnboarding());
+  console.log('===========================');
+  
+  return {
+    width,
+    deviceType,
+    hasCompleted,
+    shouldShow: shouldShowOnboarding(),
+    overlayExists: !!overlay
+  };
+};
 
 // ============================================================================
 // END ONBOARDING SYSTEM
