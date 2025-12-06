@@ -4542,12 +4542,22 @@ function initOnboarding() {
   
   function updateOverlayHeight() {
     if (needsDynamicHeight) {
-      const actualHeight = window.innerHeight;
-      // Set overlay height to actual viewport - this makes it shrink/grow with Chrome's navigation bar
+      const actualHeight = window.innerHeight; // Screen minus navigation bar
+      // Set overlay height to actual visible viewport
       overlay.style.height = `${actualHeight}px`;
+      
+      // Create CSS custom property: 1vh = 1% of actual visible height
+      // This makes all vh units inside the overlay use the actual viewport, not CSS viewport
+      const oneVh = actualHeight * 0.01;
+      overlay.style.setProperty('--actual-vh', `${oneVh}px`);
+      
+      // Also set on document root for any elements that might need it
+      document.documentElement.style.setProperty('--actual-vh', `${oneVh}px`);
     } else {
       // Safari: Use CSS 100vh (don't override with JavaScript)
       overlay.style.height = '';
+      overlay.style.removeProperty('--actual-vh');
+      document.documentElement.style.removeProperty('--actual-vh');
     }
   }
   
