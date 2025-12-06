@@ -2747,6 +2747,8 @@
       left: 0;
       right: 0;
       bottom: 0;
+      width: 100vw;
+      height: 100vh;
       background: #F8F8F8;
       z-index: 99999;
       display: flex;
@@ -2754,7 +2756,10 @@
       justify-content: center;
       font-family: Inter, sans-serif;
       overflow: hidden;
-      touch-action: pan-y;
+      overflow-y: hidden;
+      overflow-x: hidden;
+      touch-action: none; /* Prevent all touch scrolling */
+      -webkit-overflow-scrolling: none;
     }
     .onboarding-overlay.active {
       display: flex;
@@ -2809,8 +2814,11 @@
       justify-content: center;
       padding: 20px;
       z-index: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden;
+      overflow-y: hidden;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: none;
+      touch-action: none;
     }
     /* Mobile: Full screen */
     @media (max-width: 768px) {
@@ -4518,18 +4526,46 @@ function initOnboarding() {
   
   console.log('[Onboarding Debug] Showing overlay');
   
+  // Store original scroll position before locking
+  const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+  
   // Show overlay
   overlay.style.display = 'flex';
   overlay.classList.add('active');
   
-  // Prevent body scroll
+  // Prevent body and html scroll - more aggressive for Chrome
   document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  document.body.style.height = '100%';
+  document.body.style.top = `-${scrollY}px`;
+  document.documentElement.style.overflow = 'hidden';
+  document.documentElement.style.position = 'fixed';
+  document.documentElement.style.width = '100%';
+  document.documentElement.style.height = '100%';
+  
+  // Store scroll position in overlay data attribute for restoration
+  overlay.setAttribute('data-scroll-y', scrollY.toString());
   
   // Set initial page
   showOnboardingPage(1);
   
   // Setup event listeners
   setupOnboardingEvents();
+  
+  // Prevent scroll events on overlay
+  overlay.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+  
+  overlay.addEventListener('wheel', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+  
+  overlay.addEventListener('scroll', (e) => {
+    e.preventDefault();
+    overlay.scrollTop = 0;
+  }, { passive: false });
   
   // Track GA event
   if (typeof gtag !== 'undefined') {
@@ -4611,6 +4647,32 @@ function onboardingBack() {
 }
 window.onboardingBack = onboardingBack;
 
+// Helper function to restore scroll
+function restoreScroll() {
+  const overlay = document.getElementById('onboarding-overlay');
+  const scrollY = overlay ? parseInt(overlay.getAttribute('data-scroll-y') || '0') : 0;
+  
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+  document.body.style.height = '';
+  document.body.style.top = '';
+  document.documentElement.style.overflow = '';
+  document.documentElement.style.position = '';
+  document.documentElement.style.width = '';
+  document.documentElement.style.height = '';
+  
+  // Restore scroll position
+  if (scrollY > 0) {
+    window.scrollTo(0, scrollY);
+  }
+  
+  // Clean up
+  if (overlay) {
+    overlay.removeAttribute('data-scroll-y');
+  }
+}
+
 // Complete onboarding - make globally accessible
 function onboardingComplete() {
   // Mark as completed
@@ -4622,7 +4684,7 @@ function onboardingComplete() {
     overlay.classList.remove('active');
     setTimeout(() => {
       overlay.style.display = 'none';
-      document.body.style.overflow = '';
+      restoreScroll();
     }, 300);
   }
   
@@ -4648,7 +4710,7 @@ function onboardingSkip() {
     overlay.classList.remove('active');
     setTimeout(() => {
       overlay.style.display = 'none';
-      document.body.style.overflow = '';
+      restoreScroll();
     }, 300);
   }
   
