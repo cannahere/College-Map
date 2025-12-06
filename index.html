@@ -4367,6 +4367,55 @@
 // ONBOARDING SYSTEM
 // ============================================================================
 const ONBOARDING_STORAGE_KEY = 'ucm_onboarding_completed_v1';
+
+// Define debug functions immediately so they're always available
+(function() {
+  'use strict';
+  
+  // Debug function - define early
+  window.debugOnboarding = function() {
+    try {
+      const width = window.innerWidth;
+      const ua = navigator.userAgent || '';
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+      const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      const deviceType = typeof detectDeviceTypeForOnboarding === 'function' ? detectDeviceTypeForOnboarding() : (isTouchDevice && !isIPad && (isMobileUA || width <= 900) ? 'mobile' : isTouchDevice && (width <= 1024 || isIPad) ? 'tablet' : 'desktop');
+      const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === '1';
+      const overlay = document.getElementById('onboarding-overlay');
+      
+      console.log('=== ONBOARDING DEBUG INFO ===');
+      console.log('Screen width:', width);
+      console.log('User Agent:', ua);
+      console.log('Is Touch Device:', isTouchDevice);
+      console.log('Is iPad:', isIPad);
+      console.log('Is Mobile UA:', isMobileUA);
+      console.log('Detected Device Type:', deviceType);
+      console.log('Has Completed:', hasCompleted);
+      console.log('Overlay exists:', !!overlay);
+      if (overlay) {
+        console.log('Overlay display:', overlay.style.display);
+        console.log('Overlay has active class:', overlay.classList.contains('active'));
+      }
+      const shouldShow = typeof shouldShowOnboarding === 'function' ? shouldShowOnboarding() : 'function not available';
+      console.log('Should Show:', shouldShow);
+      console.log('===========================');
+      
+      return {
+        width,
+        deviceType,
+        hasCompleted,
+        shouldShow: shouldShow,
+        overlayExists: !!overlay
+      };
+    } catch (e) {
+      console.error('Error in debugOnboarding:', e);
+      return { error: e.message };
+    }
+  };
+  
+  console.log('[Onboarding] debugOnboarding() function is now available');
+})();
 let onboardingCurrentPage = 1;
 let onboardingTouchStartX = 0;
 let onboardingTouchEndX = 0;
@@ -4762,41 +4811,8 @@ window.forceShowOnboarding = function() {
   return true;
 };
 
-// Debug function: Check onboarding status
-window.debugOnboarding = function() {
-  const width = window.innerWidth;
-  const ua = navigator.userAgent || '';
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
-  const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  const deviceType = detectDeviceTypeForOnboarding();
-  const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === '1';
-  const overlay = document.getElementById('onboarding-overlay');
-  
-  console.log('=== ONBOARDING DEBUG INFO ===');
-  console.log('Screen width:', width);
-  console.log('User Agent:', ua);
-  console.log('Is Touch Device:', isTouchDevice);
-  console.log('Is iPad:', isIPad);
-  console.log('Is Mobile UA:', isMobileUA);
-  console.log('Detected Device Type:', deviceType);
-  console.log('Has Completed:', hasCompleted);
-  console.log('Overlay exists:', !!overlay);
-  if (overlay) {
-    console.log('Overlay display:', overlay.style.display);
-    console.log('Overlay has active class:', overlay.classList.contains('active'));
-  }
-  console.log('Should Show:', shouldShowOnboarding());
-  console.log('===========================');
-  
-  return {
-    width,
-    deviceType,
-    hasCompleted,
-    shouldShow: shouldShowOnboarding(),
-    overlayExists: !!overlay
-  };
-};
+// Debug function is already defined above (early definition for immediate availability)
+// Additional helper functions are defined below
 
 // ============================================================================
 // END ONBOARDING SYSTEM
