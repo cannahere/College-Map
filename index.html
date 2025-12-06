@@ -4426,21 +4426,27 @@ function detectDeviceTypeForOnboarding() {
   const width = window.innerWidth;
   const ua = navigator.userAgent || '';
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const isIPad = /iPad/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
   const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  
+  // Improved iPad detection: Check for iPad explicitly, but exclude iPhone
+  // iPhone user agents include "Mac OS X" but we should check for iPhone first
+  const isIPhone = /iPhone/i.test(ua);
+  const isIPad = /iPad/.test(ua) || (!isIPhone && ua.includes('Mac') && navigator.maxTouchPoints > 1);
   
   // Debug logging (remove in production if needed)
   console.log('[Onboarding Debug]', {
     width,
     isTouchDevice,
+    isIPhone,
     isIPad,
     isMobileUA,
     userAgent: ua.substring(0, 50)
   });
   
-  // More lenient mobile detection: touch device with mobile UA OR width <= 768
+  // More lenient mobile detection: touch device with mobile UA OR width <= 900
   // Also allow phones with width up to 900px (some modern phones)
-  if (isTouchDevice && !isIPad && (isMobileUA || width <= 900)) {
+  // iPhone should always be detected as mobile
+  if (isIPhone || (isTouchDevice && !isIPad && (isMobileUA || width <= 900))) {
     return 'mobile';
   }
   if (isTouchDevice && (width <= 1024 || isIPad)) {
