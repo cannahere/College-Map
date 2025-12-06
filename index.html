@@ -2922,7 +2922,8 @@
       .onboarding-page[data-page="1"] .onboarding-skip-btn,
       .onboarding-page[data-page="7"] .onboarding-skip-btn {
         position: absolute;
-        bottom: 18.15vh; /* 1/3 from top of space: Next (22.22vh) - (12.22vh/3) = 18.15vh from bottom */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 18.15); /* 1/3 from top of space: Next (22.22vh) - (12.22vh/3) = 18.15vh from bottom */
         left: 50%;
         transform: translateX(-50%);
         font-size: 3.2vw;
@@ -3709,10 +3710,11 @@
       .onboarding-page[data-page="1"] .onboarding-next-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         position: absolute;
-        bottom: 22.22vh; /* 2/9 from bottom = 100vh - (2/9 * 100vh) = 77.78vh from top, but using bottom: 22.22vh */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 22.22); /* 2/9 from bottom = 100vh - (2/9 * 100vh) = 77.78vh from top, but using bottom: 22.22vh */
         left: 50%;
         transform: translateX(-50%);
-        padding: 1.4vh 8vw; /* Reduced from 2vh to 1.4vh for shorter height */
+        padding: calc(var(--actual-vh, 1vh) * 1.4) 8vw; /* Reduced from 2vh to 1.4vh for shorter height */
         font-size: 4.2vw;
         min-width: 36%; /* 1/2 of 72% = 36% */
         width: 36%;
@@ -3732,10 +3734,11 @@
       .onboarding-page[data-page="5"] .onboarding-next-btn,
       .onboarding-page[data-page="6"] .onboarding-next-btn {
         position: absolute !important; /* Force absolute positioning to match pages 1 and 7 */
-        bottom: 22.22vh !important; /* Same position as page 1 and 7 (2/9 from bottom) */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 22.22) !important; /* Same position as page 1 and 7 (2/9 from bottom) */
         left: 50% !important;
         transform: translateX(-50%) !important;
-        padding: 1.4vh 8vw !important; /* Same padding as pages 1 and 7 */
+        padding: calc(var(--actual-vh, 1vh) * 1.4) 8vw !important; /* Same padding as pages 1 and 7 */
         font-size: 4.2vw !important;
         min-width: 36% !important; /* Same width as pages 1 and 7 */
         width: 36% !important;
@@ -3751,7 +3754,8 @@
       .onboarding-page[data-page="5"] .onboarding-skip-btn,
       .onboarding-page[data-page="6"] .onboarding-skip-btn {
         position: absolute !important; /* Force absolute positioning to match pages 1 and 7 */
-        bottom: 18.15vh !important; /* Same position as page 1 and 7 (1/3 between Next button and dots) */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 18.15) !important; /* Same position as page 1 and 7 (1/3 between Next button and dots) */
         left: 50% !important;
         transform: translateX(-50%) !important;
         font-size: 3.2vw !important;
@@ -3779,10 +3783,11 @@
       .onboarding-page[data-page="1"] .onboarding-next-btn,
       .onboarding-page[data-page="7"] .onboarding-get-started-btn {
         position: absolute;
-        bottom: 22.22vh; /* 2/9 from bottom, same as mobile */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 22.22); /* 2/9 from bottom, same as mobile */
         left: 50%;
         transform: translateX(-50%);
-        padding: 1.4vh 6vw; /* Adjusted for tablet */
+        padding: calc(var(--actual-vh, 1vh) * 1.4) 6vw; /* Adjusted for tablet */
         font-size: 2.8vw;
         min-width: 36%; /* Same proportion as mobile */
         width: 36%;
@@ -3802,7 +3807,8 @@
       .onboarding-page[data-page="5"] .onboarding-next-btn,
       .onboarding-page[data-page="6"] .onboarding-next-btn {
         position: absolute !important;
-        bottom: 22.22vh !important; /* Same position as page 1 */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 22.22) !important; /* Same position as page 1 */
         left: 50% !important;
         transform: translateX(-50%) !important;
         padding: 1.4vh 6vw !important;
@@ -3837,7 +3843,8 @@
       .onboarding-page[data-page="1"] .onboarding-skip-btn,
       .onboarding-page[data-page="7"] .onboarding-skip-btn {
         position: absolute;
-        bottom: 18.15vh; /* Same position as pages 2-6 */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc(var(--actual-vh, 1vh) * 18.15); /* Same position as pages 2-6 */
         left: 50%;
         transform: translateX(-50%);
         font-size: 2.2vw;
@@ -3850,7 +3857,8 @@
     /* Pagination Dots */
     .onboarding-pagination {
       position: absolute;
-      bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px)); /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
+      /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+      bottom: calc((var(--actual-vh, 1vh) * 6.05) + env(safe-area-inset-bottom, 0px)); /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -3879,7 +3887,8 @@
     }
     @media (max-width: 768px) {
       .onboarding-pagination {
-        bottom: calc(6.05vh + env(safe-area-inset-bottom, 0px)) !important; /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
+        /* Use --actual-vh if available (Chrome with nav bar), otherwise fallback to vh (Safari) */
+        bottom: calc((var(--actual-vh, 1vh) * 6.05) + env(safe-area-inset-bottom, 0px)) !important; /* 2/3 of distance from Skip button (18.15vh) to bottom (0vh): 18.15vh * (1/3) = 6.05vh */
         margin-top: 0; /* Remove margin-top to use bottom positioning */
         padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Safe area padding for notched devices */
       }
