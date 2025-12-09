@@ -564,12 +564,17 @@
     .about-map-video-wrapper {position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
     .about-map-video-wrapper iframe {position:absolute;top:0;left:0;width:100%;height:100%;border:0}
     .info-snippets {display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:14px;padding-top:8px}
+    .info-snippets.features-grid {grid-template-columns:repeat(4, 1fr)}
     .snippet h2 {font-size:14px;font-weight:600;margin-bottom:4px;color:#1e293b;display:flex;align-items:center;gap:4px}
     .snippet h2 .star-icon {font-size:0.85em;line-height:1;display:inline-flex;align-items:center;margin-top:0}
     .snippet p {font-size:13px;color:#64748b;line-height:1.5}
     .site-disclaimer {max-width:1100px;margin:0 auto 24px;font-size:10px;line-height:1.5;color:#475569;padding:0 16px;text-align:left}
+    @media (max-width:900px) {
+      .info-snippets.features-grid {grid-template-columns:repeat(2, 1fr)}
+    }
     @media (max-width:700px) {
       .info-snippets {grid-template-columns:1fr}
+      .info-snippets.features-grid {grid-template-columns:1fr}
       .filter-section {margin-top:3px}
       .filter-section summary {padding:10px 12px;font-size:13px}
       .filter-section-content {padding:0 12px 10px}
@@ -4934,16 +4939,39 @@
     </div>
     <div class="info-snippets" aria-label="College visit planning resources">
       <div class="snippet">
-        <h2><span class="star-icon">⭐</span> Explore and find colleges by region</h2>
-        <p>When you're just starting out, it helps to see the big picture. U.S. College Map lets you explore every college across the country — by state, region, or school type — so you can spot patterns, compare areas, and learn what kinds of campuses appeal to you. Tap any school to check out basic details and start building a sense of what's out there.</p>
+        <h2><span class="star-icon">⭐</span> See the whole college landscape at a glance</h2>
+        <p>College search feels a lot easier when you can see everything on one map. U.S. College Map lets you explore colleges across the country by state, region, ranking, or school type, instead of juggling tabs and spreadsheets. You can quickly spot clusters, compare different areas, and discover schools you might never have thought to search for by name.</p>
       </div>
       <div class="snippet">
-        <h2><span class="star-icon">⭐</span> Visit colleges near you or along your route</h2>
-        <p>Heading out for a family trip, tournament, or vacation? Enter any address or route to see colleges nearby or along the way. You might discover schools you've never heard of but end up loving. This makes campus visits easy, low-stress, and part of the travel you're already doing — no extra planning required.</p>
+        <h2><span class="star-icon">⭐</span> Turn trips into simple, efficient college visits</h2>
+        <p>Whether you're planning a dedicated campus tour, a family road trip, or traveling for a tournament, the map shows you colleges near any location and along your driving route. Enter a start and end point, filter the schools that fit your criteria, and instantly see which campuses fall naturally on the way. With one click, you can send the full route and all your college stops to Google Maps—no more copying addresses one by one.</p>
       </div>
       <div class="snippet">
-        <h2><span class="star-icon">⭐</span> Save colleges and plan focused visit trips</h2>
-        <p>After exploring and visiting a few campuses, save your favorite schools to your list. Then switch to Saved-Only mode to see just those colleges on the map. It's perfect for planning intentional visit trips to groups of schools that are close together — whether you're flying out for a weekend or mapping out a bigger college-visit road trip.</p>
+        <h2><span class="star-icon">⭐</span> Keep your college list organized and sharable</h2>
+        <p>As you explore, save schools you're interested in to build a living college list. You can switch the map to show only your saved schools, see where they're clustered, then open the comparison view to review key details side by side. Print a clean list or share a link so family members or counselors see the exact same view you do, making conversations and decisions much easier.</p>
+      </div>
+    </div>
+    <h2 class="about-map-title" style="margin-top: 24px; margin-bottom: 12px;">Learn More about Each Feature</h2>
+    <div class="info-snippets features-grid" aria-label="Learn more about features">
+      <div class="snippet">
+        <h2><span class="star-icon">🔍</span> Visual Exploration</h2>
+        <p>See every U.S. college on one interactive map, filter by type, ranking, region, and state, and explore visually instead of scrolling through endless lists.</p>
+        <p style="margin-top: 8px;"><a href="/features/visual-exploration.html" style="color: #2563eb; text-decoration: none; font-weight: 500;">→ Learn more</a></p>
+      </div>
+      <div class="snippet">
+        <h2><span class="star-icon">📍</span> Nearby Search</h2>
+        <p>Enter any city, home address, or travel destination to instantly see colleges nearby. Perfect for road trips, tournaments, family vacations, or discovering local opportunities.</p>
+        <p style="margin-top: 8px;"><a href="/features/nearby-search.html" style="color: #2563eb; text-decoration: none; font-weight: 500;">→ Learn more</a></p>
+      </div>
+      <div class="snippet">
+        <h2><span class="star-icon">🚗</span> Route Planning</h2>
+        <p>Find colleges naturally along your drive, discover schools you'd otherwise miss, and send a fully organized multi-stop route directly to Google Maps in one click.</p>
+        <p style="margin-top: 8px;"><a href="/features/route-planning.html" style="color: #2563eb; text-decoration: none; font-weight: 500;">→ Learn more</a></p>
+      </div>
+      <div class="snippet">
+        <h2><span class="star-icon">💾</span> Save, Compare & Share</h2>
+        <p>Save schools as you explore, compare them side by side, print a clean list, and share the exact same view with family or counselors to make decisions together.</p>
+        <p style="margin-top: 8px;"><a href="/features/save-compare-share.html" style="color: #2563eb; text-decoration: none; font-weight: 500;">→ Learn more</a></p>
       </div>
     </div>
   </section>

@@ -2,7 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uscollegemap.org/</loc>
-    <lastmod>2025-10-18</lastmod>
+    <lastmod>2025-12-09</lastmod>
     <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://uscollegemap.org/features/visual-exploration.html</loc>
+    <lastmod>2025-12-09</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://uscollegemap.org/features/nearby-search.html</loc>
+    <lastmod>2025-12-09</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://uscollegemap.org/features/route-planning.html</loc>
+    <lastmod>2025-12-09</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://uscollegemap.org/features/save-compare-share.html</loc>
+    <lastmod>2025-12-09</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
   </url>
 </urlset>
