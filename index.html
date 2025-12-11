@@ -159,10 +159,12 @@
       .row-ranking .pill-ranking label{display:none !important;}
       /* Hide ranking in row-filters on mobile since it's now in row-ranking */
       .row-filters .pill-ranking{display:none !important;}
-      .row-search{display:none !important}
-      .row-search .pill{flex:1 1 100%;}
-      .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-search .pill input{flex:1;width:auto;font-size:12px;}
+      .row-search{display:flex;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+      .row-search .pill:first-child{flex:1 1 100%;padding:4px 6px;}
+      .row-search .pill label{display:none}
+      .row-search .pill input{width:100%;font-size:13px;padding:4px 8px;}
+      .filter-actions{flex:1 1 100%;justify-content:flex-start;padding:4px 6px;gap:6px}
+      .filter-actions .filter-action-btn{padding:4px 10px;font-size:13px}
       .row-nearby .pill.address-autocomplete{flex:1 1 100%;}
       .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
       .row-nearby .pill.address-autocomplete input{flex:1;min-width:120px;font-size:14px;}
@@ -180,14 +182,18 @@
     @media (max-width:399px){
       .row-filters{gap:6px;}
       .row-filters .pill{flex:1 1 calc(33.333% - 4px);padding:4px 6px;}
-      .row-filters .pill select{font-size:13px;padding:4px 8px;}
+      .row-filters .pill select{font-size:12px;padding:4px 8px;}
       .row-ranking .pill-ranking{padding:4px 6px;}
-      .row-ranking .pill-ranking select{font-size:13px;padding:4px 8px;}
+      .row-ranking .pill-ranking select{font-size:12px;padding:4px 8px;}
       .row-filters .pill-search{display:none !important}
-      .row-search{display:none !important}
-      .row-search .pill{flex:1 1 100%;}
-      .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-search .pill input{flex:1;width:auto;font-size:12px;}
+      .row-search{display:flex;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+      .row-search .pill:first-child{flex:1 1 100%;padding:4px 6px;}
+      .row-search .pill label{display:none}
+      .row-search .pill input{width:100%;font-size:12px;padding:4px 8px;}
+      .filter-actions{flex:1 1 100%;justify-content:flex-start;padding:4px 6px;gap:6px}
+      .filter-actions .filter-action-btn{padding:4px 10px;font-size:12px}
+      .filter-section summary {font-size:12px}
+      .filter-header-indicator {font-size:12px}
       .row-nearby{flex-direction:column;gap:6px}
       .row-nearby .pill.address-autocomplete{flex-direction:row;align-items:center;flex-wrap:wrap}
       .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:11px !important;font-weight:600;color:#475569}
@@ -221,8 +227,18 @@
     .row-filters .pill select,
     .row-ranking .pill-ranking select{width:100%;box-sizing:border-box;}
     .row-filters .pill-ranking{flex:1 1 0;min-width:0;max-width:25%;}
-    .row-search{display:none}
+    .row-search{display:flex;gap:8px;margin-bottom:3px;flex-wrap:nowrap;align-items:center;width:100%}
     .row-filters .pill-search{display:none !important}
+    .row-search .pill:first-child{flex:1 1 auto;min-width:0}
+    .row-search .pill.filter-actions{flex:0 0 auto !important}
+    .filter-actions{display:flex;gap:6px;flex:0 0 auto;padding:0}
+    .filter-actions .filter-action-btn{font-weight:600;cursor:pointer;padding:6px 12px;border-radius:10px;font-size:14px;white-space:nowrap;transition:background 0.2s,border-color 0.2s}
+    #goToMapBtn{background:#2563eb;color:#fff;border:none}
+    #goToMapBtn:hover{background:#1d4ed8}
+    #goToMapBtn:active{background:#1e40af}
+    #clearFiltersBtn{background:transparent;color:#0f172a;border:1px solid #e2e8f0}
+    #clearFiltersBtn:hover{background:#f8fafc;border-color:#cbd5e1}
+    #clearFiltersBtn:active{background:#f1f5f9}
     /* Hide ranking row on desktop/tablet - only show on mobile (overridden in mobile media query) */
     .row-ranking{display:none;}
     @media (max-width:700px){
@@ -231,13 +247,16 @@
     }
     @media (min-width:1025px) {
       .row-filters .pill-search{display:none !important}
-      .row-search{display:none !important}
       .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
       .row-filters{flex:1 1 100%;margin-bottom:3px;gap:8px}
       .row-filters .pill:not(.pill-ranking){flex:1 1 0;min-width:0;max-width:23%;}
       .row-filters .pill-ranking{flex:1.2 1 0;min-width:0;max-width:31%;}
-      .row-filters .pill-search{flex:1 1 auto;min-width:200px}
-      .row-filters .pill-search input{font-size:14px}
+      .row-search{flex:1 1 100%;margin-bottom:3px;gap:8px;flex-wrap:nowrap;align-items:center;width:100%}
+      .row-search .pill:first-child{flex:1 1 auto;min-width:0}
+      .row-search .pill.filter-actions{flex:0 0 auto !important}
+      .row-search .pill input{font-size:14px;padding:6px 8px;}
+      .filter-actions{flex:0 0 auto;gap:6px}
+      .filter-actions .filter-action-btn{padding:6px 12px;font-size:14px}
       .row-filters .pill-ranking select{flex:1;margin-right:4px}
       .row-nearby{display:flex;flex-direction:row;gap:8px;flex-wrap:nowrap;margin-bottom:0;align-items:center}
       .row-nearby .pill.address-autocomplete{flex:1 1 auto;min-width:0}
@@ -277,6 +296,7 @@
     .pill button {background:#2563eb;color:#fff;border:none;font-weight:600;cursor:pointer;flex:0}
     @media (min-width:701px){
       .row-filters .pill label,
+      .row-search .pill label,
       .row-nearby .pill label,
       .row-route .pill label{font-size:14px}
       .row-filters .pill select,
@@ -327,6 +347,11 @@
     .map-hint-bubble-close:hover {color:#64748b}
     .map-hint-bubble-title {font-weight:600;font-size:0.875rem;line-height:1.4;color:#0f172a;flex:1}
     .map-hint-bubble-body {font-size:0.8125rem;line-height:1.5;color:#64748b}
+    .map-hint-buttons {display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+    .map-hint-close-btn {padding:4px 8px;background:transparent;border:1px solid #cbd5e1;border-radius:6px;color:#64748b;font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:Inter,sans-serif}
+    .map-hint-close-btn:hover {background:#f1f5f9;border-color:#94a3b8;color:#475569}
+    .map-hint-never-show {padding:4px 8px;background:transparent;border:1px solid #cbd5e1;border-radius:6px;color:#64748b;font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:Inter,sans-serif}
+    .map-hint-never-show:hover {background:#f1f5f9;border-color:#94a3b8;color:#475569}
     @media (max-width:700px) {
       .map-hint-bubble {top:16px;left:12px;right:12px;width:clamp(160px, calc(100vw - 24px), 260px);max-width:calc(100vw - 24px);box-sizing:border-box}
     }
@@ -517,10 +542,12 @@
       .row-filters .pill select{width:100%;font-size:14px;padding:6px 8px;}
       .row-filters .pill-ranking select{flex:1;margin-right:4px;font-size:14px;}
       .row-filters .pill-search{display:none !important}
-      .row-search{display:none !important}
-      .row-search .pill{flex:1 1 100%;}
-      .row-search .pill label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
-      .row-search .pill input{flex:1;width:auto;font-size:12px;}
+      .row-search{display:flex;gap:8px;margin-bottom:3px;flex-wrap:nowrap;align-items:center;width:100%}
+      .row-search .pill:first-child{flex:1 1 auto;min-width:0}
+      .row-search .pill.filter-actions{flex:0 0 auto !important}
+      .row-search .pill:not(.filter-actions) label{display:none}
+      .row-search .pill:first-child input{width:100%;font-size:14px;padding:6px 8px;}
+      .filter-actions{flex:0 0 auto;gap:6px}
       .controls{flex-direction:row;flex-wrap:wrap;align-items:flex-start}
       .row-filters{flex:1 1 100%;margin-bottom:3px}
       .row-search{flex:1 1 100%;margin-bottom:3px}
@@ -545,12 +572,20 @@
       .row-route #findRouteBtn{width:auto;flex:0 0 auto;padding:6px 10px;margin-left:6px;font-size:12px}
       .row-route #clearRoute{width:auto;flex:0 0 auto;padding:6px 10px;margin-left:6px;font-size:12px}
       .filter-section {margin-top:3px}
-      .filter-section summary {padding:8px 10px;font-size:13px}
+      .filter-section summary {padding:8px 10px;font-size:12px}
       .filter-section-content {padding:0 10px 8px}
+      .filter-header-indicator {font-size:12px}
     }
     .filter-section {background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;margin-top:4px;overflow:visible;width:100%;flex:1 1 100%;position:relative;transition:box-shadow 0.2s ease}
     .filter-section-content {overflow:visible}
     .filter-section summary {font-weight:600;color:#0f172a;font-size:14px;padding:8px 12px;cursor:pointer;list-style:none;user-select:none;display:flex;align-items:center;gap:8px}
+    .filter-section summary::before {order:-1;flex-shrink:0;margin-right:0}
+    .filter-section summary > span:first-child {flex:0 0 auto;min-width:0;text-align:left;order:0}
+    .filter-section summary > span:last-child {margin-left:auto;flex:0 0 auto;flex-shrink:0;white-space:nowrap;order:1}
+    .filter-section:first-of-type summary {flex-wrap:nowrap}
+    .filter-section:first-of-type summary > span:first-child {flex:0 0 auto;min-width:0;text-align:left;order:0}
+    .filter-header-indicator {color:#2563eb;font-weight:400;font-size:13px;display:none}
+    .active-indicator {color:#2563eb;font-weight:400;font-size:13px;display:none}
     .filter-section summary::-webkit-details-marker {display:none}
     .filter-section summary::before {content:'▶';font-size:10px;transition:transform 0.2s;display:inline-block}
     .filter-section[open] summary::before {transform:rotate(90deg)}
@@ -577,7 +612,7 @@
       .info-snippets {grid-template-columns:1fr}
       .info-snippets.features-grid {grid-template-columns:1fr}
       .filter-section {margin-top:3px}
-      .filter-section summary {padding:10px 12px;font-size:13px}
+      .filter-section summary {padding:10px 12px;font-size:12px}
       .filter-section-content {padding:0 12px 10px}
       .about-map-intro {font-size:14px;margin:20px auto 24px;padding:0 4px;line-height:1.6}
     }
@@ -4625,23 +4660,30 @@
 
   <main>
   <nav class="container controls" aria-label="College search filters">
-    <div class="row row-filters">
-      <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
-      <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
-      <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
-      <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">School Ranking</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">School ranking is for reference only*. Some ranking tiers include extra schools to reflect variations across major lists.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
-      <!-- College name search temporarily hidden - functionality preserved for future use -->
-      <div class="pill pill-search" style="display: none !important;"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
+    <details class="filter-section" open>
+      <summary><span>Filter Colleges by Criteria</span><span class="filter-header-indicator" id="filter-indicator" aria-live="polite"></span></summary>
+      <div class="filter-section-content">
+        <div class="row row-filters">
+          <div class="pill"><label for="type">Type</label><select id="type"><option value="">All college types</option></select></div>
+          <div class="pill"><label for="region">Region</label><select id="region"><option value="">All regions</option></select></div>
+          <div class="pill"><label for="state">State</label><select id="state" autocomplete="one-time-code" data-prevent-autofill="true"><option value="">All states</option></select></div>
+          <div class="pill pill-ranking"><label for="ranking">Ranking</label><select id="ranking"><option value="">School Ranking</option></select><div class="ranking-new-chat-bubble" id="ranking-new-chat-bubble">NEW!</div><button class="ranking-info-icon" id="ranking-info-btn" aria-label="Ranking information" type="button">i</button><div class="ranking-tooltip" id="ranking-tooltip" role="tooltip"><div class="ranking-tooltip-header"><div class="ranking-tooltip-body">School ranking is for reference only*. Some ranking tiers include extra schools to reflect variations across major lists.</div></div><button class="ranking-tooltip-close" id="ranking-tooltip-close" aria-label="Close" type="button">x</button></div></div>
   </div>
-    <div class="row row-search" style="display: none !important;">
-      <div class="pill"><label for="search-mobile">Search</label><input id="search-mobile" placeholder="Enter college name" /></div>
+        <div class="row row-ranking">
+          <!-- Ranking will be moved here on mobile via JavaScript -->
   </div>
-    <div class="row row-ranking">
-      <!-- Ranking will be moved here on mobile via JavaScript -->
-</div>
+        <div class="row row-search">
+          <div class="pill"><label for="search">Search</label><input id="search" placeholder="Enter college name" /></div>
+          <div class="pill filter-actions">
+            <button type="button" id="goToMapBtn" class="filter-action-btn">Go to Map</button>
+            <button type="button" id="clearFiltersBtn" class="filter-action-btn">Clear</button>
+          </div>
+        </div>
+      </div>
+    </details>
 
     <details class="filter-section">
-      <summary>Find Colleges Nearby</summary>
+      <summary><span>Find Colleges Nearby</span><span class="filter-header-indicator" id="nearby-active-indicator" aria-live="polite"></span></summary>
       <div class="filter-section-content">
         <div class="row row-nearby">
           <div class="pill address-autocomplete"><label for="address">Address</label><input id="address" placeholder="Enter a location or home address" autocomplete="new-password" name="search-address" data-autofill-guard="true" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" aria-autocomplete="list" aria-expanded="false" aria-controls="addressSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="addressSuggestions" role="listbox" aria-label="Address suggestions"></div></div>
@@ -4651,7 +4693,7 @@
     </details>
     
     <details class="filter-section">
-      <summary>Find Colleges Along a Route</summary>
+      <summary><span>Find Colleges Along a Route</span><span class="filter-header-indicator" id="route-active-indicator" aria-live="polite"></span></summary>
       <div class="filter-section-content">
         <div class="row row-route">
           <div class="pill address-autocomplete"><label for="routeStart">From</label><input id="routeStart" placeholder="Enter starting address" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="search" aria-autocomplete="list" aria-expanded="false" aria-controls="routeStartSuggestions" aria-haspopup="listbox" role="combobox" /><div class="autocomplete-suggestions" id="routeStartSuggestions" role="listbox" aria-label="From address suggestions"></div></div>
@@ -4674,7 +4716,13 @@
         <div class="map-hint-bubble-title">Too many colleges shown?</div>
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('tooMany')">×</button>
       </div>
-      <div class="map-hint-bubble-body">Filter by Type above or save your favorite schools to your list to focus your map.</div>
+      <div class="map-hint-bubble-body">
+        Filter by criteria above to narrow down or save your favorite schools to your list to focus your map.
+        <div class="map-hint-buttons">
+          <button class="map-hint-close-btn" onclick="dismissMapHint('tooMany')" type="button">Close</button>
+          <button class="map-hint-never-show" onclick="neverShowTooManyHint()" type="button">Never show this again</button>
+        </div>
+      </div>
     </div>
     <div class="map-hint-bubble" id="hint-no-colleges" role="alert">
       <div class="map-hint-bubble-header">
@@ -4682,7 +4730,7 @@
         <div class="map-hint-bubble-title">No colleges found?</div>
         <button class="map-hint-bubble-close" aria-label="Dismiss notice" onclick="dismissMapHint('noResults')">×</button>
       </div>
-      <div class="map-hint-bubble-body">Your current filters may be too narrow, or none of your saved colleges fall within this location or route.</div>
+      <div class="map-hint-bubble-body">Your current filters may be too narrow, or none of your saved colleges fall within this location or route. Change your filter and try again.</div>
     </div>
     <!-- No saved colleges notice - appears when Saved Only is toggled on with zero saved colleges -->
     <div class="map-hint-bubble" id="hint-no-saved-colleges" role="alert">
@@ -6370,8 +6418,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply autofill guards again in case elements weren't ready before
   applyAutofillGuards();
   
-  // Add double-click/double-tap to select all text in address fields
-  const addressFields = [elements.address, elements.routeStart, elements.routeEnd].filter(Boolean);
+  // Add double-click/double-tap to select all text in address fields and search field
+  const mobileSearch = document.getElementById('search-mobile');
+  const addressFields = [elements.address, elements.routeStart, elements.routeEnd, elements.search, mobileSearch].filter(Boolean);
   
   addressFields.forEach(input => {
     if (!input) return;
@@ -6599,6 +6648,14 @@ map.whenReady(() => {
   }, 150);
 });
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors',attributionControl:true}).addTo(map);
+
+// Function to collapse all filter section headers when user interacts with map
+function collapseAllFilterSections() {
+  const filterSections = document.querySelectorAll('.filter-section');
+  filterSections.forEach(section => {
+    section.removeAttribute('open');
+  });
+}
 
 const mapInteractionLock = {
   locked: false,
@@ -6944,6 +7001,15 @@ function applySavedMapView(mode) {
   }
   return false;
 }
+// Handle map clicks (clicking on the map itself, not on markers)
+map.on('click', (e) => {
+  // Only collapse if clicking directly on the map (not on a marker/popup)
+  // The popupopen event will handle marker clicks
+  if (!e.originalEvent.target.closest('.leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane')) {
+    collapseAllFilterSections();
+  }
+});
+
 map.on('moveend', () => {
   if (activeMode === 'nearby' || activeMode === 'route') {
     captureMapView(activeMode);
@@ -7506,6 +7572,8 @@ const tooltipStates = new WeakMap();
 
 // Handle popup open: disable all tooltips and update save button state
 map.on('popupopen', (event) => {
+  // Collapse all filter sections when user clicks on a marker/pin
+  collapseAllFilterSections();
   const popupEl = event.popup && event.popup.getElement ? event.popup.getElement() : null;
   if (!popupEl) return;
   const sourceMarker = event.popup && event.popup._source;
@@ -8353,7 +8421,8 @@ function restoreRouteFromCache(cache, options = {}) {
     cache.filters?.typeVal || '',
     cache.filters?.regionVal || '',
     cache.filters?.stateVal || '',
-    cache.filters?.searchVal || ''
+    cache.filters?.searchVal || '',
+    cache.filters?.rankingVal || ''
   );
 
   if (!options.preserveView) {
@@ -8549,7 +8618,7 @@ function refilterCollegesAlongRoute() {
   });
   
   if (elements.count) elements.count.textContent = visibleRouteEntries.length;
-  updateMapHints(visibleRouteEntries.length, typeVal, regionVal, stateVal, searchVal);
+  updateMapHints(visibleRouteEntries.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
   
   // Note: Cache is already updated in the else block above when recalculating
   
@@ -8724,7 +8793,7 @@ function render(){
       }
       
       // Update map hints for route mode (no route search yet)
-      updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
+      updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
       
       // Map focus logic (same as nearby mode when no route is set)
       // Special handling for Territories region - zoom out to show global view
@@ -8743,13 +8812,32 @@ function render(){
           // Fallback: global view centered on Pacific
           map.setView([10, -170], 2);
         }
-      } else if (isDefaultRouteState || isSearchOnlyFilter) {
+      } else if (isDefaultRouteState) {
         // When no filters are active, restore to default US view
         const defaultView = getInitialNearbyView();
         map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
         // Update mapViewState to reflect the default view
         mapViewState.nearby = { ...defaultView };
         captureMapView('nearby');
+      } else if (isSearchOnlyFilter) {
+        // Search-only filter: focus on search results
+        if (filtered.length === 0) {
+          // No results - restore default US view
+          const defaultView = getInitialNearbyView();
+          map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+        } else if (filtered.length === 1) {
+          // Single college - center on it
+          map.setView([filtered[0].lat, filtered[0].lon], 8);
+        } else if (routeFilterBounds && routeFilterBounds.isValid()) {
+          // Multiple colleges - fit bounds with padding
+          const paddedBounds = routeFilterBounds.pad(0.15);
+          const constrainedBounds = clampBoundsToMainland(paddedBounds);
+          map.fitBounds(constrainedBounds);
+        } else {
+          // Fallback: restore default US view
+          const defaultView = getInitialNearbyView();
+          map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+        }
       } else if (filtered.length === 0) {
         // No results - restore default US view
         map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
@@ -8999,7 +9087,7 @@ function render(){
   }
   
   // Update map hints based on filtered results
-  updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
+  updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
   
   if (shouldAutoFrameNearby) {
     // Special handling for Territories region - zoom out to show global view
@@ -9021,13 +9109,32 @@ function render(){
         // Fallback: global view centered on Pacific
         map.setView([10, -170], 2);
       }
-    } else if (isDefaultNearbyState || isSearchOnlyFilter) {
+    } else if (isDefaultNearbyState) {
       // When no filters are active, restore to default US view (not saved view which might be from a territory)
       const defaultView = getInitialNearbyView();
       map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
       // Update mapViewState to reflect the default view
       mapViewState.nearby = { ...defaultView };
       captureMapView('nearby');
+    } else if (isSearchOnlyFilter) {
+      // Search-only filter: focus on search results
+      if (filtered.length === 0) {
+        // No results - restore default US view
+        const defaultView = getInitialNearbyView();
+        map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+      } else if (filtered.length === 1) {
+        // Single college - center on it
+        map.setView([filtered[0].lat, filtered[0].lon], 8);
+      } else if (nearbyBounds && nearbyBounds.isValid()) {
+        // Multiple colleges - fit bounds with padding
+        const paddedBounds = nearbyBounds.pad(0.15);
+        const constrainedBounds = clampBoundsToMainland(paddedBounds);
+        map.fitBounds(constrainedBounds);
+      } else {
+        // Fallback: restore default US view
+        const defaultView = getInitialNearbyView();
+        map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+      }
     } else if (filtered.length === 0) {
       if (home) {
         map.setView([home.lat, home.lon], 8);
@@ -9154,7 +9261,7 @@ function refreshDropdown(id, values, placeholder) {
  * Only shows hints when user has actively used search controls
  * Priority: No Results > Too Many Colleges (never show both)
  */
-function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
+function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal, rankingVal) {
   const hintTooMany = document.getElementById('hint-too-many-colleges');
   const hintNoResults = document.getElementById('hint-no-colleges');
   
@@ -9163,28 +9270,44 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
     return;
   }
   
-  // Don't show any hints if user hasn't actively used search controls
-  if (!hasUsedSearchControls) {
-    hintTooMany.classList.remove('active');
-    hintNoResults.classList.remove('active');
-    return;
-  }
-  
-  // Only show hints when in nearby or route mode
-  if (activeMode !== 'nearby' && activeMode !== 'route') {
-    hintTooMany.classList.remove('active');
-    hintNoResults.classList.remove('active');
-    return;
-  }
-  
-  const tooManyViews = getHintViewCount('tooMany');
   const noResultViews = getHintViewCount('noResults');
 
-  const hasNonDefaultFilter = regionVal || stateVal || searchVal;
-  const hasAnyFilter = typeVal || hasNonDefaultFilter;
+  // Check if any filter is active (including ranking)
+  // Trim and check for non-empty values - handle both string and undefined/null cases
+  const regionActive = regionVal && String(regionVal).trim() !== '';
+  const stateActive = stateVal && String(stateVal).trim() !== '';
+  const searchActive = searchVal && String(searchVal).trim() !== '';
+  const rankingActive = rankingVal && String(rankingVal).trim() !== '';
+  const typeActive = typeVal && String(typeVal).trim() !== '';
+  
+  const hasNonDefaultFilter = regionActive || stateActive || searchActive || rankingActive;
+  const hasAnyFilter = typeActive || hasNonDefaultFilter;
+  
+  // Debug logging (can be removed later)
+  if (visibleCount === 0) {
+    console.log('updateMapHints debug:', {
+      visibleCount,
+      typeVal,
+      regionVal,
+      stateVal,
+      searchVal,
+      rankingVal,
+      typeActive,
+      regionActive,
+      stateActive,
+      searchActive,
+      rankingActive,
+      hasAnyFilter,
+      noResultViews
+    });
+  }
   
   // Priority 1: No Results hint
-  if (visibleCount === 0 && hasAnyFilter && noResultViews < 1) {
+  // Show when filters result in zero colleges, regardless of nearby/route interaction
+  // This works for filter-only scenarios (no nearby/route interaction needed)
+  if (visibleCount === 0 && hasAnyFilter) {
+    // Show hint regardless of view count for filter-only scenarios
+    // (Previously limited to once per session, but now showing every time filters result in zero)
     if (hintNoResults.dataset.active !== 'true') {
       incrementHintViewCount('noResults');
     }
@@ -9201,10 +9324,10 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
   }
   
   // Priority 2: Too Many Colleges hint (only if No Results is not showing)
-  if (visibleCount > 30 && !typeVal && tooManyViews < 1) {
-    if (hintTooMany.dataset.active !== 'true') {
-      incrementHintViewCount('tooMany');
-    }
+  // Only show in nearby/route mode and if user has used search controls
+  // Check if user has chosen to never show this hint
+  const neverShowTooMany = localStorage.getItem('ucm_neverShowTooManyHint') === '1';
+  if (visibleCount > 30 && !typeVal && !neverShowTooMany && hasUsedSearchControls && (activeMode === 'nearby' || activeMode === 'route')) {
     hintTooMany.dataset.active = 'true';
     hintTooMany.classList.add('active');
     startHintAutoHide('tooMany');
@@ -9213,6 +9336,14 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal) {
     hintTooMany.dataset.active = '';
     clearHintAutoHide('tooMany');
   }
+}
+
+// Function to handle "Never show this again" for too many colleges hint
+function neverShowTooManyHint() {
+  // Store preference in localStorage (persists across sessions)
+  localStorage.setItem('ucm_neverShowTooManyHint', '1');
+  // Close the hint immediately
+  dismissMapHint('tooMany');
 }
 
 /**
@@ -11912,6 +12043,8 @@ function geocodeAddress(address, mode = 'nearby'){
             
             map.setView([lat, lon], 8);
             render(); // Re-render to apply radius filter
+            // Update active mode indicators
+            updateActiveModeIndicators();
             // Track nearby search completion
             if (typeof gtag !== 'undefined') {
               gtag('event', 'feature_nearby_used');
@@ -12850,7 +12983,7 @@ function findCollegesAlongRoute() {
       if (elements.loading) elements.loading.classList.remove('active');
       
       // Update map hints for route mode
-      updateMapHints(visibleRouteColleges.length, typeVal, regionVal, stateVal, searchVal);
+      updateMapHints(visibleRouteColleges.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
       
       // Map focus logic: use visible bounds for map focus
       if (visibleRouteColleges.length > 0 && visibleRouteBounds.isValid()) {
@@ -12870,6 +13003,9 @@ function findCollegesAlongRoute() {
       };
       
       isProcessingRoute = false;
+      
+      // Update active mode indicators
+      updateActiveModeIndicators();
       
       // Check if saved-only mode should be turned OFF after filter change
       checkAndHandleNoVisibleSavedColleges();
@@ -13017,7 +13153,7 @@ function findCollegesAlongRoute() {
       if (elements.loading) elements.loading.classList.remove('active');
       
       // Update map hints for route mode (fallback)
-      updateMapHints(visibleFallbackEntries.length, typeVal, regionVal, stateVal, searchVal);
+      updateMapHints(visibleFallbackEntries.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
       if (fallbackCollegeBounds.isValid()) {
         map.fitBounds(fallbackCollegeBounds.pad(0.15));
       } else if (fallbackBounds.isValid()) {
@@ -13427,6 +13563,7 @@ if (elements.clearRoute) {
       const stateVal = elements.state ? elements.state.value : '';
       const regionVal = elements.region ? elements.region.value : '';
       const typeVal = elements.type ? elements.type.value : '';
+      const rankingVal = elements.ranking ? elements.ranking.value : '';
       const desktopSearch = elements.search;
       const mobileSearch = document.getElementById('search-mobile');
       const searchVal = (desktopSearch?.value || mobileSearch?.value || '').toLowerCase().trim();
@@ -13495,7 +13632,7 @@ if (elements.clearRoute) {
       if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
       
       // Update map hints after clearing route
-      updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal);
+      updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
       
       // Map focus logic (same as nearby mode when route is cleared)
       // Special handling for Territories region - zoom out to show global view
@@ -13514,13 +13651,32 @@ if (elements.clearRoute) {
           // Fallback: global view centered on Pacific
           map.setView([10, -170], 2);
         }
-      } else if (isDefaultRouteState || isSearchOnlyFilter) {
+      } else if (isDefaultRouteState) {
         // When no filters are active, restore to default US view
         const defaultView = getInitialNearbyView();
         map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
         // Update mapViewState to reflect the default view
         mapViewState.nearby = { ...defaultView };
         captureMapView('nearby');
+      } else if (isSearchOnlyFilter) {
+        // Search-only filter: focus on search results
+        if (filtered.length === 0) {
+          // No results - restore default US view
+          const defaultView = getInitialNearbyView();
+          map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+        } else if (filtered.length === 1) {
+          // Single college - center on it
+          map.setView([filtered[0].lat, filtered[0].lon], 8);
+        } else if (routeFilterBounds && routeFilterBounds.isValid()) {
+          // Multiple colleges - fit bounds with padding
+          const paddedBounds = routeFilterBounds.pad(0.15);
+          const constrainedBounds = clampBoundsToMainland(paddedBounds);
+          map.fitBounds(constrainedBounds);
+        } else {
+          // Fallback: restore default US view
+          const defaultView = getInitialNearbyView();
+          map.setView([defaultView.center.lat, defaultView.center.lng], defaultView.zoom);
+        }
       } else if (filtered.length === 0) {
         // No results - restore default US view
         map.setView([mapViewState.nearby?.center.lat || 39.5, mapViewState.nearby?.center.lng || -98.35], mapViewState.nearby?.zoom || 4);
@@ -13567,6 +13723,8 @@ if (elements.clearRoute) {
     }
     // Update navigation icon visibility after clearing route
     updateNavigationIconVisibility();
+    // Update active mode indicators (hide route indicator)
+    updateActiveModeIndicators();
   };
 }
 
@@ -13586,21 +13744,40 @@ if (elements.clearRadius) {
     closeAutocomplete();
     map.setView([39.5, -98.35], 4);
     render();
+    // Update active mode indicators (hide nearby indicator)
+    updateActiveModeIndicators();
   };
 }
 
-// Accordion behavior for filter sections - when one opens, close the other
+// Accordion behavior for filter sections
 const filterSections = document.querySelectorAll('.filter-section');
 if (filterSections.length) {
   const isMobileViewport = window.innerWidth <= 700;
-  if (!isMobileViewport) {
-    filterSections[0].setAttribute('open', '');
-  } else {
-    filterSections[0].removeAttribute('open');
-  }
+  // Find Nearby and Route sections (skip the first "Filter Colleges by Criteria" section)
+  const nearbySection = Array.from(filterSections).find(s => {
+    const summary = s.querySelector('summary');
+    return summary && summary.textContent.trim().includes('Find Colleges Nearby');
+  });
+  const routeSection = Array.from(filterSections).find(s => {
+    const summary = s.querySelector('summary');
+    return summary && summary.textContent.trim().includes('Find Colleges Along a Route');
+  });
+  
+  // On initial load, only keep filter section open, close nearby/route sections
+  if (nearbySection) nearbySection.removeAttribute('open');
+  if (routeSection) routeSection.removeAttribute('open');
 }
 filterSections.forEach(section => {
   section.addEventListener('toggle', (e) => {
+    // When a section opens, close all other sections (only one open at a time)
+    if (section.open) {
+      filterSections.forEach(otherSection => {
+        if (otherSection !== section && otherSection.open) {
+          otherSection.open = false;
+        }
+      });
+    }
+    
     // Remove active class from all sections first
     filterSections.forEach(s => s.classList.remove('active'));
     
@@ -13608,6 +13785,14 @@ filterSections.forEach(section => {
     const openSection = Array.from(filterSections).find(s => s.open);
     if (openSection) {
       openSection.classList.add('active');
+    }
+    
+    // Resize map when any filter section toggles (to handle layout changes)
+    // Use requestAnimationFrame for smoother, instant visual update
+    if (typeof map !== 'undefined' && map) {
+      requestAnimationFrame(() => {
+        map.invalidateSize();
+      });
     }
     
     // Check if route section is closing
@@ -13628,6 +13813,8 @@ filterSections.forEach(section => {
       // Set active mode
       if (isNearby) {
         activeMode = 'nearby';
+        // Update active mode indicators
+        updateActiveModeIndicators();
         // Clear route visualization when switching to nearby mode
         routeLayer.clearLayers();
   // Clear route polyline references when route is cleared
@@ -13672,6 +13859,8 @@ filterSections.forEach(section => {
         }
       } else if (isRoute) {
         activeMode = 'route';
+        // Update active mode indicators
+        updateActiveModeIndicators();
         // Clear nearby visualization when switching to route mode
         homeLayer.clearLayers();
         radiusLayer.clearLayers();
@@ -13700,6 +13889,8 @@ filterSections.forEach(section => {
                 map.fitBounds(L.latLngBounds(route.lastResult.routeCoords), { padding: [50, 50] });
               }
             }
+            // Update active mode indicators when route is restored
+            updateActiveModeIndicators();
           } else {
             // Redraw the route
             findCollegesAlongRoute();
@@ -13718,13 +13909,6 @@ filterSections.forEach(section => {
           updateNavigationIconVisibility();
         }
       }
-      
-      // This section just opened, close all other sections
-      filterSections.forEach(otherSection => {
-        if (otherSection !== section && otherSection.open) {
-          otherSection.open = false;
-      }
-    });
 }
   });
 });
@@ -13840,6 +14024,9 @@ if (elements.state) {
       // Update filter chips
       updateFilterChips();
       
+      // Update active filters indicator
+      updateActiveFiltersIndicator();
+      
       // Continue with normal change handling
       if (activeMode === 'route' && route.lastSearch) {
         // Re-run route search with updated filters
@@ -13878,6 +14065,53 @@ function updateMobilePillText() {
   return;
 }
 
+// Count and display active filters indicator
+function updateActiveFiltersIndicator() {
+  const indicator = document.getElementById('filter-indicator');
+  if (!indicator) return;
+  
+  let activeCount = 0;
+  
+  // Check Type filter
+  const typeVal = elements.type ? elements.type.value : '';
+  if (typeVal && typeVal !== '') {
+    activeCount++;
+  }
+  
+  // Check Region filter
+  const regionVal = elements.region ? elements.region.value : '';
+  if (regionVal && regionVal !== '') {
+    activeCount++;
+  }
+  
+  // Check State filter
+  const stateVal = elements.state ? elements.state.value : '';
+  if (stateVal && stateVal !== '') {
+    activeCount++;
+  }
+  
+  // Check Ranking filter
+  const rankingVal = elements.ranking ? elements.ranking.value : '';
+  if (rankingVal && rankingVal !== '') {
+    activeCount++;
+  }
+  
+  // Check Search field
+  const searchVal = elements.search ? elements.search.value.trim() : '';
+  if (searchVal && searchVal !== '') {
+    activeCount++;
+  }
+  
+  // Update indicator text
+  if (activeCount > 0) {
+    indicator.textContent = ` · ${activeCount} applied`;
+    indicator.style.display = 'inline';
+  } else {
+    indicator.textContent = '';
+    indicator.style.display = 'none';
+  }
+}
+
 ['region', 'type', 'ranking', 'radius', 'units'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
     // Track filter usage
@@ -13897,6 +14131,9 @@ function updateMobilePillText() {
     // Update filter chips
     updateFilterChips();
     
+    // Update active filters indicator
+    updateActiveFiltersIndicator();
+    
     if (activeMode === 'route' && route.lastSearch) {
       // Re-run route search with updated filters
       findCollegesAlongRoute();
@@ -13908,6 +14145,18 @@ function updateMobilePillText() {
     checkAndHandleNoVisibleSavedColleges();
   });
 });
+
+// Initialize active filters indicator on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    updateActiveFiltersIndicator();
+    updateActiveModeIndicators();
+  });
+} else {
+  // DOM is already loaded
+  updateActiveFiltersIndicator();
+  updateActiveModeIndicators();
+}
 
 // Function to shorten filter values for display in chips
 function shortenFilterValue(value, filterType) {
@@ -13971,6 +14220,9 @@ function updateFilterChips() {
   const regionSelect = document.getElementById('region');
   const stateSelect = document.getElementById('state');
   const rankingSelect = document.getElementById('ranking');
+  const searchInput = elements.search;
+  const mobileSearch = document.getElementById('search-mobile');
+  const searchVal = (searchInput?.value || mobileSearch?.value || '').trim();
   
   const chips = [];
   
@@ -13998,6 +14250,11 @@ function updateFilterChips() {
     const rankingValue = rankingSelect.options[rankingSelect.selectedIndex]?.textContent || rankingSelect.value;
     const shortened = shortenFilterValue(rankingValue, 'ranking');
     chips.push({ type: 'ranking', label: shortened, value: rankingSelect.value });
+  }
+  
+  // Search filter
+  if (searchVal) {
+    chips.push({ type: 'search', label: 'Search Applied', value: searchVal });
   }
   
   // Track existing chips to preserve animations
@@ -14137,8 +14394,20 @@ function clearAllFilters() {
     }
   });
   
+  // Clear search field
+  if (elements.search) {
+    elements.search.value = '';
+  }
+  const mobileSearch = document.getElementById('search-mobile');
+  if (mobileSearch) {
+    mobileSearch.value = '';
+  }
+  
   // Update filter chips after all filters are cleared
   updateFilterChips();
+  
+  // Update active filters indicator
+  updateActiveFiltersIndicator();
   
   // Trigger render to update map
   if (activeMode === 'route' && route.lastSearch) {
@@ -14148,8 +14417,74 @@ function clearAllFilters() {
   }
 }
 
+// Update active mode indicators for Nearby/Route sections
+function updateActiveModeIndicators() {
+  const nearbyIndicator = document.getElementById('nearby-active-indicator');
+  const routeIndicator = document.getElementById('route-active-indicator');
+  
+  if (nearbyIndicator) {
+    if (activeMode === 'nearby' && (home || (elements.address && elements.address.value.trim()))) {
+      nearbyIndicator.textContent = ' · Active';
+      nearbyIndicator.style.display = 'inline';
+    } else {
+      nearbyIndicator.textContent = '';
+      nearbyIndicator.style.display = 'none';
+    }
+  }
+  
+  if (routeIndicator) {
+    if (activeMode === 'route' && route.lastSearch && route.start && route.end) {
+      routeIndicator.textContent = ' · Active';
+      routeIndicator.style.display = 'inline';
+    } else {
+      routeIndicator.textContent = '';
+      routeIndicator.style.display = 'none';
+    }
+  }
+}
+
+// Go to Map button - collapse filter section only
+const goToMapBtn = document.getElementById('goToMapBtn');
+if (goToMapBtn) {
+  goToMapBtn.addEventListener('click', () => {
+    const filterSection = document.querySelector('.filter-section:first-of-type');
+    if (filterSection) {
+      filterSection.removeAttribute('open');
+    }
+  });
+}
+
+// Clear Filters button - clear all filters and search
+const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+if (clearFiltersBtn) {
+  clearFiltersBtn.addEventListener('click', () => {
+    clearAllFilters();
+  });
+}
+
 // Function to clear a specific filter
 function clearFilter(filterType) {
+  // Special handling for search filter
+  if (filterType === 'search') {
+    if (elements.search) {
+      elements.search.value = '';
+    }
+    const mobileSearch = document.getElementById('search-mobile');
+    if (mobileSearch) {
+      mobileSearch.value = '';
+    }
+    // Trigger render to update map
+    if (activeMode === 'route' && route.lastSearch) {
+      findCollegesAlongRoute();
+    } else {
+      render();
+    }
+    // Update filter chips and active filters indicator
+    updateFilterChips();
+    updateActiveFiltersIndicator();
+    return;
+  }
+  
   const select = document.getElementById(filterType);
   if (select) {
     // Special handling for state filter due to autofill protection
@@ -14289,6 +14624,10 @@ document.querySelector('.controls').addEventListener('input', debounce((e) => {
       desktopSearch.value = e.target.value;
     }
     render();
+    
+    // Update active filters indicator and filter chips
+    updateActiveFiltersIndicator();
+    updateFilterChips();
     
     // Check if saved-only mode should be turned OFF after filter change
     checkAndHandleNoVisibleSavedColleges();
