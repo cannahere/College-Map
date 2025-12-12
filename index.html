@@ -12615,6 +12615,84 @@ function updateRouteHighlight(autocompleteObj, suggestionsContainer) {
   });
 }
 
+function scrollToSelectedRoute(autocompleteObj, suggestionsContainer) {
+  const selected = suggestionsContainer.querySelector('.autocomplete-item.highlighted');
+  if (selected) {
+    selected.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function handleRouteAutocompleteKeydown(e, autocompleteObj, inputElement, suggestionsContainer) {
+  if (!autocompleteObj.isOpen || autocompleteObj.suggestions.length === 0) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // If no suggestions open, try to geocode the current value
+      const value = inputElement.value.trim();
+      if (value) {
+        geocodeAddress(value, 'route').then(result => {
+          if (result) {
+            if (inputElement.id === 'routeStart') {
+              route.start = { description: value, lat: result.lat, lon: result.lon };
+              saveRecent(RECENT_STORAGE_KEYS.routeStart, value);
+            } else if (inputElement.id === 'routeEnd') {
+              route.end = { description: value, lat: result.lat, lon: result.lon };
+              saveRecent(RECENT_STORAGE_KEYS.routeEnd, value);
+            }
+          }
+        });
+      }
+    }
+    return;
+  }
+  
+  switch(e.key) {
+    case 'ArrowDown':
+      e.preventDefault();
+      autocompleteObj.selectedIndex = Math.min(
+        autocompleteObj.selectedIndex + 1,
+        autocompleteObj.suggestions.length - 1
+      );
+      updateRouteHighlight(autocompleteObj, suggestionsContainer);
+      scrollToSelectedRoute(autocompleteObj, suggestionsContainer);
+      break;
+      
+    case 'ArrowUp':
+      e.preventDefault();
+      autocompleteObj.selectedIndex = Math.max(autocompleteObj.selectedIndex - 1, -1);
+      updateRouteHighlight(autocompleteObj, suggestionsContainer);
+      scrollToSelectedRoute(autocompleteObj, suggestionsContainer);
+      break;
+      
+    case 'Enter':
+      e.preventDefault();
+      if (autocompleteObj.selectedIndex >= 0) {
+        selectRouteSuggestion(autocompleteObj.selectedIndex, autocompleteObj, inputElement, suggestionsContainer);
+      } else {
+        // If no selection, try to geocode the current value
+        const value = inputElement.value.trim();
+        if (value) {
+          geocodeAddress(value, 'route').then(result => {
+            if (result) {
+              if (inputElement.id === 'routeStart') {
+                route.start = { description: value, lat: result.lat, lon: result.lon };
+                saveRecent(RECENT_STORAGE_KEYS.routeStart, value);
+              } else if (inputElement.id === 'routeEnd') {
+                route.end = { description: value, lat: result.lat, lon: result.lon };
+                saveRecent(RECENT_STORAGE_KEYS.routeEnd, value);
+              }
+            }
+          });
+        }
+      }
+      break;
+      
+    case 'Escape':
+      e.preventDefault();
+      closeRouteAutocomplete(autocompleteObj, suggestionsContainer, inputElement);
+      break;
+  }
+}
+
 /**
  * LAZY LOADED: Route calculation function - only executed when route mode is first used
  * Calculate perpendicular distance from a point to a line segment (using Haversine formula)
@@ -13396,7 +13474,7 @@ if (elements.addressSuggestions) {
   }, true);
 }
 
-// Handle route recents in suggestion containers
+// Handle route recents and autocomplete items in suggestion containers (event delegation as backup)
 [elements.routeStartSuggestions, elements.routeEndSuggestions].forEach(container => {
   if (!container) return;
   container.addEventListener('click', (e) => {
@@ -13415,10 +13493,27 @@ if (elements.addressSuggestions) {
       const description = sharedItem.dataset.description ? decodeURIComponent(sharedItem.dataset.description) : '';
       const field = container.dataset.field || '';
       handleSharedLocationSelection(field, description);
+      return;
+    }
+    // Handle regular autocomplete items (backup for mobile touch events)
+    const autocompleteItem = e.target.closest('.autocomplete-item');
+    if (autocompleteItem) {
+      const index = parseInt(autocompleteItem.dataset.index, 10);
+      if (!isNaN(index) && index >= 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Determine which route field this container belongs to
+        const isRouteStart = container.id === 'routeStartSuggestions';
+        const autocompleteObj = isRouteStart ? routeStartAutocomplete : routeEndAutocomplete;
+        const inputElement = isRouteStart ? elements.routeStart : elements.routeEnd;
+        if (autocompleteObj && inputElement) {
+          selectRouteSuggestion(index, autocompleteObj, inputElement, container);
+        }
+      }
     }
   }, true);
   container.addEventListener('mousedown', (e) => {
-    if (e.target.closest('.recent-suggestion') || e.target.closest('.shared-location')) {
+    if (e.target.closest('.recent-suggestion') || e.target.closest('.shared-location') || e.target.closest('.autocomplete-item')) {
       e.preventDefault();
     }
   }, true);
@@ -13456,6 +13551,9 @@ if (elements.routeStart) {
     }
     searchRouteAddresses(e.target.value, routeStartAutocomplete, elements.routeStart, elements.routeStartSuggestions);
   }, 400));
+  elements.routeStart.addEventListener('keydown', (e) => {
+    handleRouteAutocompleteKeydown(e, routeStartAutocomplete, elements.routeStart, elements.routeStartSuggestions);
+  });
   elements.routeStart.addEventListener('focus', () => {
     toggleAutocompleteLayer(elements.routeStart, true);
     showRouteRecentsIfEligible(elements.routeStart, elements.routeStartSuggestions, routeStartAutocomplete, RECENT_STORAGE_KEYS.routeStart, 'routeStart');
@@ -13477,6 +13575,9 @@ if (elements.routeEnd) {
     }
     searchRouteAddresses(e.target.value, routeEndAutocomplete, elements.routeEnd, elements.routeEndSuggestions);
   }, 400));
+  elements.routeEnd.addEventListener('keydown', (e) => {
+    handleRouteAutocompleteKeydown(e, routeEndAutocomplete, elements.routeEnd, elements.routeEndSuggestions);
+  });
   elements.routeEnd.addEventListener('focus', () => {
     toggleAutocompleteLayer(elements.routeEnd, true);
     showRouteRecentsIfEligible(elements.routeEnd, elements.routeEndSuggestions, routeEndAutocomplete, RECENT_STORAGE_KEYS.routeEnd, 'routeEnd');
