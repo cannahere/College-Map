@@ -369,11 +369,11 @@
     /* Glowing effect for blue dot when tip bubble is shown */
     @keyframes blueDotGlow {
       0%, 100% {
-        filter: drop-shadow(0 0 20px rgba(0, 255, 255, 1)) drop-shadow(0 0 35px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 50px rgba(0, 255, 255, 0.8)) drop-shadow(0 0 70px rgba(0, 255, 255, 0.6));
+        filter: drop-shadow(0 0 30px rgba(0, 255, 255, 1)) drop-shadow(0 0 50px rgba(0, 255, 255, 1)) drop-shadow(0 0 70px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 100px rgba(0, 255, 255, 0.8));
         opacity: 1;
       }
       50% {
-        filter: drop-shadow(0 0 30px rgba(0, 255, 255, 1)) drop-shadow(0 0 50px rgba(0, 255, 255, 1)) drop-shadow(0 0 70px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 100px rgba(0, 255, 255, 0.7));
+        filter: drop-shadow(0 0 40px rgba(0, 255, 255, 1)) drop-shadow(0 0 70px rgba(0, 255, 255, 1)) drop-shadow(0 0 100px rgba(0, 255, 255, 1)) drop-shadow(0 0 130px rgba(0, 255, 255, 0.9));
         opacity: 1;
       }
     }
@@ -385,7 +385,8 @@
     .blue-dot-glow-ring {
       position: absolute;
       border-radius: 50%;
-      border: 3px solid rgba(0, 255, 255, 0.6);
+      background: radial-gradient(circle, rgba(0, 255, 255, 0.9) 0%, rgba(0, 255, 255, 0.6) 30%, rgba(0, 255, 255, 0.3) 60%, rgba(0, 255, 255, 0) 100%);
+      border: 2px solid rgba(0, 255, 255, 0.9);
       pointer-events: none;
       z-index: 1999;
       animation: pulseRing 1s ease-in-out infinite;
@@ -393,13 +394,13 @@
     @keyframes pulseRing {
       0% {
         transform: scale(1);
-        opacity: 0.6;
-        border-width: 3px;
+        opacity: 0.9;
+        border-width: 2px;
       }
       50% {
         transform: scale(2.5);
-        opacity: 0.25;
-        border-width: 2px;
+        opacity: 0.5;
+        border-width: 1.5px;
       }
       100% {
         transform: scale(3);
@@ -5534,6 +5535,13 @@ function onboardingComplete() {
   // Mark as completed
   localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
   
+  // Set flag to prevent tooltip from showing immediately after onboarding dismissal
+  sessionStorage.setItem('ucm_onboardingJustDismissed', '1');
+  // Clear the flag after 2 seconds to allow tooltip to show on actual user interaction
+  setTimeout(() => {
+    sessionStorage.removeItem('ucm_onboardingJustDismissed');
+  }, 2000);
+  
   // Hide overlay
   const overlay = document.getElementById('onboarding-overlay');
   if (overlay) {
@@ -5559,6 +5567,13 @@ window.onboardingComplete = onboardingComplete;
 function onboardingSkip() {
   // Mark as completed
   localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
+  
+  // Set flag to prevent tooltip from showing immediately after onboarding dismissal
+  sessionStorage.setItem('ucm_onboardingJustDismissed', '1');
+  // Clear the flag after 2 seconds to allow tooltip to show on actual user interaction
+  setTimeout(() => {
+    sessionStorage.removeItem('ucm_onboardingJustDismissed');
+  }, 2000);
   
   // Hide overlay
   const overlay = document.getElementById('onboarding-overlay');
@@ -6218,6 +6233,13 @@ function setupDesktopWelcomeEvents() {
 function dismissDesktopWelcome() {
   // Mark as completed (same key as mobile for consistency)
   localStorage.setItem(ONBOARDING_STORAGE_KEY, '1');
+  
+  // Set flag to prevent tooltip from showing immediately after welcome dismissal
+  sessionStorage.setItem('ucm_onboardingJustDismissed', '1');
+  // Clear the flag after 2 seconds to allow tooltip to show on actual user interaction
+  setTimeout(() => {
+    sessionStorage.removeItem('ucm_onboardingJustDismissed');
+  }, 2000);
   
   const overlay = document.getElementById('desktop-welcome-overlay');
   if (overlay) {
@@ -7010,6 +7032,8 @@ map.on('click', (e) => {
   const excludedSelectors = '.leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane, .map-hint-bubble, .map-tip-bubble, .route-hint-bubble, .filter-chips, .filter-chip, .saved-controls, .legend, .saved-colleges-overlay';
   if (!e.originalEvent.target.closest(excludedSelectors)) {
     collapseAllFilterSections();
+    // Check if this is first map interaction
+    checkAndShowMapTipOnFirstInteraction();
   }
 });
 
@@ -7017,10 +7041,13 @@ map.on('moveend', () => {
   if (activeMode === 'nearby' || activeMode === 'route') {
     captureMapView(activeMode);
   }
+  // Don't trigger tooltip on moveend - it can fire programmatically when onboarding closes
 });
 
 // Update marker sizes dynamically on zoom for touch devices (performance optimization)
 map.on('zoomend', () => {
+  // Don't trigger tooltip on zoomend - it can fire programmatically when onboarding closes
+  
   const deviceType = detectDeviceType();
   const zoom = map ? map.getZoom() : 5;
   
@@ -8775,26 +8802,6 @@ function render(){
       
       if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
       
-      // Show tip bubble when blue dots first appear (first-time users only)
-      // Check if we have any blue dots (unsaved markers) and haven't shown the tip yet
-      if (filtered.length > 0 && sessionStorage.getItem('ucm_seenTapDotHint') !== '1') {
-        // Check if there are any unsaved markers (blue dots)
-        let hasBlueDots = false;
-        markersLayer.eachLayer((layer) => {
-          if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
-            hasBlueDots = true;
-            return false; // Break the loop
-          }
-        });
-        
-        if (hasBlueDots) {
-          // Wait a bit for map to finish rendering, then show tip
-          setTimeout(() => {
-            showMapTip();
-          }, 300);
-        }
-      }
-      
       // Update map hints for route mode (no route search yet)
       updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
       
@@ -9068,26 +9075,6 @@ function render(){
   });
 
   if (elements.count) elements.count.textContent = filtered.length.toLocaleString();
-  
-  // Show tip bubble when blue dots first appear (first-time users only)
-  // Check if we have any blue dots (unsaved markers) and haven't shown the tip yet
-  if (filtered.length > 0 && sessionStorage.getItem('ucm_seenTapDotHint') !== '1') {
-    // Check if there are any unsaved markers (blue dots)
-    let hasBlueDots = false;
-    markersLayer.eachLayer((layer) => {
-      if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
-        hasBlueDots = true;
-        return false; // Break the loop
-      }
-    });
-    
-    if (hasBlueDots) {
-      // Wait a bit for map to finish rendering, then show tip
-      setTimeout(() => {
-        showMapTip();
-      }, 300);
-    }
-  }
   
   // Update map hints based on filtered results
   updateMapHints(filtered.length, typeVal, regionVal, stateVal, searchVal, rankingVal);
@@ -9507,6 +9494,53 @@ function updateGlowRingPosition() {
 }
 
 /**
+ * Check if this is the first user interaction and show the map tip bubble
+ * Called after user interacts with filters, nearby, route, or map
+ */
+function checkAndShowMapTipOnFirstInteraction() {
+  // Check if already seen this session or before
+  if (sessionStorage.getItem('ucm_seenTapDotHint') === '1' || 
+      localStorage.getItem('ucm_seenTapDotHint') === '1') {
+    return;
+  }
+  
+  // Don't show if onboarding was just dismissed (wait 2 seconds for map to settle)
+  if (sessionStorage.getItem('ucm_onboardingJustDismissed') === '1') {
+    return;
+  }
+  
+  // Don't show if onboarding overlay is visible
+  const onboardingOverlay = document.getElementById('onboarding-overlay');
+  if (onboardingOverlay && onboardingOverlay.style.display !== 'none' && onboardingOverlay.classList.contains('active')) {
+    return;
+  }
+  
+  // Don't show if desktop welcome overlay is visible
+  const desktopWelcome = document.querySelector('.desktop-welcome-overlay');
+  if (desktopWelcome && desktopWelcome.style.display !== 'none') {
+    return;
+  }
+  
+  // Check if there are blue dots visible
+  let hasBlueDots = false;
+  if (markersLayer) {
+    markersLayer.eachLayer((layer) => {
+      if (layer instanceof L.CircleMarker || (layer.options && layer.options.radius !== undefined)) {
+        hasBlueDots = true;
+        return false; // Break the loop
+      }
+    });
+  }
+  
+  if (hasBlueDots && map) {
+    // Wait a bit for map to finish any rendering, then show tip
+    setTimeout(() => {
+      showMapTip();
+    }, 300);
+  }
+}
+
+/**
  * Show the map tip bubble pointing to a blue dot near the center
  * Only shows for first-time users when blue dots first appear
  */
@@ -9600,17 +9634,18 @@ function showMapTip() {
   const markerElement = closestBlueDotLayer._path || closestBlueDotLayer.getElement();
   if (markerElement) {
     markerElement.classList.add('blue-dot-glow');
-    // Also add inline style for stronger effect with neon blue (#00FFFF)
-    markerElement.style.filter = 'drop-shadow(0 0 25px rgba(0, 255, 255, 1)) drop-shadow(0 0 40px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 60px rgba(0, 255, 255, 0.8)) drop-shadow(0 0 80px rgba(0, 255, 255, 0.6))';
+    // Also add inline style for stronger effect with neon blue (#00FFFF) - amplified
+    markerElement.style.filter = 'drop-shadow(0 0 35px rgba(0, 255, 255, 1)) drop-shadow(0 0 55px rgba(0, 255, 255, 1)) drop-shadow(0 0 80px rgba(0, 255, 255, 0.9)) drop-shadow(0 0 110px rgba(0, 255, 255, 0.8))';
     
-    // Add pulsing ring around the dot
+    // Add pulsing ring around the dot - thicker ring
     const ring = document.createElement('div');
     ring.className = 'blue-dot-glow-ring';
     const radius = (closestBlueDotLayer.options && closestBlueDotLayer.options.radius) || 5; // Safety check with default
-    ring.style.width = (radius * 2 + 10) + 'px';
-    ring.style.height = (radius * 2 + 10) + 'px';
-    ring.style.left = (markerPoint.x - (radius + 5)) + 'px';
-    ring.style.top = (markerPoint.y - (radius + 5)) + 'px';
+    // Make ring larger to accommodate thicker border
+    ring.style.width = (radius * 2 + 20) + 'px';
+    ring.style.height = (radius * 2 + 20) + 'px';
+    ring.style.left = (markerPoint.x - (radius + 10)) + 'px';
+    ring.style.top = (markerPoint.y - (radius + 10)) + 'px';
     ring.setAttribute('data-glow-ring', 'true');
     
     if (mapContainer) {
@@ -9646,10 +9681,10 @@ function showMapTip() {
   // Show the tip bubble
   tipBubble.classList.add('active');
   
-  // Auto-hide after 8 seconds
+  // Auto-hide after 20 seconds
   setTimeout(() => {
     dismissMapTip();
-  }, 8000);
+  }, 20000);
 }
 
 /**
@@ -12022,7 +12057,7 @@ function geocodeAddress(address, mode = 'nearby'){
           
           // Only update map if nearby mode is active
           if (activeMode === 'nearby') {
-        homeLayer.clearLayers();
+            homeLayer.clearLayers();
             radiusLayer.clearLayers();
             
             // Add "Your Location" pin marker (red)
@@ -12044,6 +12079,8 @@ function geocodeAddress(address, mode = 'nearby'){
             if (typeof gtag !== 'undefined') {
               gtag('event', 'feature_nearby_used');
             }
+            // Check if this is first interaction
+            checkAndShowMapTipOnFirstInteraction();
           }
           saveSharedLocation(address, lat, lon);
           saveRecent(RECENT_STORAGE_KEYS.nearby, address);
@@ -13085,6 +13122,9 @@ function findCollegesAlongRoute() {
       
       // Update navigation icon visibility after route search completes
       updateNavigationIconVisibility();
+      
+      // Check if this is first interaction
+      checkAndShowMapTipOnFirstInteraction();
     })
     .catch(error => {
       clearTimeout(timeoutId);
@@ -13412,6 +13452,8 @@ if (elements.geocodeBtn) {
     if (activeMode === 'nearby' && elements.address) {
       hasUsedSearchControls = true; // User actively clicked Locate button
       geocodeAddress(elements.address.value, 'nearby');
+      // Check if this is first interaction
+      checkAndShowMapTipOnFirstInteraction();
     }
   };
 }
@@ -14158,6 +14200,9 @@ if (elements.state) {
       
       // Check if saved-only mode should be turned OFF after filter change
       checkAndHandleNoVisibleSavedColleges();
+      
+      // Check if this is first interaction
+      checkAndShowMapTipOnFirstInteraction();
     } else {
       // This change was NOT from user - likely autofill - restore previous value
       elements.state.value = lastUserSelectedState;
@@ -14264,6 +14309,9 @@ function updateActiveFiltersIndicator() {
     
     // Check if saved-only mode should be turned OFF after filter change
     checkAndHandleNoVisibleSavedColleges();
+    
+    // Check if this is first interaction
+    checkAndShowMapTipOnFirstInteraction();
   });
 });
 
@@ -14752,6 +14800,9 @@ document.querySelector('.controls').addEventListener('input', debounce((e) => {
     
     // Check if saved-only mode should be turned OFF after filter change
     checkAndHandleNoVisibleSavedColleges();
+    
+    // Check if this is first interaction
+    checkAndShowMapTipOnFirstInteraction();
   }
 }, 300));
 
