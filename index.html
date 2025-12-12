@@ -4441,7 +4441,7 @@
           <span>A simpler way to explore U.S. colleges.</span>
           <span>Search, filter, save, plan routes, and share<br>— all on one clear, easy map.</span>
         </p>
-        <button class="onboarding-get-started-btn" onclick="onboardingComplete()">Get Started</button>
+        <button class="onboarding-get-started-btn" onclick="onboardingComplete()">Enter Site</button>
         <button class="onboarding-skip-btn">See How it Works</button>
       </div>
       
@@ -4530,7 +4530,7 @@
           <span>U.S. College Map (Beta) is built to make<br>college search clearer and easier—<br>for students, families, and educators.</span>
           <span>Try it out, explore at your own pace,<br>and tell us what features you'd love next.</span>
         </p>
-        <button class="onboarding-get-started-btn" onclick="onboardingComplete()">Get Started</button>
+        <button class="onboarding-get-started-btn" onclick="onboardingComplete()">Enter Site</button>
       </div>
     </div>
     
@@ -4637,7 +4637,7 @@
     </div>
     
     <!-- Get Started Button -->
-    <button class="desktop-welcome-get-started-btn">Get Started</button>
+    <button class="desktop-welcome-get-started-btn">Enter Site</button>
   </div>
 </div>
 
@@ -13423,6 +13423,17 @@ if (elements.address) {
     if (addressAutocomplete.isSelecting) {
       return;
     }
+    // Clear home if input value doesn't match stored description
+    const newValue = e.target.value.trim();
+    if (home && nearbyState.address && nearbyState.address !== newValue) {
+      home = null;
+      nearbyState.home = null;
+      nearbyState.address = newValue; // Update stored address
+    } else if (home && !nearbyState.address && newValue) {
+      // If home exists but no stored address, clear it when user types something different
+      home = null;
+      nearbyState.home = null;
+    }
     searchAddresses(e.target.value);
   }, 400));
 
@@ -13549,6 +13560,10 @@ if (elements.routeStart) {
     if (routeStartAutocomplete.isSelecting) {
       return;
     }
+    // Clear route.start if input value doesn't match stored description
+    if (route.start && route.start.description !== e.target.value.trim()) {
+      route.start = null;
+    }
     searchRouteAddresses(e.target.value, routeStartAutocomplete, elements.routeStart, elements.routeStartSuggestions);
   }, 400));
   elements.routeStart.addEventListener('keydown', (e) => {
@@ -13573,6 +13588,10 @@ if (elements.routeEnd) {
     if (routeEndAutocomplete.isSelecting) {
       return;
     }
+    // Clear route.end if input value doesn't match stored description
+    if (route.end && route.end.description !== e.target.value.trim()) {
+      route.end = null;
+    }
     searchRouteAddresses(e.target.value, routeEndAutocomplete, elements.routeEnd, elements.routeEndSuggestions);
   }, 400));
   elements.routeEnd.addEventListener('keydown', (e) => {
@@ -13595,22 +13614,28 @@ if (elements.routeEnd) {
 // Route search button
 if (elements.findRouteBtn) {
   elements.findRouteBtn.onclick = async () => {
-    // If addresses are entered but not geocoded yet, geocode them first
-    if (elements.routeStart && elements.routeStart.value && !route.start) {
-      const startAddress = elements.routeStart.value;
-      const startResult = await geocodeAddress(startAddress, 'route');
-      if (startResult) {
-        route.start = { description: startAddress, lat: startResult.lat, lon: startResult.lon };
-        saveRecent(RECENT_STORAGE_KEYS.routeStart, startAddress);
+    // If addresses are entered but not geocoded yet, or if input value doesn't match stored description, geocode them
+    if (elements.routeStart && elements.routeStart.value) {
+      const startAddress = elements.routeStart.value.trim();
+      const needsGeocode = !route.start || route.start.description !== startAddress;
+      if (needsGeocode) {
+        const startResult = await geocodeAddress(startAddress, 'route');
+        if (startResult) {
+          route.start = { description: startAddress, lat: startResult.lat, lon: startResult.lon };
+          saveRecent(RECENT_STORAGE_KEYS.routeStart, startAddress);
+        }
       }
     }
     
-    if (elements.routeEnd && elements.routeEnd.value && !route.end) {
-      const endAddress = elements.routeEnd.value;
-      const endResult = await geocodeAddress(endAddress, 'route');
-      if (endResult) {
-        route.end = { description: endAddress, lat: endResult.lat, lon: endResult.lon };
-        saveRecent(RECENT_STORAGE_KEYS.routeEnd, endAddress);
+    if (elements.routeEnd && elements.routeEnd.value) {
+      const endAddress = elements.routeEnd.value.trim();
+      const needsGeocode = !route.end || route.end.description !== endAddress;
+      if (needsGeocode) {
+        const endResult = await geocodeAddress(endAddress, 'route');
+        if (endResult) {
+          route.end = { description: endAddress, lat: endResult.lat, lon: endResult.lon };
+          saveRecent(RECENT_STORAGE_KEYS.routeEnd, endAddress);
+        }
       }
     }
     
