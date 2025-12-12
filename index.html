@@ -160,10 +160,11 @@
       /* Hide ranking in row-filters on mobile since it's now in row-ranking */
       .row-filters .pill-ranking{display:none !important;}
       .row-search{display:flex;gap:6px;margin-bottom:3px;flex-wrap:wrap}
-      .row-search .pill:first-child{flex:1 1 100%;padding:4px 6px;}
+      .row-search .pill:first-child{flex:1 1 100%;padding:6px;}
       .row-search .pill label{display:none}
       .row-search .pill input{width:100%;font-size:13px;padding:4px 8px;}
-      .filter-actions{flex:1 1 100%;justify-content:flex-start;padding:4px 6px;gap:6px}
+      .row-search .pill.filter-actions{flex:1 1 100%;padding:6px;}
+      .filter-actions{flex:1 1 100%;justify-content:flex-start;padding:0;gap:6px}
       .filter-actions .filter-action-btn{padding:4px 10px;font-size:13px}
       .row-nearby .pill.address-autocomplete{flex:1 1 100%;}
       .row-nearby .pill.address-autocomplete label{min-width:70px;margin-bottom:0;width:auto;font-size:12px;font-weight:600;color:#475569;}
@@ -187,10 +188,11 @@
       .row-ranking .pill-ranking select{font-size:12px;padding:4px 8px;}
       .row-filters .pill-search{display:none !important}
       .row-search{display:flex;gap:6px;margin-bottom:3px;flex-wrap:wrap}
-      .row-search .pill:first-child{flex:1 1 100%;padding:4px 6px;}
+      .row-search .pill:first-child{flex:1 1 100%;padding:6px;}
       .row-search .pill label{display:none}
       .row-search .pill input{width:100%;font-size:12px;padding:4px 8px;}
-      .filter-actions{flex:1 1 100%;justify-content:flex-start;padding:4px 6px;gap:6px}
+      .row-search .pill.filter-actions{flex:1 1 100%;padding:6px;}
+      .filter-actions{flex:1 1 100%;justify-content:flex-start;padding:0;gap:6px}
       .filter-actions .filter-action-btn{padding:4px 10px;font-size:12px}
       .filter-section summary {font-size:12px}
       .filter-header-indicator {font-size:12px}
@@ -7003,9 +7005,10 @@ function applySavedMapView(mode) {
 }
 // Handle map clicks (clicking on the map itself, not on markers)
 map.on('click', (e) => {
-  // Only collapse if clicking directly on the map (not on a marker/popup)
-  // The popupopen event will handle marker clicks
-  if (!e.originalEvent.target.closest('.leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane')) {
+  // Only collapse if clicking directly on the map (not on overlays, markers, or popups)
+  // Exclude: Leaflet elements (popups, markers), tooltips/hints, filter chips, saved controls, legend
+  const excludedSelectors = '.leaflet-popup, .leaflet-marker-icon, .leaflet-marker-pane, .map-hint-bubble, .map-tip-bubble, .route-hint-bubble, .filter-chips, .filter-chip, .saved-controls, .legend, .saved-colleges-overlay';
+  if (!e.originalEvent.target.closest(excludedSelectors)) {
     collapseAllFilterSections();
   }
 });
@@ -9327,14 +9330,39 @@ function updateMapHints(visibleCount, typeVal, regionVal, stateVal, searchVal, r
   // Only show in nearby/route mode and if user has used search controls
   // Check if user has chosen to never show this hint
   const neverShowTooMany = localStorage.getItem('ucm_neverShowTooManyHint') === '1';
-  if (visibleCount > 30 && !typeVal && !neverShowTooMany && hasUsedSearchControls && (activeMode === 'nearby' || activeMode === 'route')) {
+  
+  // Check if tooltip is already open (if so, keep it open even if no value entered yet)
+  const isTooltipAlreadyOpen = hintTooMany.dataset.active === 'true' || hintTooMany.classList.contains('active');
+  
+  // Check if a value is entered for the active mode
+  // For nearby: check if home location exists (this can be set by clicking "Locate" OR by selecting from autocomplete)
+  // For route: check if both start and end exist (or if lastSearch exists, which means a route was successfully searched)
+  const hasValueEntered = (activeMode === 'nearby' && home) || (activeMode === 'route' && ((route.start && route.end) || route.lastSearch));
+  
+  // For nearby mode: if home exists, consider that the user has "used" search controls
+  // (home can be set by clicking "Locate" OR by selecting from autocomplete dropdown)
+  // For route mode: if route.lastSearch exists, consider that the user has used search controls
+  const hasEffectivelyUsedControls = hasUsedSearchControls || (activeMode === 'nearby' && home) || (activeMode === 'route' && route.lastSearch);
+  
+  // Show tooltip if:
+  // - All basic conditions are met (visibleCount > 30, no type filter, not disabled, in nearby/route mode)
+  // - AND either:
+  //   1. Tooltip is already open (keep it open as long as basic conditions are met)
+  //   2. OR user has effectively used search controls AND a value has been entered
+  const basicConditionsMet = visibleCount > 30 && !typeVal && !neverShowTooMany && (activeMode === 'nearby' || activeMode === 'route');
+  const shouldShow = basicConditionsMet && (isTooltipAlreadyOpen || (hasEffectivelyUsedControls && hasValueEntered));
+  
+  if (shouldShow) {
     hintTooMany.dataset.active = 'true';
     hintTooMany.classList.add('active');
     startHintAutoHide('tooMany');
   } else {
-    hintTooMany.classList.remove('active');
-    hintTooMany.dataset.active = '';
-    clearHintAutoHide('tooMany');
+    // Only hide if tooltip is not already open (don't hide if it's already showing)
+    if (!isTooltipAlreadyOpen) {
+      hintTooMany.classList.remove('active');
+      hintTooMany.dataset.active = '';
+      clearHintAutoHide('tooMany');
+    }
   }
 }
 
@@ -10940,48 +10968,15 @@ function toggleSavedOnly() {
     gtag('event', 'feature_saved_only_toggled');
   }
   
-  // Check if Saved Only is turned ON and there are no saved colleges (legacy check, should not trigger now)
   if (savedOnlyMode) {
-    const savedIds = SavedStore.getAll();
-    if (savedIds.length === 0) {
-      // Update hint message for Scenario 1
-      const hint = document.getElementById('hint-no-saved-colleges');
-      if (hint) {
-        const hintBody = hint.querySelector('.map-hint-bubble-body');
-        if (hintBody) {
-          hintBody.textContent = "You haven't saved any colleges yet. Tap a college to save it, then turn this on to see only your saved schools.";
-        }
-      }
-      
-      // Show hint with auto-dismiss (closes any other active hints)
-      showHintWithAutoDismiss('hint-no-saved-colleges', 6500);
-      
-      // Immediately turn off toggle (no delay)
-      savedOnlyMode = false;
-      const savedControls = document.getElementById("saved-controls");
-      const savedOnlySection = document.getElementById("saved-only-section");
-      if (savedControls) {
-        savedControls.classList.remove("saved-only-active");
-      }
-      if (savedOnlySection) {
-        savedOnlySection.classList.remove("saved-only-active");
-      }
-      // Re-render map without saved-only filter
-      if (activeMode === 'route' && route.lastSearch) {
-        refilterCollegesAlongRoute();
-      } else {
-        render();
-      }
-    } else {
-      // Hide the notice if it was showing
-      const hint = document.getElementById('hint-no-saved-colleges');
-      if (hint) {
-        hint.classList.remove('active');
-        // Clear timeout
-        if (mapHintTimeouts.noSavedColleges) {
-          clearTimeout(mapHintTimeouts.noSavedColleges);
-          mapHintTimeouts.noSavedColleges = null;
-        }
+    // Hide the notice if it was showing
+    const hint = document.getElementById('hint-no-saved-colleges');
+    if (hint) {
+      hint.classList.remove('active');
+      // Clear timeout
+      if (mapHintTimeouts.noSavedColleges) {
+        clearTimeout(mapHintTimeouts.noSavedColleges);
+        mapHintTimeouts.noSavedColleges = null;
       }
     }
   } else {
